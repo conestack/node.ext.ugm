@@ -8,7 +8,7 @@ import unittest2 as unittest
 
 
 DOCFILES = [
-#    '../users.txt',
+    '../user.txt',
 ]
 
 optionflags = doctest.NORMALIZE_WHITESPACE | \

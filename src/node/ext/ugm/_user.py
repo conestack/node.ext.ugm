@@ -2,6 +2,8 @@ from node.aliasing import DictAliaser
 from node.base import AbstractNode
 from node.bbb import AttributedNode
 from node.parts import AliasAttrs
+from plumber import Part
+from plumber import extend
 from zope.interface import implements
 
 
@@ -28,13 +30,16 @@ class Principal(Part):
 class User(Principal):
     """Turns a node into a user
     """
+    @extend
     @property
     def login(self):
         return self.attrs['login']
 
+    @extend
     def authenticate(self, pw):
         return bool(self.__parent__.authenticate(id=self.id, pw=pw))
 
+    @extend
     def passwd(self, oldpw, newpw):
         self.__parent__.passwd(id=self.id, oldpw=oldpw, newpw=newpw)
 
