@@ -1,0 +1,25 @@
+    >>> from node.parts import AliasAttrs
+    >>> from node.parts import Attributes
+    >>> from node.parts import Nodespaces
+    >>> from node.parts import Nodify
+
+    >>> from node.ext.ugm import User
+
+    >>> class AliasedAttrs(object):
+    ...     __metaclass__ = plumber
+    ...     __plumbing__ = (Attributes, Nodespaces, Nodify,
+    ...                     DefaultInit)
+
+A user object that has aliased attributes::
+
+    >>> class UserNode(dict):
+    ...     __metaclass__ = plumber
+    ...     __plumbing__ = (
+    ...         AliasAttrs,
+    ...         Attributes,
+    ...         Nodespaces,
+    ...         User,
+    ...         Nodify,
+    ...         )
+
+    >>> UserNode
