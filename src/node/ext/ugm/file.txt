@@ -1,0 +1,103 @@
+Default UGM implementation
+==========================
+
+Create a test environment::
+
+    >>> import os
+    >>> import tempfile
+    >>> tempdir = tempfile.mkdtemp()
+
+File storage part::
+
+    >>> from plumber import plumber
+    >>> from node.parts import (
+    ...     NodeChildValidate,
+    ...     Nodespaces,
+    ...     Adopt,
+    ...     Attributes,
+    ...     DefaultInit,
+    ...     Nodify,
+    ... )
+    >>> from node.ext.ugm.file import FileStorage
+    
+    >>> class FileStorageNode(object):
+    ...     __metaclass__ = plumber
+    ...     __plumbing__ = (
+    ...         NodeChildValidate,
+    ...         Nodespaces,
+    ...         Adopt,
+    ...         Attributes,
+    ...         DefaultInit,
+    ...         Nodify,
+    ...         FileStorage,
+    ...     )
+    ...     def __init__(self, file_path):
+    ...         self.__name__ = None
+    ...         self.__parent__ = None
+    ...         self.file_path = file_path
+    
+    >>> file_path = os.path.join(tempdir, 'filestorage')
+    >>> file_path
+    '/.../filestorage'
+    
+    >>> fsn = FileStorageNode(file_path)
+    >>> fsn
+    <FileStorageNode object 'None' at ...>
+    
+    >>> list(fsn.__iter__())
+    []
+    
+    >>> fsn['inexistent']
+    Traceback (most recent call last):
+      ...
+    KeyError: 'inexistent'
+    
+    >>> del fsn['inexistent']
+    Traceback (most recent call last):
+      ...
+    KeyError: 'inexistent'
+    
+    >>> fsn['foo'] = 'foo'
+    >>> fsn.keys()
+    ['foo']
+    
+    >>> fsn['foo']
+    'foo'
+    
+    >>> fsn['bar'] = 'bar'
+    
+File not written yet::
+
+    >>> open(file_path)
+    Traceback (most recent call last):
+      ...
+    IOError: [Errno 2] No such file or directory: '/.../filestorage'
+    
+    >>> fsn()
+    >>> with open(file_path) as file:
+    ...     for line in file:
+    ...         print line
+    foo:foo
+    <BLANKLINE>
+    bar:bar
+    <BLANKLINE>
+
+Recreate:: 
+
+    >>> fsn = FileStorageNode(file_path)
+    >>> fsn.keys()
+    [u'foo', u'bar']
+    
+    >>> fsn.values()
+    [u'foo', u'bar']
+
+Test unicode::
+
+    >>> fsn[u'\xe4\xf6\xfc'] = u'\xe4\xf6\xfc'
+    >>> fsn()
+    
+    >>> fsn = FileStorageNode(file_path)
+    >>> fsn.items()
+    [(u'foo', u'foo'), (u'bar', u'bar'), (u'\xe4\xf6\xfc', u'\xe4\xf6\xfc')]
+
+    

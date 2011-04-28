@@ -6,6 +6,7 @@ import unittest2 as unittest
 
 DOCFILES = [
     '../_api.txt',
+    '../file.txt',
 ]
 
 optionflags = doctest.NORMALIZE_WHITESPACE | \
@@ -19,9 +20,9 @@ def test_suite():
         doctest.DocFileSuite(
             docfile,
             globs={'interact': interlude.interact,
-                       'pprint': pprint.pprint,
-                       'pp': pprint.pprint,
-                       },
+                   'pprint': pprint.pprint,
+                   'pp': pprint.pprint,
+            },
             optionflags=optionflags,
             )
         for docfile in DOCFILES
