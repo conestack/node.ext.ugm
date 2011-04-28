@@ -1,6 +1,3 @@
-# Copyright 2008-2010, BlueDynamics Alliance, Austria - http://bluedynamics.com
-# GNU General Public Licence Version 2 or later
-
 import doctest
 import interlude
 import pprint
@@ -8,7 +5,7 @@ import unittest2 as unittest
 
 
 DOCFILES = [
-    '../user.txt',
+    '../_api.txt',
 ]
 
 optionflags = doctest.NORMALIZE_WHITESPACE | \
@@ -32,4 +29,4 @@ def test_suite():
     return suite
 
 if __name__ == '__main__':
-    unittest.main(defaultTest='test_suite')
+    unittest.main(defaultTest='test_suite')                 #pragma NO COVERAGE

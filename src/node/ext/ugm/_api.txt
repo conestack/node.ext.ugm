@@ -1,0 +1,248 @@
+node.ext.ugm
+============
+
+::
+
+    >>> from plumber import plumber
+    >>> from node.parts import (
+    ...     NodeChildValidate,
+    ...     Nodespaces,
+    ...     Adopt,
+    ...     Attributes,
+    ...     DefaultInit,
+    ...     Nodify,
+    ...     DictStorage,
+    ...     OdictStorage,
+    ... )
+
+Abstract principal part::
+
+    >>> from node.ext.ugm import Principal
+    >>> class PrincipalNode(object):
+    ...     __metaclass__ = plumber
+    ...     __plumbing__ = (
+    ...         NodeChildValidate,
+    ...         Nodespaces,
+    ...         Adopt,
+    ...         Attributes,
+    ...         DefaultInit,
+    ...         Nodify,
+    ...         Principal,
+    ...         DictStorage,
+    ...     )
+    
+    >>> principal = PrincipalNode(name='someprincipal')
+    >>> principal
+    <PrincipalNode object 'someprincipal' at ...>
+    
+    >>> [key for key in principal]
+    []
+
+Abstract user part::
+    
+    >>> from node.ext.ugm import User
+    >>> class UserNode(object):
+    ...     __metaclass__ = plumber
+    ...     __plumbing__ = (
+    ...         NodeChildValidate,
+    ...         Nodespaces,
+    ...         Adopt,
+    ...         Attributes,
+    ...         DefaultInit,
+    ...         Nodify,
+    ...         User,
+    ...         DictStorage,
+    ...     )
+    
+    >>> user = UserNode(name='someuser')
+    >>> user
+    <UserNode object 'someuser' at ...>
+    
+    >>> user.login
+    'someuser'
+    
+    >>> user.attrs['login'] = 'foo@bar.baz'
+    >>> user.login
+    'foo@bar.baz'
+
+``authenticate`` and ``passwd`` gets delegated to parent. Fails since User is
+not contained in Users container::
+
+    >>> user.authenticate('secret')
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'NoneType' object has no attribute 'authenticate'
+
+    >>> user.passwd('old', 'new')
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'NoneType' object has no attribute 'passwd'
+
+Also ``groups`` is not implemented in abstract base part::
+
+    >>> user.groups
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``User`` does not implement ``groups``
+
+Abstract group part::
+    
+    >>> from node.ext.ugm import Group
+    >>> class GroupNode(object):
+    ...     __metaclass__ = plumber
+    ...     __plumbing__ = (
+    ...         NodeChildValidate,
+    ...         Nodespaces,
+    ...         Adopt,
+    ...         Attributes,
+    ...         DefaultInit,
+    ...         Nodify,
+    ...         Group,
+    ...         DictStorage,
+    ...     )
+    
+    >>> group = GroupNode(name='somegroup')
+    >>> group
+    <GroupNode object 'somegroup' at ...>
+
+``users`` is not implemented in abstract base part::
+
+    >>> group.users
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Group`` does not implement ``users``
+
+Abstract principals part::
+
+    >>> from node.ext.ugm import Principals
+    >>> class PrincipalsNode(object):
+    ...     __metaclass__ = plumber
+    ...     __plumbing__ = (
+    ...         NodeChildValidate,
+    ...         Nodespaces,
+    ...         Adopt,
+    ...         Attributes,
+    ...         DefaultInit,
+    ...         Nodify,
+    ...         Principals,
+    ...         OdictStorage,
+    ...     )
+    
+    >>> principals = PrincipalsNode(name='principals')
+    >>> principals
+    <PrincipalsNode object 'principals' at ...>
+    
+    >>> principals.ids
+    []
+
+``search`` is not implemented in abstract base part::
+
+    >>> principals.search()
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Principals`` does not implement ``search``
+
+    
+Abstract users part::
+
+    >>> from node.ext.ugm import Users
+    >>> class UsersNode(object):
+    ...     __metaclass__ = plumber
+    ...     __plumbing__ = (
+    ...         NodeChildValidate,
+    ...         Nodespaces,
+    ...         Adopt,
+    ...         Attributes,
+    ...         DefaultInit,
+    ...         Nodify,
+    ...         Users,
+    ...         OdictStorage,
+    ...     )
+    
+    >>> users = UsersNode(name='users')
+    >>> users
+    <UsersNode object 'users' at ...>
+
+Add previously created user::
+
+    >>> users[user.name] = user
+    >>> users.printtree()
+    <class 'UsersNode'>: users
+      <class 'UserNode'>: someuser
+    
+    >>> users.ids
+    ['someuser']
+
+Abstract users part does not implement ``authenticate`` and ``passwd``::
+
+    >>> user.authenticate('secret')
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Users`` does not implement ``authenticate``
+
+    >>> user.passwd('old', 'new')
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Users`` does not implement ``passwd``
+
+Abstract groups part::
+
+    >>> from node.ext.ugm import Groups
+    >>> class GroupsNode(object):
+    ...     __metaclass__ = plumber
+    ...     __plumbing__ = (
+    ...         NodeChildValidate,
+    ...         Nodespaces,
+    ...         Adopt,
+    ...         Attributes,
+    ...         DefaultInit,
+    ...         Nodify,
+    ...         Groups,
+    ...         OdictStorage,
+    ...     )
+    
+    >>> groups = GroupsNode(name='groups')
+    >>> groups
+    <GroupsNode object 'groups' at ...>
+
+Abstract ugm part::
+
+    >>> from node.ext.ugm import Ugm
+    >>> class UgmNode(object):
+    ...     __metaclass__ = plumber
+    ...     __plumbing__ = (
+    ...         NodeChildValidate,
+    ...         Nodespaces,
+    ...         Adopt,
+    ...         Attributes,
+    ...         Nodify,
+    ...         Ugm,
+    ...         OdictStorage,
+    ...     )
+    ...     def __init__(self, name, users, groups):
+    ...         self.__name__ = name
+    ...         self['users'] = users
+    ...         self['groups'] = groups
+    ...     @property
+    ...     def users(self):
+    ...         return self['users']
+    ...     @property
+    ...     def groups(self):
+    ...         return self['groups']
+    
+    >>> ugm = UgmNode('ugm', users, groups)
+    >>> ugm
+    <UgmNode object 'ugm' at ...>
+    
+    >>> ugm.users
+    <UsersNode object 'users' at ...>
+    
+    >>> ugm.groups
+    <GroupsNode object 'groups' at ...>
+    
+Abstract ugm part does not implement ``roles``::
+
+    >>> ugm.roles(user)
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Ugm`` does not implement ``roles``

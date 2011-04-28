@@ -1,5 +1,5 @@
     >>> from node.aliasing import DictAliaser
-    >>> from node.parts import AliasAttrs
+    >>> #from node.parts import AliasAttrs
     >>> from node.parts import Attributes
     >>> from node.parts import Nodespaces
     >>> from node.parts import Nodify
