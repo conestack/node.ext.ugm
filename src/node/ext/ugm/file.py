@@ -19,11 +19,11 @@ from node.parts import (
     OdictStorage,
 )
 from node.ext.ugm import (
-    User,
-    Group,
-    Users,
-    Groups,
-    Ugm,
+    User as UserPart,
+    Group as GroupPart,
+    Users as UsersPart,
+    Groups as GroupsPart,
+    Ugm as UgmPart,
 )
 
 
@@ -60,7 +60,8 @@ class FileStorage(Storage):
         data = self._storage_data
         with open(self.file_path) as file:
             for line in file:
-                k, v = line.split(':') # XXX: save delimiter escaping
+                # XXX: save delimiter escaping
+                k, v = line.split(':')
                 data[k.decode('utf-8')] = v.strip('\n').decode('utf-8')
     
     @default
@@ -73,36 +74,45 @@ class FileStorage(Storage):
             file.writelines(lines)
 
 
-plumbing = [
-    NodeChildValidate,
-    Nodespaces,
-    Adopt,
-    Attributes,
-    DefaultInit,
-    Nodify,
-]
+def plumbing(*parts):
+    return (
+        NodeChildValidate,
+        Nodespaces,
+        Adopt,
+        Attributes,
+        DefaultInit,
+        Nodify,
+    ) + parts
 
 
-class FileUser(object):
+class User(object):
     __metaclass__ = plumber
-    __plumbing__ = tuple(plumbing + [User, OdictStorage])
+    __plumbing__ = plumbing(UserPart, OdictStorage)
 
 
-class FileGroup(object):
+class Group(object):
     __metaclass__ = plumber
-    __plumbing__ = tuple(plumbing + [Group, OdictStorage])
+    __plumbing__ = plumbing(GroupPart, OdictStorage)
 
 
-class FileUsers(object):
+class Users(object):
     __metaclass__ = plumber
-    __plumbing__ = tuple(plumbing + [Users, FileStorage])
+    __plumbing__ = plumbing(UsersPart, FileStorage)
 
 
-class FileGroups(object):
+class Groups(object):
     __metaclass__ = plumber
-    __plumbing__ = tuple(plumbing + [Groups, FileStorage])
+    __plumbing__ = plumbing(GroupsPart, FileStorage)
 
 
-class FileUgm(object):
+class Ugm(object):
     __metaclass__ = plumber
-    __plumbing__ = tuple(plumbing + [Ugm, OdictStorage])
+    __plumbing__ = plumbing(UgmPart, OdictStorage)
+    
+    def __init__(self, name=None, parent=None,
+                 user_file=None, groups_file=None, roles_file=None):
+        self.__name__ = name
+        self.__parent__ = parent
+        self.user_file = user_file
+        self.groups_file = groups_file
+        self.roles_file = roles_file
