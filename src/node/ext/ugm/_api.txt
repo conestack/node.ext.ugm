@@ -135,12 +135,17 @@ Abstract principals part::
     >>> principals.ids
     []
 
-``search`` is not implemented in abstract base part::
+``search`` and ``create`` are not implemented in abstract base part::
 
     >>> principals.search()
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Principals`` does not implement ``search``
+    
+    >>> principals.create('foo')
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Principals`` does not implement ``create``
 
     
 Abstract users part::

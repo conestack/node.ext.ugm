@@ -100,4 +100,47 @@ Test unicode::
     >>> fsn.items()
     [(u'foo', u'foo'), (u'bar', u'bar'), (u'\xe4\xf6\xfc', u'\xe4\xf6\xfc')]
 
+Create principal data directory::
+
+    >>> datadir = os.path.join(tempdir, 'principal_data')
+    >>> os.mkdir(datadir)
+
+Test Ugm::
+
+    >>> from node.ext.ugm.file import Ugm
+    >>> users_file = os.path.join(tempdir, 'users')
+    >>> groups_file = os.path.join(tempdir, 'groups')
+    >>> roles_file = os.path.join(tempdir, 'roles')
+    >>> ugm = Ugm(name='ugm',
+    ...           users_file=users_file,
+    ...           groups_file=groups_file,
+    ...           roles_file=roles_file,
+    ...           data_directory=datadir)
     
+    >>> ugm
+    <Ugm object 'ugm' at ...>
+    
+    >>> ugm.users
+    <Users object 'users' at ...>
+    
+    >>> ugm.groups
+    <Groups object 'groups' at ...>
+    
+    >>> ugm.attrs
+    <FileAttributes object '__attrs__' at ...>
+
+Nothing created yet::
+
+    >>> os.listdir(tempdir)
+    ['principal_data', 'filestorage']
+    
+Calling UGM persists::
+
+    >>> ugm()
+    >>> os.listdir(tempdir)
+    ['groups', 'users', 'roles', 'principal_data', 'filestorage']
+
+Cleanup test environment::
+  
+    >>> import shutil
+    >>> shutil.rmtree(tempdir)

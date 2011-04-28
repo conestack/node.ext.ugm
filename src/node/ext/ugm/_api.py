@@ -65,8 +65,6 @@ class Group(Principal):
 
 class Principals(Part):
     """Turn a node into a source of principals.
-    
-    Supposed to be used in conjunction with a node storage part.
     """
     principal_factory = default(None)
 
@@ -79,6 +77,15 @@ class Principals(Part):
     def search(self, **kw):
         raise NotImplementedError(u"Abstract ``Principals`` does not implement "
                                   u"``search``")
+    
+    @default
+    def create(self, id, **kw):
+        """Create a principal by id fitting principal container.
+        
+        Given keyword arguments represent principal attributes.
+        """
+        raise NotImplementedError(u"Abstract ``Principals`` does not implement "
+                                  u"``create``")
 
 
 class Users(Principals):
