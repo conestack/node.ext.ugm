@@ -40,6 +40,8 @@ class FileStorage(Storage):
     """
     
     allow_non_node_childs = extend(True)
+    unicode_keys = default(True)
+    unicode_values = default(True)
     
     @extend
     def __init__(self, name=None, parent=None, file_path=None):
@@ -63,7 +65,11 @@ class FileStorage(Storage):
             for line in file:
                 # XXX: save delimiter escaping
                 k, v = line.split(':')
-                data[k.decode('utf-8')] = v.strip('\n').decode('utf-8')
+                if not isinstance(k, unicode) and self.unicode_keys:
+                    k = k.decode('utf-8')
+                if not isinstance(v, unicode) and self.unicode_values:
+                    v = v.decode('utf-8')
+                data[k] = v.strip('\n')
     
     @default
     def write_file(self):
@@ -73,9 +79,9 @@ class FileStorage(Storage):
         else:
             data = dict()
         for k, v in data.items():
-            if isinstance(k, unicode):
+            if isinstance(k, unicode) and self.unicode_keys:
                 k = k.encode('utf-8')
-            if isinstance(v, unicode):
+            if isinstance(v, unicode) and self.unicode_values:
                 v = v.encode('utf-8')
             line = ':'.join([k, v]) + '\n'
             lines.append(line)
@@ -223,6 +229,8 @@ class Users(object):
     __metaclass__ = plumber
     __plumbing__ = plumbing(UsersPart, FileStorage)
     
+    unicode_values = False
+    
     def __init__(self, name=None, parent=None,
                  file_path=None, data_directory=None):
         self.__name__ = name
@@ -237,7 +245,10 @@ class Users(object):
         if key in self._mem_storage:
             return self._mem_storage[key]
         with TreeLock(self):
-            self._mem_storage[key] = User(data_directory=self.data_directory)
+            user = User(
+                name=key, parent=self, data_directory=self.data_directory)
+            self._mem_storage[key] = user
+            return user
     
     @locktree
     def __setitem__(self, key, value):
@@ -323,7 +334,10 @@ class Groups(object):
         if key in self._mem_storage:
             return self._mem_storage[key]
         with TreeLock(self):
-            self._mem_storage[key] = Group(data_directory=self.data_directory)
+            group = Group(
+                name=key, parent=self, data_directory=self.data_directory)
+            self._mem_storage[key] = group
+            return group
     
     @locktree
     def __setitem__(self, key, value):
@@ -412,8 +426,12 @@ class Ugm(object):
         self._chk_key(key)
         self.storage[key] = value
     
-    def __delitem__(self):
+    def __delitem__(self, key):
         raise NotImplementedError(u"Operation forbidden on this node.")
+    
+    def __iter__(self):
+        for key in ['users', 'groups']:
+            yield key
     
     @locktree
     def __call__(self):

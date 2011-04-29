@@ -105,7 +105,7 @@ Create principal data directory::
     >>> datadir = os.path.join(tempdir, 'principal_data')
     >>> os.mkdir(datadir)
 
-Test Ugm::
+Ugm root object::
 
     >>> from node.ext.ugm.file import Ugm
     >>> users_file = os.path.join(tempdir, 'users')
@@ -128,6 +128,16 @@ Test Ugm::
     
     >>> ugm.attrs
     <FileAttributes object '__attrs__' at ...>
+    
+    >>> del ugm['users']
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Operation forbidden on this node.
+    
+    >>> ugm['inexistent'] = ugm.users
+    Traceback (most recent call last):
+      ...
+    KeyError: 'inexistent'
 
 Nothing created yet::
 
@@ -184,6 +194,11 @@ Persist and read related files again::
     'email:foo@bar.com\n']
     
     >>> file.close()
+
+Authentication is prohibited for users without a password::
+
+    >>> ugm.users.authenticate('max', 'secret')
+    False
 
 Set Password for new User::
 
@@ -307,10 +322,24 @@ No members yet::
 
     >>> group.member_ids
     []
+
+A user is added to a group via ``__setitem__``. Thus, the key used must match
+``User.name``
+
+    >>> ugm.users['max'].name
+    'max'
+    
+    >>> group['foo'] = ugm.users['max']
+    Traceback (most recent call last):
+      ...
+    RuntimeError: Id missmatch at attemp to add group member.
     
     >>> group['max'] = ugm.users['max']
     >>> group.member_ids
     ['max']
+    
+    >>> group.users
+    [<User object 'max' at ...>]
     
     >>> group['max']
     <User object 'max' at ...>
@@ -401,6 +430,94 @@ Add another Group and add members::
     
     >>> users.search(email='baz')
     [{'fullname': 'Sepp Mustermann', 'email': 'baz@bar.com', 'id': 'sepp'}]
+
+Delete user from group::
+
+    >>> ugm.groups.printtree()
+    <class 'node.ext.ugm.file.Groups'>: groups
+      <class 'node.ext.ugm.file.Group'>: group1
+        <class 'node.ext.ugm.file.User'>: max
+      <class 'node.ext.ugm.file.Group'>: group2
+        <class 'node.ext.ugm.file.User'>: max
+        <class 'node.ext.ugm.file.User'>: sepp
+    
+    >>> del ugm.groups['group2']['inexistent']
+    Traceback (most recent call last):
+      ...
+    KeyError: 'inexistent'
+    
+    >>> del ugm.groups['group2']['max']
+    >>> ugm.groups.printtree()
+    <class 'node.ext.ugm.file.Groups'>: groups
+      <class 'node.ext.ugm.file.Group'>: group1
+        <class 'node.ext.ugm.file.User'>: max
+      <class 'node.ext.ugm.file.Group'>: group2
+        <class 'node.ext.ugm.file.User'>: sepp
+
+Not persisted yet::
+
+    >>> file = open(ugm.groups.file_path)
+    >>> file.readlines()
+    ['group1:max\n', 
+    'group2:max,sepp\n']
+    
+    >>> file.close()
+
+Call tree and check result::
+
+    >>> ugm()
+    >>> file = open(ugm.groups.file_path)
+    >>> file.readlines()
+    ['group1:max\n', 
+    'group2:sepp\n']
+    
+    >>> file.close()
+
+Recreate ugm object::
+
+    >>> ugm = Ugm(name='ugm',
+    ...           users_file=users_file,
+    ...           groups_file=groups_file,
+    ...           roles_file=roles_file,
+    ...           data_directory=datadir)
+
+Users ``__getitem__``::
+
+    >>> ugm.users['inexistent']
+    Traceback (most recent call last):
+      ...
+    KeyError: 'inexistent'
+    
+    >>> ugm.users['max']
+    <User object 'max' at ...>
+
+Groups ``__getitem__``::
+
+    >>> ugm.groups['inexistent']
+    Traceback (most recent call last):
+      ...
+    KeyError: 'inexistent'
+    
+    >>> ugm.groups['group1']
+    <Group object 'group1' at ...>
+
+``printtree`` of alredy initialized ugm instance::
+
+    >>> ugm = Ugm(name='ugm',
+    ...           users_file=users_file,
+    ...           groups_file=groups_file,
+    ...           roles_file=roles_file,
+    ...           data_directory=datadir)
+    >>> ugm.printtree()
+    <class 'node.ext.ugm.file.Ugm'>: ugm
+      <class 'node.ext.ugm.file.Users'>: users
+        <class 'node.ext.ugm.file.User'>: max
+        <class 'node.ext.ugm.file.User'>: sepp
+      <class 'node.ext.ugm.file.Groups'>: groups
+        <class 'node.ext.ugm.file.Group'>: group1
+          <class 'node.ext.ugm.file.User'>: max
+        <class 'node.ext.ugm.file.Group'>: group2
+          <class 'node.ext.ugm.file.User'>: sepp
 
 Cleanup test environment::
   
