@@ -252,6 +252,13 @@ Add another user::
     
     >>> file.close()
 
+``__setitem__`` on user is prohibited::
+
+    >>> ugm.users['max']['foo'] = user
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: User object cannot contain children.
+
 Add new Group::
 
     >>> group = ugm.groups.create('group1', description='Group 1 Description')
@@ -328,6 +335,72 @@ Note, parent of returned user is users object, not group::
     >>> group['max'].path
     ['ugm', 'users', 'max']
 
+
+Add another Group and add members::
+
+    >>> group = ugm.groups.create('group2', description='Group 2 Description')
+    >>> group
+    <Group object 'group2' at ...>
+    
+    >>> group['max'] = ugm.users['max']
+    >>> group['sepp'] = ugm.users['sepp']
+    
+    >>> ugm.printtree()
+    <class 'node.ext.ugm.file.Ugm'>: ugm
+      <class 'node.ext.ugm.file.Users'>: users
+        <class 'node.ext.ugm.file.User'>: max
+        <class 'node.ext.ugm.file.User'>: sepp
+      <class 'node.ext.ugm.file.Groups'>: groups
+        <class 'node.ext.ugm.file.Group'>: group1
+          <class 'node.ext.ugm.file.User'>: max
+        <class 'node.ext.ugm.file.Group'>: group2
+          <class 'node.ext.ugm.file.User'>: max
+          <class 'node.ext.ugm.file.User'>: sepp
+    
+    >>> file = open(ugm.groups.file_path)
+    >>> file.readlines()
+    ['group1:max\n']
+    
+    >>> file.close()
+    
+    >>> ugm()
+    >>> file = open(ugm.groups.file_path)
+    >>> file.readlines()
+    ['group1:max\n', 
+    'group2:max,sepp\n']
+    
+    >>> file.close()
+
+``groups`` attribute on user::
+
+    >>> max = ugm.users['max']
+    >>> max.groups
+    [<Group object 'group1' at ...>, 
+    <Group object 'group2' at ...>]
+    
+    >>> sepp = ugm.users['sepp']
+    >>> sepp.groups
+    [<Group object 'group2' at ...>]
+
+``search`` function::
+
+    >>> groups = ugm.groups
+    >>> groups.search(id='group1')
+    [{'description': 'Group 1 Description', 'id': 'group1'}]
+    
+    >>> groups.search(description='group 1')
+    [{'description': 'Group 1 Description', 'id': 'group1'}]
+    
+    >>> groups.search(description='group')
+    [{'description': 'Group 1 Description', 'id': 'group1'}, 
+    {'description': 'Group 2 Description', 'id': 'group2'}]
+    
+    >>> users = ugm.users
+    >>> users.search(id='max')
+    [{'fullname': 'Max Mustermann', 'email': 'foo@bar.com', 'id': 'max'}]
+    
+    >>> users.search(email='baz')
+    [{'fullname': 'Sepp Mustermann', 'email': 'baz@bar.com', 'id': 'sepp'}]
 
 Cleanup test environment::
   

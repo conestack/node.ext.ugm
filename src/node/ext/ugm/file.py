@@ -109,7 +109,14 @@ def plumbing(*parts):
 
 class User(object):
     __metaclass__ = plumber
-    __plumbing__ = plumbing(UserPart, DefaultInit, OdictStorage)
+    __plumbing__ = (
+        NodeChildValidate,
+        Nodespaces,
+        Attributes,
+        Nodify,
+        UserPart,
+        DefaultInit,
+    )
     
     def user_data_attributes_factory(self, name=None, parent=None):
         user_data_dir = os.path.join(parent.data_directory, 'users')
@@ -134,7 +141,12 @@ class User(object):
     
     @property
     def groups(self):
-        return []
+        groups = self.parent.parent.groups
+        ret = list()
+        for group in groups.values():
+            if self.name in group.member_ids:
+                ret.append(group)
+        return ret
 
 
 class Group(object):
@@ -172,6 +184,7 @@ class Group(object):
     def __getitem__(self, key):
         return self.parent.parent.users[key]
     
+    @locktree
     def __delitem__(self, key):
         if not key in self.member_ids:
             raise KeyError(key)
@@ -240,7 +253,24 @@ class Users(object):
             value()
     
     def search(self, **kw):
-        pass
+        ret = list()
+        for user in self.values():
+            for k, v in kw.items():
+                if k == 'id':
+                    if user.name == v:
+                        ret.append(self._search_result_item(user))
+                        continue
+                val = user.attrs.get(k)
+                if val and val.lower().startswith(v.lower()):
+                    ret.append(self._search_result_item(user))
+        return ret
+    
+    def _search_result_item(self, node):
+        ret = dict()
+        for k, v in node.attrs.items():
+            ret[k] = v
+        ret['id'] = node.name
+        return ret
     
     def create(self, id, **kw):
         user = User(name=id, parent=self, data_directory=self.data_directory)
@@ -309,7 +339,24 @@ class Groups(object):
             value()
     
     def search(self, **kw):
-        pass
+        ret = list()
+        for group in self.values():
+            for k, v in kw.items():
+                if k == 'id':
+                    if group.name == v:
+                        ret.append(self._search_result_item(group))
+                        continue
+                val = group.attrs.get(k)
+                if val and val.lower().startswith(v.lower()):
+                    ret.append(self._search_result_item(group))
+        return ret
+    
+    def _search_result_item(self, node):
+        ret = dict()
+        for k, v in node.attrs.items():
+            ret[k] = v
+        ret['id'] = node.name
+        return ret
     
     def create(self, id, **kw):
         group = Group(name=id, parent=self, data_directory=self.data_directory)

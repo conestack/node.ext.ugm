@@ -105,12 +105,17 @@ Abstract group part::
     >>> group
     <GroupNode object 'somegroup' at ...>
 
-``users`` is not implemented in abstract base part::
+``users`` and ``member_ids`` is not implemented in abstract base part::
 
     >>> group.users
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Group`` does not implement ``users``
+    
+    >>> group.member_ids
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Group`` does not implement ``member_ids``
 
 Abstract principals part::
 
