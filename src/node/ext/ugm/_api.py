@@ -43,7 +43,7 @@ class User(Principal):
     
     @default
     @property
-    def groups(self, **kw):
+    def groups(self):
         """List of groups this user is member of.
         """
         raise NotImplementedError(u"Abstract ``User`` does not implement "
@@ -56,11 +56,19 @@ class Group(Principal):
     
     @default
     @property
-    def users(self, **kw):
+    def users(self):
         """List of users contained in this group.
         """
         raise NotImplementedError(u"Abstract ``Group`` does not implement "
                                   u"``users``")
+    
+    @default
+    @property
+    def member_ids(self):
+        """List of member ids contained in this group.
+        """
+        raise NotImplementedError(u"Abstract ``Group`` does not implement "
+                                  u"``member_ids``")
 
 
 class Principals(Part):

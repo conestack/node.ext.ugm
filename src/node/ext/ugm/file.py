@@ -1,4 +1,6 @@
 import os
+import crypt
+import hashlib
 from odict import odict
 from plumber import (
     plumber,
@@ -29,16 +31,6 @@ from node.ext.ugm import (
     Groups as GroupsPart,
     Ugm as UgmPart,
 )
-
-
-def crypt_check(password, hashed):
-    from crypt import crypt
-    salt = hashed[:2]
-    return hashed == crypt(password, salt)
-
-
-def plain_check(password, hashed):
-    return hashed == password
 
 
 class FileStorage(Storage):
@@ -81,7 +73,11 @@ class FileStorage(Storage):
         else:
             data = dict()
         for k, v in data.items():
-            line = ':'.join([k.encode('utf-8'), v.encode('utf-8')]) + '\n'
+            if isinstance(k, unicode):
+                k = k.encode('utf-8')
+            if isinstance(v, unicode):
+                v = v.encode('utf-8')
+            line = ':'.join([k, v]) + '\n'
             lines.append(line)
         with open(self.file_path, 'w') as file:
             file.writelines(lines)
@@ -129,18 +125,28 @@ class User(object):
         self.__parent__ = parent
         self.data_directory = data_directory
     
+    def __setitem__(self, key, value):
+        raise NotImplementedError(u"User object cannot contain children.")
+    
     @locktree
     def __call__(self):
         self.attrs()
     
     @property
-    def groups(self, **kw):
+    def groups(self):
         return []
 
 
 class Group(object):
     __metaclass__ = plumber
-    __plumbing__ = plumbing(GroupPart, DefaultInit, OdictStorage)
+    __plumbing__ = (
+        NodeChildValidate,
+        Nodespaces,
+        Attributes,
+        Nodify,
+        GroupPart,
+        DefaultInit,
+    )
     
     def group_data_attributes_factory(self, name=None, parent=None):
         group_data_dir = os.path.join(parent.data_directory, 'groups')
@@ -157,12 +163,47 @@ class Group(object):
         self.data_directory = data_directory
     
     @locktree
+    def __setitem__(self, key, value):
+        if key != value.name:
+            raise RuntimeError(u"Id missmatch at attemp to add group member.")
+        if not key in self.member_ids:
+            self._add_member(key)
+    
+    def __getitem__(self, key):
+        return self.parent.parent.users[key]
+    
+    def __delitem__(self, key):
+        if not key in self.member_ids:
+            raise KeyError(key)
+        self._remove_member(key)
+    
+    def __iter__(self):
+        for id in self.member_ids:
+            yield id
+    
+    @locktree
     def __call__(self):
         self.attrs()
     
     @property
-    def users(self, **kw):
-        return []
+    def users(self):
+        return [self.parent.parent.users[id] for id in self.member_ids]
+    
+    @property
+    def member_ids(self):
+        return [id for id in self.parent.storage[self.name].split(',') if id]
+    
+    def _add_member(self, id):
+        member_ids = self.member_ids
+        member_ids.append(id)
+        member_ids = sorted(member_ids)
+        self.parent.storage[self.name] = ','.join(member_ids)
+    
+    def _remove_member(self, id):
+        member_ids = self.member_ids
+        member_ids.remove(id)
+        member_ids = sorted(member_ids)
+        self.parent.storage[self.name] = ','.join(member_ids)
 
 
 class Users(object):
@@ -187,7 +228,9 @@ class Users(object):
     
     @locktree
     def __setitem__(self, key, value):
-        self.storage[key] = value.attrs.get('password', '')
+        # set empty password on new added user.
+        if not key in self.storage:
+            self.storage[key] = ''
         self._mem_storage[key] = value
     
     @locktree
@@ -196,11 +239,40 @@ class Users(object):
         for value in self.values():
             value()
     
+    def search(self, **kw):
+        pass
+    
     def create(self, id, **kw):
         user = User(name=id, parent=self, data_directory=self.data_directory)
         for k, v in kw.items():
             user.attrs[k] = v
         self[id] = user
+        return user
+    
+    def authenticate(self, id=None, pw=None):
+        if not id in self.storage:
+            return False
+        # cannot authenticate user with unset password
+        if not self.storage[id]:
+            return False
+        return self._chk_pw(pw, self.storage[id])
+    
+    def passwd(self, id, oldpw, newpw):
+        if not id in self.storage:
+            raise ValueError(u"User with id '%s' does not exist." % id)
+        # case pwd overwrite
+        if self.storage[id]:
+            if not self._chk_pw(oldpw, self.storage[id]):
+                raise ValueError(u"Old password does not match.")
+        self.storage[id] = crypt.crypt(newpw, self._get_salt(newpw))
+    
+    def _get_salt(self, plain):
+        hash = hashlib.md5()
+        hash.update(plain)
+        return hash.digest()[:2]
+    
+    def _chk_pw(self, plain, crypted):
+        return crypted == crypt.crypt(plain, self._get_salt(plain))
 
 
 class Groups(object):
@@ -225,7 +297,9 @@ class Groups(object):
     
     @locktree
     def __setitem__(self, key, value):
-        self.storage[key] = value.users
+        # set empty group members on new added group.
+        if not key in self.storage:
+            self.storage[key] = ''
         self._mem_storage[key] = value
     
     @locktree
@@ -234,11 +308,15 @@ class Groups(object):
         for value in self.values():
             value()
     
+    def search(self, **kw):
+        pass
+    
     def create(self, id, **kw):
         group = Group(name=id, parent=self, data_directory=self.data_directory)
         for k, v in kw.items():
             group.attrs[k] = v
         self[id] = group
+        return group
 
 
 class Ugm(object):

@@ -140,6 +140,195 @@ Calling UGM persists::
     >>> os.listdir(tempdir)
     ['groups', 'users', 'roles', 'principal_data', 'filestorage']
 
+Add new User::
+
+    >>> user = ugm.users.create('max',
+    ...                         fullname='Max Mustermann',
+    ...                         email='foo@bar.com')
+    >>> user
+    <User object 'max' at ...>
+    
+    >>> ugm.printtree()
+    <class 'node.ext.ugm.file.Ugm'>: ugm
+      <class 'node.ext.ugm.file.Users'>: users
+        <class 'node.ext.ugm.file.User'>: max
+      <class 'node.ext.ugm.file.Groups'>: groups
+
+Nothing written yet::
+
+    >>> file = open(ugm.users.file_path)
+    >>> file.readlines()
+    []
+    
+    >>> file.close()
+    
+    >>> user.attrs.file_path
+    '/.../principal_data/users/max'
+    
+    >>> file = open(user.attrs.file_path)
+    Traceback (most recent call last):
+      ...
+    IOError: [Errno 2] No such file or directory: '/.../users/max'
+    
+Persist and read related files again::
+
+    >>> ugm()
+    >>> file = open(ugm.users.file_path)
+    >>> file.readlines()
+    ['max:\n']
+    
+    >>> file.close()
+    >>> file = open(user.attrs.file_path)
+    >>> file.readlines()
+    ['fullname:Max Mustermann\n', 
+    'email:foo@bar.com\n']
+    
+    >>> file.close()
+
+Set Password for new User::
+
+    >>> ugm.users.passwd('max', '', 'secret')
+    >>> ugm()
+    >>> file = open(ugm.users.file_path)
+    >>> file.readlines()
+    ['max:^\xbeXWHcgtDrGg.\n']
+    
+    >>> file.close()
+
+Password for inextistent user::
+
+    >>> ugm.users.passwd('sepp', '', 'secret')
+    Traceback (most recent call last):
+      ...
+    ValueError: User with id 'sepp' does not exist.
+
+Password with wrong oldpw::
+
+    >>> ugm.users.passwd('max', 'wrong', 'new')
+    Traceback (most recent call last):
+      ...
+    ValueError: Old password does not match.
+
+Set new password for max::
+
+    >>> ugm.users.passwd('max', 'secret', 'secret1')
+    >>> ugm()
+    >>> file = open(ugm.users.file_path)
+    >>> file.readlines()
+    ['max:\xe5-XBxrXJeHJHw\n']
+    
+    >>> file.close()
+
+Authentication::
+
+    >>> ugm.users.authenticate('inexistent', 'secret')
+    False
+    
+    >>> ugm.users.authenticate('max', 'secret')
+    False
+    
+    >>> ugm.users.authenticate('max', 'secret1')
+    True
+
+Add another user::
+
+    >>> user = ugm.users.create('sepp',
+    ...                         fullname='Sepp Mustermann',
+    ...                         email='baz@bar.com')
+    >>> ugm.users.passwd('sepp', '', 'secret')
+    >>> ugm()
+    
+    >>> ugm.printtree()
+    <class 'node.ext.ugm.file.Ugm'>: ugm
+      <class 'node.ext.ugm.file.Users'>: users
+        <class 'node.ext.ugm.file.User'>: max
+        <class 'node.ext.ugm.file.User'>: sepp
+      <class 'node.ext.ugm.file.Groups'>: groups
+    
+    >>> file = open(ugm.users.file_path)
+    >>> file.readlines()
+    ['max:\xe5-XBxrXJeHJHw\n', 
+    'sepp:^\xbeXWHcgtDrGg.\n']
+    
+    >>> file.close()
+
+Add new Group::
+
+    >>> group = ugm.groups.create('group1', description='Group 1 Description')
+    >>> group
+    <Group object 'group1' at ...>
+    
+    >>> ugm.printtree()
+    <class 'node.ext.ugm.file.Ugm'>: ugm
+      <class 'node.ext.ugm.file.Users'>: users
+        <class 'node.ext.ugm.file.User'>: max
+        <class 'node.ext.ugm.file.User'>: sepp
+      <class 'node.ext.ugm.file.Groups'>: groups
+        <class 'node.ext.ugm.file.Group'>: group1
+
+Nothing written yet::
+
+    >>> file = open(ugm.groups.file_path)
+    >>> file.readlines()
+    []
+    
+    >>> file.close()
+    
+    >>> group.attrs.file_path
+    '/.../principal_data/groups/group1'
+    
+    >>> file = open(group.attrs.file_path)
+    Traceback (most recent call last):
+      ...
+    IOError: [Errno 2] No such file or directory: '/.../groups/group1'
+
+Persist and read related files again::
+
+    >>> ugm()
+    >>> file = open(ugm.groups.file_path)
+    >>> file.readlines()
+    ['group1:\n']
+    
+    >>> file.close()
+    >>> file = open(group.attrs.file_path)
+    >>> file.readlines()
+    ['description:Group 1 Description\n']
+    
+    >>> file.close()
+
+No members yet::
+
+    >>> group.member_ids
+    []
+    
+    >>> group['max'] = ugm.users['max']
+    >>> group.member_ids
+    ['max']
+    
+    >>> group['max']
+    <User object 'max' at ...>
+
+Nothing written yet::
+
+    >>> file = open(ugm.groups.file_path)
+    >>> file.readlines()
+    ['group1:\n']
+    
+    >>> file.close()
+    
+    >>> ugm()
+    >>> file = open(ugm.groups.file_path)
+    >>> file.readlines()
+    ['group1:max\n']
+    
+    >>> file.close()
+
+Note, parent of returned user is users object, not group::
+
+    >>> group['max'].path
+    ['ugm', 'users', 'max']
+
+
 Cleanup test environment::
   
     >>> import shutil
