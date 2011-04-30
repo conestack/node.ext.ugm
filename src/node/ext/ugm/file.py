@@ -103,16 +103,6 @@ class FileAttributes(object):
     )
 
 
-def plumbing(*parts):
-    return (
-        NodeChildValidate,
-        Nodespaces,
-        Adopt,
-        Attributes,
-        Nodify,
-    ) + parts
-
-
 class User(object):
     __metaclass__ = plumber
     __plumbing__ = (
@@ -227,7 +217,15 @@ class Group(object):
 
 class Users(object):
     __metaclass__ = plumber
-    __plumbing__ = plumbing(UsersPart, FileStorage)
+    __plumbing__ = (
+        NodeChildValidate,
+        Nodespaces,
+        Adopt,
+        Attributes,
+        Nodify,
+        UsersPart,
+        FileStorage,
+    )
     
     unicode_values = False
     
@@ -318,7 +316,15 @@ class Users(object):
 
 class Groups(object):
     __metaclass__ = plumber
-    __plumbing__ = plumbing(GroupsPart, FileStorage)
+    __plumbing__ = (
+        NodeChildValidate,
+        Nodespaces,
+        Adopt,
+        Attributes,
+        Nodify,
+        GroupsPart,
+        FileStorage,
+    )
     
     def __init__(self, name=None, parent=None,
                  file_path=None, data_directory=None):
@@ -382,7 +388,16 @@ class Groups(object):
 
 class Ugm(object):
     __metaclass__ = plumber
-    __plumbing__ = plumbing(UgmPart, DefaultInit, OdictStorage)
+    __plumbing__ = (
+        NodeChildValidate,
+        Nodespaces,
+        Adopt,
+        Attributes,
+        DefaultInit,
+        Nodify,
+        UgmPart,
+        OdictStorage,
+    )
     
     def role_attributes_factory(self, name=None, parent=None):
         return FileAttributes(name, parent, parent.roles_file)
