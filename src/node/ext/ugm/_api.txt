@@ -38,6 +38,24 @@ Abstract principal part::
     >>> [key for key in principal]
     []
 
+``add_role``, ``remove_role``, and ``roles`` is not implemented on abstract
+principal::
+
+    >>> principal.add_role('role')
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Principal`` does not implement ``add_role``
+    
+    >>> principal.remove_role('role')
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Principal`` does not implement ``remove_role``
+    
+    >>> principal.roles
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Principal`` does not implement ``roles``
+
 Abstract user part::
     
     >>> from node.ext.ugm import User
@@ -250,8 +268,19 @@ Abstract ugm part::
     >>> ugm.groups
     <GroupsNode object 'groups' at ...>
     
-Abstract ugm part does not implement ``roles``::
+Abstract ugm part does not implement ``add_role``, ``remove_role`` and
+``roles``::
 
+    >>> ugm.add_role('role', user)
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Ugm`` does not implement ``add_role``
+    
+    >>> ugm.remove_role('role', user)
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Ugm`` does not implement ``remove_role``
+    
     >>> ugm.roles(user)
     Traceback (most recent call last):
       ...

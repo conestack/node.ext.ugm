@@ -332,7 +332,7 @@ A user is added to a group via ``__setitem__``. Thus, the key used must match
     >>> group['foo'] = ugm.users['max']
     Traceback (most recent call last):
       ...
-    RuntimeError: Id missmatch at attemp to add group member.
+    RuntimeError: Id mismatch at attempt to add group member.
     
     >>> group['max'] = ugm.users['max']
     >>> group.member_ids
@@ -518,6 +518,220 @@ Groups ``__getitem__``::
           <class 'node.ext.ugm.file.User'>: max
         <class 'node.ext.ugm.file.Group'>: group2
           <class 'node.ext.ugm.file.User'>: sepp
+
+Role Management for User.
+
+No roles yet::
+
+    >>> user = ugm.users['max']
+    >>> user.roles
+    []
+
+Add role via User object::
+
+    >>> user.add_role('manager')
+    >>> user.roles
+    ['manager']
+
+Add same role twice fails::
+
+    >>> user.add_role('manager')
+    Traceback (most recent call last):
+      ...
+    ValueError: Principal already has role 'manager'
+
+Not written yet::
+
+    >>> file = open(ugm.roles_file)
+    >>> file.readlines()
+    []
+
+    >>> file.close()
+
+After ``__call__`` roles are persisted::
+
+    >>> user()
+    >>> file = open(ugm.roles_file)
+    >>> file.readlines()
+    ['max:manager\n']
+    
+    >>> file.close()
+
+Add role for User via Ugm object::
+
+    >>> ugm.add_role('supervisor', user)
+    >>> user.roles
+    ['manager', 'supervisor']
+    
+    >>> ugm.roles(user) == user.roles
+    True
+
+Call and check result::
+
+    >>> ugm()
+    >>> file = open(ugm.roles_file)
+    >>> file.readlines()
+    ['max:manager,supervisor\n']
+    
+    >>> file.close()
+
+Remove User role::
+
+    >>> user.remove_role('supervisor')
+    >>> user.roles
+    ['manager']
+
+Remove inexistent role fails::
+
+    >>> user.remove_role('supervisor')
+    Traceback (most recent call last):
+      ...
+    ValueError: Principal does not has role 'supervisor'
+
+Call persists::
+
+    >>> user()
+    >>> file = open(ugm.roles_file)
+    >>> file.readlines()
+    ['max:manager\n']
+    
+    >>> file.close()
+
+Role Management for Group.
+
+No roles yet::
+
+    >>> group = ugm.groups['group1']
+    >>> group.roles
+    []
+
+Add role via Group object::
+
+    >>> group.add_role('authenticated')
+    >>> group.roles
+    ['authenticated']
+
+Add same role twice fails::
+
+    >>> group.add_role('authenticated')
+    Traceback (most recent call last):
+      ...
+    ValueError: Principal already has role 'authenticated'
+
+Group role not written yet::
+
+    >>> file = open(ugm.roles_file)
+    >>> file.readlines()
+    ['max:manager\n']
+    
+    >>> file.close()
+
+After ``__call__`` roles are persisted::
+
+    >>> group()
+    >>> file = open(ugm.roles_file)
+    >>> file.readlines()
+    ['max:manager\n', 
+    'group:group1:authenticated\n']
+    
+    >>> file.close()
+
+Add role for Group via Ugm object::
+
+    >>> ugm.add_role('editor', group)
+    >>> group.roles
+    ['authenticated', 'editor']
+    
+    >>> ugm.roles(group) == group.roles
+    True
+
+Call and check result::
+
+    >>> ugm()
+    >>> file = open(ugm.roles_file)
+    >>> file.readlines()
+    ['max:manager\n', 
+    'group:group1:authenticated,editor\n']
+    
+    >>> file.close()
+
+Remove Group role::
+
+    >>> group.remove_role('editor')
+    >>> group.roles
+    ['authenticated']
+
+Remove inexistent role fails::
+
+    >>> group.remove_role('editor')
+    Traceback (most recent call last):
+      ...
+    ValueError: Principal does not has role 'editor'
+
+Call persists::
+    
+    >>> group()
+    >>> file = open(ugm.roles_file)
+    >>> file.readlines()
+    ['max:manager\n', 
+    'group:group1:authenticated\n']
+    
+    >>> file.close()
+
+Users ``__delitem__``::
+
+    >>> users = ugm.users
+    >>> del users['max']
+    >>> ugm.printtree()
+    <class 'node.ext.ugm.file.Ugm'>: ugm
+      <class 'node.ext.ugm.file.Users'>: users
+        <class 'node.ext.ugm.file.User'>: sepp
+      <class 'node.ext.ugm.file.Groups'>: groups
+        <class 'node.ext.ugm.file.Group'>: group1
+        <class 'node.ext.ugm.file.Group'>: group2
+          <class 'node.ext.ugm.file.User'>: sepp
+    
+    >>> users()
+    >>> file = open(ugm.users.file_path)
+    >>> file.readlines()
+    ['sepp:^\xbeXWHcgtDrGg.\n']
+    
+    >>> file.close()
+
+Roles for user are deleted as well::
+
+    >>> file = open(ugm.roles_file)
+    >>> file.readlines()
+    ['group:group1:authenticated\n']
+    
+    >>> file.close()
+
+Groups ``__delitem__``::
+
+    >>> groups = ugm.groups
+    >>> del groups['group1']
+    >>> ugm.printtree()
+    <class 'node.ext.ugm.file.Ugm'>: ugm
+      <class 'node.ext.ugm.file.Users'>: users
+        <class 'node.ext.ugm.file.User'>: sepp
+      <class 'node.ext.ugm.file.Groups'>: groups
+        <class 'node.ext.ugm.file.Group'>: group2
+          <class 'node.ext.ugm.file.User'>: sepp
+    
+    >>> groups()
+    >>> file = open(ugm.groups.file_path)
+    >>> file.readlines()
+    ['group2:sepp\n']
+    
+    >>> file.close()
+
+Roles for group are deleted as well::
+
+    >>> file = open(ugm.roles_file)
+    >>> file.readlines()
+    []
+    
+    >>> file.close()
 
 Cleanup test environment::
   

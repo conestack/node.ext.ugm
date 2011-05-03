@@ -17,6 +17,28 @@ class Principal(Part):
     @extend
     def __iter__(self):
         return iter(list())
+    
+    @default
+    def add_role(self, role):
+        """Add role.
+        """
+        raise NotImplementedError(u"Abstract ``Principal`` does not implement "
+                                  u"``add_role``")
+    
+    @default
+    def remove_role(self, role):
+        """Remove role.
+        """
+        raise NotImplementedError(u"Abstract ``Principal`` does not implement "
+                                  u"``remove_role``")
+    
+    @default
+    @property
+    def roles(self):
+        """Roles.
+        """
+        raise NotImplementedError(u"Abstract ``Principal`` does not implement "
+                                  u"``roles``")
 
 
 class User(Principal):
@@ -129,6 +151,20 @@ class Ugm(Part):
     
     # node.ext.ugm.Groups implementation
     groups = default(None)
+    
+    @default
+    def add_role(self, role, principal):
+        """Add role for principal.
+        """
+        raise NotImplementedError(u"Abstract ``Ugm`` does not implement "
+                                  u"``add_role``")
+    
+    @default
+    def remove_role(self, role, principal):
+        """Remove role for principal.
+        """
+        raise NotImplementedError(u"Abstract ``Ugm`` does not implement "
+                                  u"``remove_role``")
     
     @default
     def roles(self, principal):

@@ -132,8 +132,20 @@ class User(object):
         raise NotImplementedError(u"User object cannot contain children.")
     
     @locktree
-    def __call__(self):
+    def __call__(self, from_parent=False):
         self.attrs()
+        if not from_parent:
+            self.parent.parent.attrs()
+    
+    def add_role(self, role):
+        self.parent.parent.add_role(role, self)
+    
+    def remove_role(self, role):
+        self.parent.parent.remove_role(role, self)
+    
+    @property
+    def roles(self):
+        return self.parent.parent.roles(self)
     
     @property
     def groups(self):
@@ -173,7 +185,7 @@ class Group(object):
     @locktree
     def __setitem__(self, key, value):
         if key != value.name:
-            raise RuntimeError(u"Id missmatch at attemp to add group member.")
+            raise RuntimeError(u"Id mismatch at attempt to add group member.")
         if not key in self.member_ids:
             self._add_member(key)
     
@@ -191,8 +203,20 @@ class Group(object):
             yield id
     
     @locktree
-    def __call__(self):
+    def __call__(self, from_parent=False):
         self.attrs()
+        if not from_parent:
+            self.parent.parent.attrs()
+    
+    def add_role(self, role):
+        self.parent.parent.add_role(role, self)
+    
+    def remove_role(self, role):
+        self.parent.parent.remove_role(role, self)
+    
+    @property
+    def roles(self):
+        return self.parent.parent.roles(self)
     
     @property
     def users(self):
@@ -256,10 +280,22 @@ class Users(object):
         self._mem_storage[key] = value
     
     @locktree
-    def __call__(self):
+    def __delitem__(self, key):
+        user = self[key]
+        for group in user.groups:
+            del group[user.name]
+        del self.storage[key]
+        del self._mem_storage[key]
+        if key in self.parent.attrs:
+            del self.parent.attrs[key]
+    
+    @locktree
+    def __call__(self, from_parent=False):
         self.write_file()
         for value in self.values():
-            value()
+            value(True)
+        if not from_parent:
+            self.parent.attrs()
     
     def search(self, **kw):
         ret = list()
@@ -353,10 +389,21 @@ class Groups(object):
         self._mem_storage[key] = value
     
     @locktree
-    def __call__(self):
+    def __delitem__(self, key):
+        del self.storage[key]
+        if key in self._mem_storage:
+            del self._mem_storage[key]
+        id = 'group:%s' % key
+        if id in self.parent.attrs:
+            del self.parent.attrs[id]
+    
+    @locktree
+    def __call__(self, from_parent=False):
         self.write_file()
         for value in self.values():
-            value()
+            value(True)
+        if not from_parent:
+            self.parent.attrs()
     
     def search(self, **kw):
         ret = list()
@@ -418,14 +465,6 @@ class Ugm(object):
         self.roles_file = roles_file
         self.data_directory = data_directory
     
-    @property
-    def users(self):
-        return self['users']
-    
-    @property
-    def groups(self):
-        return self['groups']
-    
     def __getitem__(self, key):
         if not key in self.storage:
             if key == 'users':
@@ -451,8 +490,50 @@ class Ugm(object):
     @locktree
     def __call__(self):
         self.attrs()
-        self.users()
-        self.groups()
+        self.users(True)
+        self.groups(True)
+    
+    @property
+    def users(self):
+        return self['users']
+    
+    @property
+    def groups(self):
+        return self['groups']
+    
+    def roles(self, principal):
+        id = self._principal_id(principal)
+        return self._roles(id)
+    
+    @locktree
+    def add_role(self, role, principal):
+        roles = self.roles(principal)
+        if role in roles:
+            raise ValueError(u"Principal already has role '%s'" % role)
+        roles.append(role)
+        roles = sorted(roles)
+        self.attrs[self._principal_id(principal)] = ','.join(roles)
+    
+    @locktree
+    def remove_role(self, role, principal):
+        roles = self.roles(principal)
+        if not role in roles:
+            raise ValueError(u"Principal does not has role '%s'" % role)
+        roles.remove(role)
+        roles = sorted(roles)
+        self.attrs[self._principal_id(principal)] = ','.join(roles)
+    
+    def _principal_id(self, principal):
+        id = principal.name
+        if isinstance(principal, Group):
+            id = 'group:%s' % id
+        return id
+    
+    def _roles(self, id):
+        attrs = self.attrs
+        if not id in attrs:
+            return list()
+        return [role for role in attrs[id].split(',') if role]
     
     def _chk_key(self, key):
         if not key in ['users', 'groups']:
