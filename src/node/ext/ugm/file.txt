@@ -364,7 +364,6 @@ Note, parent of returned user is users object, not group::
     >>> group['max'].path
     ['ugm', 'users', 'max']
 
-
 Add another Group and add members::
 
     >>> group = ugm.groups.create('group2', description='Group 2 Description')
