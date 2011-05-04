@@ -338,15 +338,16 @@ class Users(object):
         if self.storage[id]:
             if not self._chk_pw(oldpw, self.storage[id]):
                 raise ValueError(u"Old password does not match.")
-        self.storage[id] = crypt.crypt(newpw, self._get_salt(newpw))
+        self.storage[id] = crypt.crypt(newpw, self._get_salt(id))
     
-    def _get_salt(self, plain):
+    def _get_salt(self, id):
         hash = hashlib.md5()
-        hash.update(plain)
+        hash.update(id)
         return hash.digest()[:2]
     
-    def _chk_pw(self, plain, crypted):
-        return crypted == crypt.crypt(plain, self._get_salt(plain))
+    def _chk_pw(self, plain, hashed):
+        salt = hashed[:2]
+        return hashed == crypt.crypt(plain, salt)
 
 
 class Groups(object):

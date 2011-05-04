@@ -206,7 +206,7 @@ Set Password for new User::
     >>> ugm()
     >>> file = open(ugm.users.file_path)
     >>> file.readlines()
-    ['max:^\xbeXWHcgtDrGg.\n']
+    ['max:/\xfeqwgR8ohuY5M\n']
     
     >>> file.close()
 
@@ -230,7 +230,7 @@ Set new password for max::
     >>> ugm()
     >>> file = open(ugm.users.file_path)
     >>> file.readlines()
-    ['max:\xe5-XBxrXJeHJHw\n']
+    ['max:/\xfe3434cetAdTc\n']
     
     >>> file.close()
 
@@ -262,8 +262,8 @@ Add another user::
     
     >>> file = open(ugm.users.file_path)
     >>> file.readlines()
-    ['max:\xe5-XBxrXJeHJHw\n', 
-    'sepp:^\xbeXWHcgtDrGg.\n']
+    ['max:/\xfe3434cetAdTc\n', 
+    'sepp:\xec\xb8Go8sxwk1E6g\n']
     
     >>> file.close()
 
@@ -693,7 +693,7 @@ Users ``__delitem__``::
     >>> users()
     >>> file = open(ugm.users.file_path)
     >>> file.readlines()
-    ['sepp:^\xbeXWHcgtDrGg.\n']
+    ['sepp:\xec\xb8Go8sxwk1E6g\n']
     
     >>> file.close()
 

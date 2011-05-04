@@ -7,3 +7,26 @@ from node.ext.ugm._api import (
     Groups,
     Ugm,
 )
+
+try:
+    import cone.app
+    from node.ext.ugm.file import Ugm as DefaultUgm
+    
+    def initialize_default_ugm(config, global_config, local_config):
+        """Initialize default file based UGM implementation for cone.app
+        """
+        users_file = local_config.get('node.ext.ugm.users_file')
+        groups_file = local_config.get('node.ext.ugm.groups_file')
+        roles_file = local_config.get('node.ext.ugm.roles_file')
+        datadir = local_config.get('node.ext.ugm.datadir')
+        ugm = DefaultUgm(name='ugm',
+                         users_file=users_file,
+                         groups_file=groups_file,
+                         roles_file=roles_file,
+                         data_directory=datadir)
+        cone.app.cfg.auth.append(ugm)
+    
+    cone.app.register_main_hook(initialize_default_ugm)
+except ImportError:
+    # cone.app not installed
+    pass
