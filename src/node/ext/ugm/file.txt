@@ -552,7 +552,7 @@ After ``__call__`` roles are persisted::
     >>> user()
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
-    ['max:manager\n']
+    ['max::manager\n']
     
     >>> file.close()
 
@@ -570,7 +570,7 @@ Call and check result::
     >>> ugm()
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
-    ['max:manager,supervisor\n']
+    ['max::manager,supervisor\n']
     
     >>> file.close()
 
@@ -592,7 +592,7 @@ Call persists::
     >>> user()
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
-    ['max:manager\n']
+    ['max::manager\n']
     
     >>> file.close()
 
@@ -621,7 +621,7 @@ Group role not written yet::
 
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
-    ['max:manager\n']
+    ['max::manager\n']
     
     >>> file.close()
 
@@ -630,8 +630,8 @@ After ``__call__`` roles are persisted::
     >>> group()
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
-    ['max:manager\n', 
-    'group:group1:authenticated\n']
+    ['max::manager\n', 
+    'group:group1::authenticated\n']
     
     >>> file.close()
 
@@ -649,8 +649,8 @@ Call and check result::
     >>> ugm()
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
-    ['max:manager\n', 
-    'group:group1:authenticated,editor\n']
+    ['max::manager\n', 
+    'group:group1::authenticated,editor\n']
     
     >>> file.close()
 
@@ -672,8 +672,8 @@ Call persists::
     >>> group()
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
-    ['max:manager\n', 
-    'group:group1:authenticated\n']
+    ['max::manager\n', 
+    'group:group1::authenticated\n']
     
     >>> file.close()
 
@@ -701,7 +701,7 @@ Roles for user are deleted as well::
 
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
-    ['group:group1:authenticated\n']
+    ['group:group1::authenticated\n']
     
     >>> file.close()
 

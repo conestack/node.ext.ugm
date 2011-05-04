@@ -32,7 +32,6 @@ from node.ext.ugm import (
     Ugm as UgmPart,
 )
 
-
 class FileStorage(Storage):
     """Storage part for key/value pairs.
     
@@ -42,6 +41,7 @@ class FileStorage(Storage):
     allow_non_node_childs = extend(True)
     unicode_keys = default(True)
     unicode_values = default(True)
+    delimiter = default(':')
     
     @extend
     def __init__(self, name=None, parent=None, file_path=None):
@@ -63,8 +63,7 @@ class FileStorage(Storage):
         data = self._storage_data
         with open(self.file_path) as file:
             for line in file:
-                # XXX: save delimiter escaping
-                k, v = line.split(':')
+                k, v = line.split(self.delimiter)
                 if not isinstance(k, unicode) and self.unicode_keys:
                     k = k.decode('utf-8')
                 if not isinstance(v, unicode) and self.unicode_values:
@@ -83,7 +82,7 @@ class FileStorage(Storage):
                 k = k.encode('utf-8')
             if isinstance(v, unicode) and self.unicode_values:
                 v = v.encode('utf-8')
-            line = ':'.join([k, v]) + '\n'
+            line = self.delimiter.join([k, v]) + '\n'
             lines.append(line)
         with open(self.file_path, 'w') as file:
             file.writelines(lines)
@@ -447,7 +446,9 @@ class Ugm(object):
     )
     
     def role_attributes_factory(self, name=None, parent=None):
-        return FileAttributes(name, parent, parent.roles_file)
+        attrs = FileAttributes(name, parent, parent.roles_file)
+        attrs.delimiter = '::'
+        return attrs
     
     attributes_factory = role_attributes_factory
     
