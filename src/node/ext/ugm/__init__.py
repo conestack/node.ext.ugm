@@ -27,6 +27,6 @@ try:
         cone.app.cfg.auth.append(ugm)
     
     cone.app.register_main_hook(initialize_default_ugm)
-except ImportError:
+except ImportError:                                         #pragma NO COVERAGE
     # cone.app not installed
-    pass
+    pass                                                    #pragma NO COVERAGE
