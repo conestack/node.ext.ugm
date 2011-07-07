@@ -147,8 +147,8 @@ Nothing created yet::
 Calling UGM persists::
 
     >>> ugm()
-    >>> os.listdir(tempdir)
-    ['groups', 'users', 'roles', 'principal_data', 'filestorage']
+    >>> sorted(os.listdir(tempdir))
+    ['filestorage', 'groups', 'principal_data', 'roles', 'users']
 
 Add new User::
 
