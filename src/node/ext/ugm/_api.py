@@ -3,11 +3,22 @@ from plumber import (
     default,
     extend,
 )
+from zope.interface import implements
+from node.ext.ugm.interfaces import (
+    IPrincipal,
+    IUser,
+    IGroup,
+    IPrincipals,
+    IUsers,
+    IGroups,
+    IUgm,
+)
 
 
 class Principal(Part):
     """Turn a node into a principal.
     """
+    implements(IPrincipal)
     
     @extend
     @property
@@ -20,23 +31,17 @@ class Principal(Part):
     
     @default
     def add_role(self, role):
-        """Add role.
-        """
         raise NotImplementedError(u"Abstract ``Principal`` does not implement "
                                   u"``add_role``")
     
     @default
     def remove_role(self, role):
-        """Remove role.
-        """
         raise NotImplementedError(u"Abstract ``Principal`` does not implement "
                                   u"``remove_role``")
     
     @default
     @property
     def roles(self):
-        """Roles.
-        """
         raise NotImplementedError(u"Abstract ``Principal`` does not implement "
                                   u"``roles``")
 
@@ -44,6 +49,7 @@ class Principal(Part):
 class User(Principal):
     """Turn a node into a user.
     """
+    implements(IUser)
     
     @extend
     @property
@@ -52,22 +58,18 @@ class User(Principal):
 
     @extend
     def authenticate(self, pw):
-        """Expect an ``authenticate`` function on ``self.parent``.
-        """
         return bool(self.parent.authenticate(id=self.id, pw=pw))
 
     @extend
     def passwd(self, oldpw, newpw):
-        """Set password for user. Expect a ``passwd`` function on
-        ``self.parent``.
+        """Expect ``passwd`` function on ``self.parent`` which should implement
+        IUsers.
         """
         self.parent.passwd(id=self.id, oldpw=oldpw, newpw=newpw)
     
     @default
     @property
     def groups(self):
-        """List of groups this user is member of.
-        """
         raise NotImplementedError(u"Abstract ``User`` does not implement "
                                   u"``groups``")
 
@@ -75,27 +77,31 @@ class User(Principal):
 class Group(Principal):
     """Turn a node into a group.
     """
+    implements(IGroup)
     
     @default
     @property
     def users(self):
-        """List of users contained in this group.
-        """
         raise NotImplementedError(u"Abstract ``Group`` does not implement "
                                   u"``users``")
     
     @default
     @property
     def member_ids(self):
-        """List of member ids contained in this group.
-        """
         raise NotImplementedError(u"Abstract ``Group`` does not implement "
                                   u"``member_ids``")
+    
+    @default
+    def add(self, id):
+        raise NotImplementedError(u"Abstract ``Group`` does not implement "
+                                  u"``add``")
 
 
 class Principals(Part):
     """Turn a node into a source of principals.
     """
+    implements(IPrincipals)
+    
     principal_factory = default(None)
 
     @extend
@@ -110,10 +116,6 @@ class Principals(Part):
     
     @default
     def create(self, id, **kw):
-        """Create a principal by id fitting principal container.
-        
-        Given keyword arguments represent principal attributes.
-        """
         raise NotImplementedError(u"Abstract ``Principals`` does not implement "
                                   u"``create``")
 
@@ -121,18 +123,15 @@ class Principals(Part):
 class Users(Principals):
     """Turn a node into source of users.
     """
+    implements(IUsers)
     
     @default
     def authenticate(self, id=None, pw=None):
-        """Authenticate user id with password.
-        """
         raise NotImplementedError(u"Abstract ``Users`` does not implement "
                                   u"``authenticate``")
     
     @default
     def passwd(self, id, oldpw, newpw):
-        """Set new password for user with id.
-        """
         raise NotImplementedError(u"Abstract ``Users`` does not implement "
                                   u"``passwd``")
 
@@ -140,35 +139,29 @@ class Users(Principals):
 class Groups(Principals):
     """Turn a node into source of groups.
     """
+    implements(IGroups)
 
 
 class Ugm(Part):
     """Turn a node into user and group management API.
     """
+    implements(IUgm)
     
-    # node.ext.ugm.Users implementation
     users = default(None)
     
-    # node.ext.ugm.Groups implementation
     groups = default(None)
     
     @default
     def add_role(self, role, principal):
-        """Add role for principal.
-        """
         raise NotImplementedError(u"Abstract ``Ugm`` does not implement "
                                   u"``add_role``")
     
     @default
     def remove_role(self, role, principal):
-        """Remove role for principal.
-        """
         raise NotImplementedError(u"Abstract ``Ugm`` does not implement "
                                   u"``remove_role``")
     
     @default
     def roles(self, principal):
-        """Return roles for principal.
-        """
         raise NotImplementedError(u"Abstract ``Ugm`` does not implement "
                                   u"``roles``")

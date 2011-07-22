@@ -17,6 +17,7 @@ node.ext.ugm
 
 Abstract principal part::
 
+    >>> from node.ext.ugm.interfaces import IPrincipal
     >>> from node.ext.ugm import Principal
     >>> class PrincipalNode(object):
     ...     __metaclass__ = plumber
@@ -34,6 +35,9 @@ Abstract principal part::
     >>> principal = PrincipalNode(name='someprincipal')
     >>> principal
     <PrincipalNode object 'someprincipal' at ...>
+    
+    >>> IPrincipal.providedBy(principal)
+    True
     
     >>> [key for key in principal]
     []
@@ -58,6 +62,7 @@ principal::
 
 Abstract user part::
     
+    >>> from node.ext.ugm.interfaces import IUser
     >>> from node.ext.ugm import User
     >>> class UserNode(object):
     ...     __metaclass__ = plumber
@@ -75,6 +80,9 @@ Abstract user part::
     >>> user = UserNode(name='someuser')
     >>> user
     <UserNode object 'someuser' at ...>
+    
+    >>> IUser.providedBy(user)
+    True
     
     >>> user.login
     'someuser'
@@ -105,6 +113,7 @@ Also ``groups`` is not implemented in abstract base part::
 
 Abstract group part::
     
+    >>> from node.ext.ugm.interfaces import IGroup
     >>> from node.ext.ugm import Group
     >>> class GroupNode(object):
     ...     __metaclass__ = plumber
@@ -122,6 +131,9 @@ Abstract group part::
     >>> group = GroupNode(name='somegroup')
     >>> group
     <GroupNode object 'somegroup' at ...>
+    
+    >>> IGroup.providedBy(group)
+    True
 
 ``users`` and ``member_ids`` is not implemented in abstract base part::
 
@@ -134,9 +146,15 @@ Abstract group part::
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Group`` does not implement ``member_ids``
+    
+    >>> group.add('foo')
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Group`` does not implement ``add``
 
 Abstract principals part::
 
+    >>> from node.ext.ugm.interfaces import IPrincipals
     >>> from node.ext.ugm import Principals
     >>> class PrincipalsNode(object):
     ...     __metaclass__ = plumber
@@ -154,6 +172,9 @@ Abstract principals part::
     >>> principals = PrincipalsNode(name='principals')
     >>> principals
     <PrincipalsNode object 'principals' at ...>
+    
+    >>> IPrincipals.providedBy(principals)
+    True
     
     >>> principals.ids
     []
@@ -173,6 +194,7 @@ Abstract principals part::
     
 Abstract users part::
 
+    >>> from node.ext.ugm.interfaces import IUsers
     >>> from node.ext.ugm import Users
     >>> class UsersNode(object):
     ...     __metaclass__ = plumber
@@ -190,6 +212,9 @@ Abstract users part::
     >>> users = UsersNode(name='users')
     >>> users
     <UsersNode object 'users' at ...>
+    
+    >>> IUsers.providedBy(users)
+    True
 
 Add previously created user::
 
@@ -215,6 +240,7 @@ Abstract users part does not implement ``authenticate`` and ``passwd``::
 
 Abstract groups part::
 
+    >>> from node.ext.ugm.interfaces import IGroups
     >>> from node.ext.ugm import Groups
     >>> class GroupsNode(object):
     ...     __metaclass__ = plumber
@@ -232,9 +258,13 @@ Abstract groups part::
     >>> groups = GroupsNode(name='groups')
     >>> groups
     <GroupsNode object 'groups' at ...>
+    
+    >>> IGroups.providedBy(groups)
+    True
 
 Abstract ugm part::
 
+    >>> from node.ext.ugm.interfaces import IUgm
     >>> from node.ext.ugm import Ugm
     >>> class UgmNode(object):
     ...     __metaclass__ = plumber
@@ -261,6 +291,9 @@ Abstract ugm part::
     >>> ugm = UgmNode('ugm', users, groups)
     >>> ugm
     <UgmNode object 'ugm' at ...>
+    
+    >>> IUgm.providedBy(ugm)
+    True
     
     >>> ugm.users
     <UsersNode object 'users' at ...>

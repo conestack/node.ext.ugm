@@ -5,8 +5,9 @@ import unittest2 as unittest
 
 
 DOCFILES = [
-    '../_api.txt',
-    '../file.txt',
+    '__init__.txt',
+    '_api.txt',
+    'file.txt',
 ]
 
 optionflags = doctest.NORMALIZE_WHITESPACE | \
