@@ -4,6 +4,7 @@ import hashlib
 from odict import odict
 from plumber import (
     plumber,
+    plumb,
     default,
     extend,
     Part,
@@ -25,17 +26,25 @@ from node.parts import (
     OdictStorage,
 )
 from node.ext.ugm import (
-    User as UserPart,
-    Group as GroupPart,
-    Users as UsersPart,
-    Groups as GroupsPart,
-    Ugm as UgmPart,
+    User as BaseUserPart,
+    Group as BaseGroupPart,
+    Users as BaseUsersPart,
+    Groups as BaseGroupsPart,
+    Ugm as BaseUgmPart,
 )
 
+
+##############################################################################
+# plumbing parts
+##############################################################################
+
 class FileStorage(Storage):
-    """Storage part for key/value pairs.
+    """Storage part handling key/value pairs in a file.
     
     Cannot contain node children. Useful for node attributes stored in a file.
+    
+    XXX: extend node.parts.common.NodeChildValidate by ``allow_node_childs``
+         attribute.
     """
     
     allow_non_node_childs = extend(True)
@@ -92,27 +101,9 @@ class FileStorage(Storage):
         self.write_file()
 
 
-class FileAttributes(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        NodeChildValidate,
-        Adopt,
-        Nodify,
-        FileStorage,
-    )
-
-
-class User(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        NodeChildValidate,
-        Nodespaces,
-        Attributes,
-        Nodify,
-        UserPart,
-        DefaultInit,
-    )
+class UserPart(BaseUserPart):
     
+    @default
     def user_data_attributes_factory(self, name=None, parent=None):
         user_data_dir = os.path.join(parent.data_directory, 'users')
         if not os.path.exists(user_data_dir):
@@ -120,32 +111,39 @@ class User(object):
         user_data_path = os.path.join(user_data_dir, parent.name)
         return FileAttributes(name, parent, user_data_path)
     
-    attributes_factory = user_data_attributes_factory
+    attributes_factory = default(user_data_attributes_factory)
     
+    @extend
     def __init__(self, name=None, parent=None, data_directory=None):
         self.__name__ = name
         self.__parent__ = parent
         self.data_directory = data_directory
     
+    @default
     def __setitem__(self, key, value):
         raise NotImplementedError(u"User object cannot contain children.")
     
+    @default
     @locktree
     def __call__(self, from_parent=False):
         self.attrs()
         if not from_parent:
             self.parent.parent.attrs()
     
+    @default
     def add_role(self, role):
         self.parent.parent.add_role(role, self)
     
+    @default
     def remove_role(self, role):
         self.parent.parent.remove_role(role, self)
     
+    @default
     @property
     def roles(self):
         return self.parent.parent.roles(self)
     
+    @default
     @property
     def groups(self):
         groups = self.parent.parent.groups
@@ -156,17 +154,9 @@ class User(object):
         return ret
 
 
-class Group(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        NodeChildValidate,
-        Nodespaces,
-        Attributes,
-        Nodify,
-        GroupPart,
-        DefaultInit,
-    )
+class GroupPart(BaseGroupPart):
     
+    @default
     def group_data_attributes_factory(self, name=None, parent=None):
         group_data_dir = os.path.join(parent.data_directory, 'groups')
         if not os.path.exists(group_data_dir):
@@ -174,13 +164,15 @@ class Group(object):
         group_data_path = os.path.join(group_data_dir, parent.name)
         return FileAttributes(name, parent, group_data_path)
     
-    attributes_factory = group_data_attributes_factory
+    attributes_factory = default(group_data_attributes_factory)
     
+    @extend
     def __init__(self, name=None, parent=None, data_directory=None):
         self.__name__ = name
         self.__parent__ = parent
         self.data_directory = data_directory
     
+    @default
     @locktree
     def __setitem__(self, key, value):
         if key != value.name:
@@ -188,49 +180,60 @@ class Group(object):
         if not key in self.member_ids:
             self._add_member(key)
     
+    @default
     def __getitem__(self, key):
         return self.parent.parent.users[key]
     
+    @default
     @locktree
     def __delitem__(self, key):
         if not key in self.member_ids:
             raise KeyError(key)
         self._remove_member(key)
     
+    @default
     def __iter__(self):
         for id in self.member_ids:
             yield id
     
+    @default
     @locktree
     def __call__(self, from_parent=False):
         self.attrs()
         if not from_parent:
             self.parent.parent.attrs()
     
+    @default
     def add_role(self, role):
         self.parent.parent.add_role(role, self)
     
+    @default
     def remove_role(self, role):
         self.parent.parent.remove_role(role, self)
     
+    @default
     @property
     def roles(self):
         return self.parent.parent.roles(self)
     
+    @default
     @property
     def users(self):
         return [self.parent.parent.users[id] for id in self.member_ids]
     
+    @default
     @property
     def member_ids(self):
         return [id for id in self.parent.storage[self.name].split(',') if id]
     
+    @default
     def _add_member(self, id):
         member_ids = self.member_ids
         member_ids.append(id)
         member_ids = sorted(member_ids)
         self.parent.storage[self.name] = ','.join(member_ids)
     
+    @default
     def _remove_member(self, id):
         member_ids = self.member_ids
         member_ids.remove(id)
@@ -238,20 +241,11 @@ class Group(object):
         self.parent.storage[self.name] = ','.join(member_ids)
 
 
-class Users(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        NodeChildValidate,
-        Nodespaces,
-        Adopt,
-        Attributes,
-        Nodify,
-        UsersPart,
-        FileStorage,
-    )
+class UsersPart(BaseUsersPart):
     
-    unicode_values = False
+    unicode_values = default(False)
     
+    @extend
     def __init__(self, name=None, parent=None,
                  file_path=None, data_directory=None):
         self.__name__ = name
@@ -260,6 +254,7 @@ class Users(object):
         self.data_directory = data_directory
         self._mem_storage = dict()
     
+    @extend
     def __getitem__(self, key):
         if not key in self.storage:
             raise KeyError(key)
@@ -271,6 +266,7 @@ class Users(object):
             self._mem_storage[key] = user
             return user
     
+    @extend
     @locktree
     def __setitem__(self, key, value):
         # set empty password on new added user.
@@ -278,6 +274,7 @@ class Users(object):
             self.storage[key] = ''
         self._mem_storage[key] = value
     
+    @extend
     @locktree
     def __delitem__(self, key):
         user = self[key]
@@ -288,6 +285,7 @@ class Users(object):
         if key in self.parent.attrs:
             del self.parent.attrs[key]
     
+    @extend
     @locktree
     def __call__(self, from_parent=False):
         self.write_file()
@@ -296,6 +294,7 @@ class Users(object):
         if not from_parent:
             self.parent.attrs()
     
+    @default
     def search(self, **kw):
         ret = list()
         for user in self.values():
@@ -309,6 +308,7 @@ class Users(object):
                     ret.append(self._search_result_item(user))
         return ret
     
+    @default
     def _search_result_item(self, node):
         ret = dict()
         for k, v in node.attrs.items():
@@ -316,6 +316,7 @@ class Users(object):
         ret['id'] = node.name
         return ret
     
+    @default
     def create(self, id, **kw):
         user = User(name=id, parent=self, data_directory=self.data_directory)
         for k, v in kw.items():
@@ -323,6 +324,7 @@ class Users(object):
         self[id] = user
         return user
     
+    @default
     def authenticate(self, id=None, pw=None):
         if not id in self.storage:
             return False
@@ -331,6 +333,7 @@ class Users(object):
             return False
         return self._chk_pw(pw, self.storage[id])
     
+    @default
     def passwd(self, id, oldpw, newpw):
         if not id in self.storage:
             raise ValueError(u"User with id '%s' does not exist." % id)
@@ -338,30 +341,24 @@ class Users(object):
         if self.storage[id]:
             if not self._chk_pw(oldpw, self.storage[id]):
                 raise ValueError(u"Old password does not match.")
+        # XXX: crap -> check how to create htpasswd sane
         self.storage[id] = crypt.crypt(newpw, self._get_salt(id))
     
+    @default
     def _get_salt(self, id):
         hash = hashlib.md5()
         hash.update(id)
         return hash.digest()[:2]
     
+    @default
     def _chk_pw(self, plain, hashed):
         salt = hashed[:2]
         return hashed == crypt.crypt(plain, salt)
 
 
-class Groups(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        NodeChildValidate,
-        Nodespaces,
-        Adopt,
-        Attributes,
-        Nodify,
-        GroupsPart,
-        FileStorage,
-    )
+class GroupsPart(BaseGroupsPart):
     
+    @extend
     def __init__(self, name=None, parent=None,
                  file_path=None, data_directory=None):
         self.__name__ = name
@@ -370,6 +367,7 @@ class Groups(object):
         self.data_directory = data_directory
         self._mem_storage = dict()
     
+    @extend
     def __getitem__(self, key):
         if not key in self.storage:
             raise KeyError(key)
@@ -381,6 +379,7 @@ class Groups(object):
             self._mem_storage[key] = group
             return group
     
+    @extend
     @locktree
     def __setitem__(self, key, value):
         # set empty group members on new added group.
@@ -388,6 +387,7 @@ class Groups(object):
             self.storage[key] = ''
         self._mem_storage[key] = value
     
+    @extend
     @locktree
     def __delitem__(self, key):
         del self.storage[key]
@@ -397,6 +397,7 @@ class Groups(object):
         if id in self.parent.attrs:
             del self.parent.attrs[id]
     
+    @extend
     @locktree
     def __call__(self, from_parent=False):
         self.write_file()
@@ -405,6 +406,7 @@ class Groups(object):
         if not from_parent:
             self.parent.attrs()
     
+    @default
     def search(self, **kw):
         ret = list()
         for group in self.values():
@@ -418,6 +420,7 @@ class Groups(object):
                     ret.append(self._search_result_item(group))
         return ret
     
+    @default
     def _search_result_item(self, node):
         ret = dict()
         for k, v in node.attrs.items():
@@ -425,6 +428,7 @@ class Groups(object):
         ret['id'] = node.name
         return ret
     
+    @default
     def create(self, id, **kw):
         group = Group(name=id, parent=self, data_directory=self.data_directory)
         for k, v in kw.items():
@@ -433,26 +437,17 @@ class Groups(object):
         return group
 
 
-class Ugm(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        NodeChildValidate,
-        Nodespaces,
-        Adopt,
-        Attributes,
-        DefaultInit,
-        Nodify,
-        UgmPart,
-        OdictStorage,
-    )
+class UgmPart(BaseUgmPart):
     
+    @default
     def role_attributes_factory(self, name=None, parent=None):
         attrs = FileAttributes(name, parent, parent.roles_file)
         attrs.delimiter = '::'
         return attrs
     
-    attributes_factory = role_attributes_factory
+    attributes_factory = default(role_attributes_factory)
     
+    @extend
     def __init__(self,
                  name=None,
                  parent=None,
@@ -467,6 +462,7 @@ class Ugm(object):
         self.roles_file = roles_file
         self.data_directory = data_directory
     
+    @extend
     def __getitem__(self, key):
         if not key in self.storage:
             if key == 'users':
@@ -477,36 +473,44 @@ class Ugm(object):
                                       data_directory=self.data_directory)
         return self.storage[key]
     
+    @extend
     @locktree
     def __setitem__(self, key, value):
         self._chk_key(key)
         self.storage[key] = value
     
+    @extend
     def __delitem__(self, key):
         raise NotImplementedError(u"Operation forbidden on this node.")
     
+    @extend
     def __iter__(self):
         for key in ['users', 'groups']:
             yield key
     
+    @extend
     @locktree
     def __call__(self):
         self.attrs()
         self.users(True)
         self.groups(True)
     
+    @default
     @property
     def users(self):
         return self['users']
     
+    @default
     @property
     def groups(self):
         return self['groups']
     
+    @default
     def roles(self, principal):
         id = self._principal_id(principal)
         return self._roles(id)
     
+    @default
     @locktree
     def add_role(self, role, principal):
         roles = self.roles(principal)
@@ -516,6 +520,7 @@ class Ugm(object):
         roles = sorted(roles)
         self.attrs[self._principal_id(principal)] = ','.join(roles)
     
+    @default
     @locktree
     def remove_role(self, role, principal):
         roles = self.roles(principal)
@@ -525,18 +530,97 @@ class Ugm(object):
         roles = sorted(roles)
         self.attrs[self._principal_id(principal)] = ','.join(roles)
     
+    @default
     def _principal_id(self, principal):
         id = principal.name
         if isinstance(principal, Group):
             id = 'group:%s' % id
         return id
     
+    @default
     def _roles(self, id):
         attrs = self.attrs
         if not id in attrs:
             return list()
         return [role for role in attrs[id].split(',') if role]
     
+    @default
     def _chk_key(self, key):
         if not key in ['users', 'groups']:
             raise KeyError(key)
+
+
+###############################################################################
+# nodes
+###############################################################################
+
+class FileAttributes(object):
+    __metaclass__ = plumber
+    __plumbing__ = (
+        NodeChildValidate,
+        Adopt,
+        Nodify,
+        FileStorage,
+    )
+
+
+class User(object):
+    __metaclass__ = plumber
+    __plumbing__ = (
+        UserPart,
+        NodeChildValidate,
+        Nodespaces,
+        Attributes,
+        Nodify,
+    )
+
+
+class Group(object):
+    __metaclass__ = plumber
+    __plumbing__ = (
+        GroupPart,
+        NodeChildValidate,
+        Nodespaces,
+        Attributes,
+        Nodify,
+    )
+
+
+class Users(object):
+    __metaclass__ = plumber
+    __plumbing__ = (
+        UsersPart,
+        NodeChildValidate,
+        Nodespaces,
+        Adopt,
+        Attributes,
+        Nodify,
+        FileStorage,
+    )
+
+
+class Groups(object):
+    __metaclass__ = plumber
+    __plumbing__ = (
+        GroupsPart,
+        NodeChildValidate,
+        Nodespaces,
+        Adopt,
+        Attributes,
+        Nodify,
+        FileStorage,
+    )
+
+
+class Ugm(object):
+    __metaclass__ = plumber
+    __plumbing__ = (
+        UgmPart,
+        NodeChildValidate,
+        Nodespaces,
+        Adopt,
+        Attributes,
+        DefaultInit,
+        Nodify,
+        OdictStorage,
+    )
