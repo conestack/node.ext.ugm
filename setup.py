@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '1.0dev'
+version = '0.9dev'
 shortdesc = "Node-based user and group management"
 longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 longdesc += open(os.path.join(os.path.dirname(__file__), 'LICENSE.rst')).read()
@@ -11,7 +11,6 @@ setup(name='node.ext.ugm',
       description=shortdesc,
       long_description=longdesc,
       classifiers=[
-            'Development Status :: 4 - Beta',
             'Environment :: Web Environment',
             'Framework :: Zope2',
             'License :: OSI Approved :: GNU General Public License (GPL)',
