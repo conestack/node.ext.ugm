@@ -2,8 +2,10 @@ from plumber import (
     Part,
     default,
     extend,
+    finalize,
 )
 from zope.interface import implements
+from node.locking import locktree
 from node.ext.ugm.interfaces import (
     IPrincipal,
     IUser,
@@ -24,10 +26,6 @@ class Principal(Part):
     @property
     def id(self):
         return self.name
-
-    @extend
-    def __iter__(self):
-        return iter(list())
     
     @default
     def add_role(self, role):
@@ -50,6 +48,22 @@ class User(Principal):
     """Turn a node into a user.
     """
     implements(IUser)
+    
+    @finalize
+    def __getitem__(self, key):
+        raise NotImplementedError(u"User does not implement ``__getitem__``")
+    
+    @finalize
+    def __setitem__(self, key, value):
+        raise NotImplementedError(u"User does not implement ``__setitem__``")
+    
+    @finalize
+    def __delitem__(self, key):
+        raise NotImplementedError(u"User does not implement ``__delitem__``")
+    
+    @finalize
+    def __iter__(self):
+        return iter([])
     
     @extend
     @property
@@ -78,6 +92,10 @@ class Group(Principal):
     """Turn a node into a group.
     """
     implements(IGroup)
+    
+    @finalize
+    def __setitem__(self, kex, value):
+        raise NotImplementedError(u"Group does not implement ``__setitem__``")
     
     @default
     @property
@@ -115,7 +133,7 @@ class Principals(Part):
                                   u"``search``")
     
     @default
-    def create(self, id, **kw):
+    def create(self, _id, **kw):
         raise NotImplementedError(u"Abstract ``Principals`` does not implement "
                                   u"``create``")
 
@@ -150,6 +168,12 @@ class Ugm(Part):
     users = default(None)
     
     groups = default(None)
+    
+    @extend
+    @locktree
+    def __call__(self):
+        self.users()
+        self.groups()
     
     @default
     def add_role(self, role, principal):

@@ -90,6 +90,24 @@ Abstract user part::
     >>> user.attrs['login'] = 'foo@bar.baz'
     >>> user.login
     'foo@bar.baz'
+    
+    >>> user['foo']
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: User does not implement ``__getitem__``
+    
+    >>> user['foo'] = UserNode()
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: User does not implement ``__setitem__``
+    
+    >>> del user['foo']
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: User does not implement ``__delitem__``
+    
+    >>> [x for x in user]
+    []
 
 ``authenticate`` and ``passwd`` gets delegated to parent. Fails since User is
 not contained in Users container::
@@ -151,6 +169,11 @@ Abstract group part::
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Group`` does not implement ``add``
+    
+    >>> group['foo'] = GroupNode()
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Group does not implement ``__setitem__``
 
 Abstract principals part::
 

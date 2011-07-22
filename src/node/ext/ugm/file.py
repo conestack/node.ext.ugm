@@ -34,10 +34,6 @@ from node.ext.ugm import (
 )
 
 
-##############################################################################
-# plumbing parts
-##############################################################################
-
 class FileStorage(Storage):
     """Storage part handling key/value pairs in a file.
     
@@ -101,6 +97,16 @@ class FileStorage(Storage):
         self.write_file()
 
 
+class FileAttributes(object):
+    __metaclass__ = plumber
+    __plumbing__ = (
+        NodeChildValidate,
+        Adopt,
+        Nodify,
+        FileStorage,
+    )
+
+
 class UserPart(BaseUserPart):
     
     @default
@@ -118,10 +124,6 @@ class UserPart(BaseUserPart):
         self.__name__ = name
         self.__parent__ = parent
         self.data_directory = data_directory
-    
-    @default
-    def __setitem__(self, key, value):
-        raise NotImplementedError(u"User object cannot contain children.")
     
     @default
     @locktree
@@ -154,6 +156,17 @@ class UserPart(BaseUserPart):
         return ret
 
 
+class User(object):
+    __metaclass__ = plumber
+    __plumbing__ = (
+        UserPart,
+        NodeChildValidate,
+        Nodespaces,
+        Attributes,
+        Nodify,
+    )
+
+
 class GroupPart(BaseGroupPart):
     
     @default
@@ -171,12 +184,6 @@ class GroupPart(BaseGroupPart):
         self.__name__ = name
         self.__parent__ = parent
         self.data_directory = data_directory
-    
-    @default
-    @locktree
-    def __setitem__(self, key, value):
-        raise NotImplementedError(u"Cannot set item on group.")
-        
     
     @default
     def __getitem__(self, key):
@@ -242,6 +249,17 @@ class GroupPart(BaseGroupPart):
         member_ids.remove(id)
         member_ids = sorted(member_ids)
         self.parent.storage[self.name] = ','.join(member_ids)
+
+
+class Group(object):
+    __metaclass__ = plumber
+    __plumbing__ = (
+        GroupPart,
+        NodeChildValidate,
+        Nodespaces,
+        Attributes,
+        Nodify,
+    )
 
 
 class UsersPart(BaseUsersPart):
@@ -359,6 +377,19 @@ class UsersPart(BaseUsersPart):
         return hashed == crypt.crypt(plain, salt)
 
 
+class Users(object):
+    __metaclass__ = plumber
+    __plumbing__ = (
+        UsersPart,
+        NodeChildValidate,
+        Nodespaces,
+        Adopt,
+        Attributes,
+        Nodify,
+        FileStorage,
+    )
+
+
 class GroupsPart(BaseGroupsPart):
     
     @extend
@@ -438,6 +469,19 @@ class GroupsPart(BaseGroupsPart):
             group.attrs[k] = v
         self[id] = group
         return group
+
+
+class Groups(object):
+    __metaclass__ = plumber
+    __plumbing__ = (
+        GroupsPart,
+        NodeChildValidate,
+        Nodespaces,
+        Adopt,
+        Attributes,
+        Nodify,
+        FileStorage,
+    )
 
 
 class UgmPart(BaseUgmPart):
@@ -551,68 +595,6 @@ class UgmPart(BaseUgmPart):
     def _chk_key(self, key):
         if not key in ['users', 'groups']:
             raise KeyError(key)
-
-
-###############################################################################
-# nodes
-###############################################################################
-
-class FileAttributes(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        NodeChildValidate,
-        Adopt,
-        Nodify,
-        FileStorage,
-    )
-
-
-class User(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        UserPart,
-        NodeChildValidate,
-        Nodespaces,
-        Attributes,
-        Nodify,
-    )
-
-
-class Group(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        GroupPart,
-        NodeChildValidate,
-        Nodespaces,
-        Attributes,
-        Nodify,
-    )
-
-
-class Users(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        UsersPart,
-        NodeChildValidate,
-        Nodespaces,
-        Adopt,
-        Attributes,
-        Nodify,
-        FileStorage,
-    )
-
-
-class Groups(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        GroupsPart,
-        NodeChildValidate,
-        Nodespaces,
-        Adopt,
-        Attributes,
-        Nodify,
-        FileStorage,
-    )
 
 
 class Ugm(object):

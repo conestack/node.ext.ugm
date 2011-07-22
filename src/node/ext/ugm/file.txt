@@ -272,7 +272,7 @@ Add another user::
     >>> ugm.users['max']['foo'] = user
     Traceback (most recent call last):
       ...
-    NotImplementedError: User object cannot contain children.
+    NotImplementedError: User does not implement ``__setitem__``
 
 Add new Group::
 
@@ -328,7 +328,7 @@ Setitem is forbidden on a group::
     >>> group['foo'] = ugm.users['max']
     Traceback (most recent call last):
       ...
-    NotImplementedError: Cannot set item on group.
+    NotImplementedError: Group does not implement ``__setitem__``
 
 A user is added to a group via ``add``::
 
