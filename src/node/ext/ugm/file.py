@@ -175,10 +175,8 @@ class GroupPart(BaseGroupPart):
     @default
     @locktree
     def __setitem__(self, key, value):
-        if key != value.name:
-            raise RuntimeError(u"Id mismatch at attempt to add group member.")
-        if not key in self.member_ids:
-            self._add_member(key)
+        raise NotImplementedError(u"Cannot set item on group.")
+        
     
     @default
     def __getitem__(self, key):
@@ -202,6 +200,11 @@ class GroupPart(BaseGroupPart):
         self.attrs()
         if not from_parent:
             self.parent.parent.attrs()
+    
+    @default
+    def add(self, id):
+        if not id in self.member_ids:
+            self._add_member(id)
     
     @default
     def add_role(self, role):

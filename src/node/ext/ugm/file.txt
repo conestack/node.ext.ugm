@@ -323,18 +323,20 @@ No members yet::
     >>> group.member_ids
     []
 
-A user is added to a group via ``__setitem__``. Thus, the key used must match
-``User.name``
+Setitem is forbidden on a group::
 
-    >>> ugm.users['max'].name
-    'max'
-    
     >>> group['foo'] = ugm.users['max']
     Traceback (most recent call last):
       ...
-    RuntimeError: Id mismatch at attempt to add group member.
+    NotImplementedError: Cannot set item on group.
+
+A user is added to a group via ``add``::
+
+    >>> id = ugm.users['max'].name
+    >>> id
+    'max'
     
-    >>> group['max'] = ugm.users['max']
+    >>> group.add(id)
     >>> group.member_ids
     ['max']
     
@@ -370,8 +372,8 @@ Add another Group and add members::
     >>> group
     <Group object 'group2' at ...>
     
-    >>> group['max'] = ugm.users['max']
-    >>> group['sepp'] = ugm.users['sepp']
+    >>> group.add('max')
+    >>> group.add('sepp')
     
     >>> ugm.printtree()
     <class 'node.ext.ugm.file.Ugm'>: ugm
