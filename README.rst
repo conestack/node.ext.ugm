@@ -23,6 +23,13 @@ TODO
 - more concrete interface for ``node.ext.ugm.interfaces.IPrincipals.search``
 
 
+Contributors
+============
+
+- Robert Niederreiter <rnix [at] squarewave [dot] at>
+- Florian Friesdorf <flo [at] chaoflow [dot] net>>
+
+
 Changes
 =======
 
@@ -31,16 +38,3 @@ Changes
 
 - make it work
   [rnix, chaoflow]
-
-
-Copyright
-=========
-
-Copyright (c) 2011: BlueDynamics Alliance
-
-
-Contributors
-============
-
-- Robert Niederreiter <rnix [at] squarewave [dot] at>
-- Florian Friesdorf <flo [at] chaoflow [dot] net>>
