@@ -80,14 +80,25 @@ class IPrincipals(INode):
     
     ids = Attribute(u"List of contained principal ids.")
 
-    def search(**kw):
+    def search(criteria=None, attrlist=None,
+               exact_match=False, or_search=False):
         """Search for principals.
         
-        kw
-            Search criteria.
+        criteria
+            Dict like object defining the principal attributes to be matched. 
         
-        XXX: more concrete search criteria, as long as they are abstract
-             enough.
+        attrlist
+            Normally a list of keys is returned. By defining attrlist the
+            return format will be ``[(key, {attr1: [value1, ...]}), ...]``. To
+            get this format without any attributs, i.e. empty dicts in the
+            tuples, specify an empty attrlist. 
+        
+        exact_match
+            raise ValueError if not one match, return format is a single key or
+            tuple, if attrlist is specified.
+        
+        or_search
+            flag whether criteria should be ORer or ANDed. defaults to False.
         """
     
     def create(_id, **kw):

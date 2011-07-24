@@ -317,6 +317,15 @@ class UsersPart(BaseUsersPart):
     
     @default
     def search(self, **kw):
+        """
+        XXX: make a Principals part, move search there and implement correct
+             contract.
+             
+        criteria=None,
+        attrlist=None,
+        exact_match=False,
+        or_search=False
+        """
         ret = list()
         for user in self.values():
             for k, v in kw.items():
