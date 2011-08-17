@@ -42,8 +42,8 @@ Abstract principal part::
     >>> [key for key in principal]
     []
 
-``add_role``, ``remove_role``, and ``roles`` is not implemented on abstract
-principal::
+``add_role``, ``remove_role``, ``roles`` and ``__call__`` is not implemented 
+on abstract principal::
 
     >>> principal.add_role('role')
     Traceback (most recent call last):
@@ -59,6 +59,11 @@ principal::
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Principal`` does not implement ``roles``
+    
+    >>> principal()
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Principal`` does not implement ``__call__``
 
 Abstract user part::
     
@@ -202,7 +207,8 @@ Abstract principals part::
     >>> principals.ids
     []
 
-``search`` and ``create`` are not implemented in abstract base part::
+``search`` ,``create`` and ``__call__`` are not implemented in abstract base 
+part::
 
     >>> principals.search()
     Traceback (most recent call last):
@@ -213,6 +219,11 @@ Abstract principals part::
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Principals`` does not implement ``create``
+    
+    >>> principals()
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Principals`` does not implement ``__call__``
 
     
 Abstract users part::
@@ -324,8 +335,8 @@ Abstract ugm part::
     >>> ugm.groups
     <GroupsNode object 'groups' at ...>
     
-Abstract ugm part does not implement ``add_role``, ``remove_role`` and
-``roles``::
+Abstract ugm part does not implement ``add_role``, ``remove_role``, ``roles``
+and ``__call__``::
 
     >>> ugm.add_role('role', user)
     Traceback (most recent call last):
@@ -341,3 +352,8 @@ Abstract ugm part does not implement ``add_role``, ``remove_role`` and
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Ugm`` does not implement ``roles``
+    
+    >>> ugm()
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Ugm`` does not implement ``__call__``

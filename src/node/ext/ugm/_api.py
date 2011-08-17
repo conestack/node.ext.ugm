@@ -42,6 +42,11 @@ class Principal(Part):
     def roles(self):
         raise NotImplementedError(u"Abstract ``Principal`` does not implement "
                                   u"``roles``")
+    
+    @default
+    def __call__(self):
+        raise NotImplementedError(u"Abstract ``Principal`` does not implement "
+                                  u"``__call__``")
 
 
 class User(Principal):
@@ -136,6 +141,11 @@ class Principals(Part):
     def create(self, _id, **kw):
         raise NotImplementedError(u"Abstract ``Principals`` does not implement "
                                   u"``create``")
+    
+    @default
+    def __call__(self):
+        raise NotImplementedError(u"Abstract ``Principals`` does not implement "
+                                  u"``__call__``")
 
 
 class Users(Principals):
@@ -169,11 +179,10 @@ class Ugm(Part):
     
     groups = default(None)
     
-    @extend
-    @locktree
+    @default
     def __call__(self):
-        self.users()
-        self.groups()
+        raise NotImplementedError(u"Abstract ``Ugm`` does not implement "
+                                  u"``__call__``")
     
     @default
     def add_role(self, role, principal):

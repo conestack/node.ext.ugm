@@ -371,7 +371,6 @@ class UsersPart(BaseUsersPart):
         if self.storage[id]:
             if not self._chk_pw(oldpw, self.storage[id]):
                 raise ValueError(u"Old password does not match.")
-        # XXX: crap -> check how to create htpasswd sane
         self.storage[id] = crypt.crypt(newpw, self._get_salt(id))
     
     @default
