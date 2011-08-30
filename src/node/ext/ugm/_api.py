@@ -179,6 +179,8 @@ class Ugm(Part):
     
     groups = default(None)
     
+    roles_storage = default(None)
+    
     @default
     def __call__(self):
         raise NotImplementedError(u"Abstract ``Ugm`` does not implement "

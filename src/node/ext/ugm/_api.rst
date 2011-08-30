@@ -321,6 +321,9 @@ Abstract ugm part::
     ...     @property
     ...     def groups(self):
     ...         return self['groups']
+    ...     @property
+    ...     def roles_storage(self):
+    ...         return lambda: None
     
     >>> ugm = UgmNode('ugm', users, groups)
     >>> ugm
@@ -334,6 +337,9 @@ Abstract ugm part::
     
     >>> ugm.groups
     <GroupsNode object 'groups' at ...>
+    
+    >>> ugm.roles_storage
+    <function <lambda> at ...>
     
 Abstract ugm part does not implement ``add_role``, ``remove_role``, ``roles``
 and ``__call__``::

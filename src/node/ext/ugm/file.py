@@ -566,6 +566,11 @@ class UgmPart(BaseUgmPart):
         return self._roles(id)
     
     @default
+    @property
+    def roles_storage(self):
+        return self.attrs
+    
+    @default
     @locktree
     def add_role(self, role, principal):
         roles = self.roles(principal)

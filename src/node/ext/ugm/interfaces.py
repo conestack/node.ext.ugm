@@ -158,6 +158,8 @@ class IUgm(INode):
     
     groups = Attribute(u"IGroups implementation")
     
+    roles_storage = Attribute(u"Callable for persisting roles.")
+    
     def add_role(role, principal):
         """Add role for principal.
         

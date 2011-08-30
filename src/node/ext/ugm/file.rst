@@ -129,6 +129,12 @@ Ugm root object::
     >>> ugm.attrs
     <FileAttributes object '__attrs__' at ...>
     
+    >>> ugm.roles_storage
+    <FileAttributes object '__attrs__' at ...>
+    
+    >>> ugm.attrs is ugm.roles_storage
+    True
+    
     >>> del ugm['users']
     Traceback (most recent call last):
       ...
