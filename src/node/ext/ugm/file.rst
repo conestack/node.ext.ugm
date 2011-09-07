@@ -147,8 +147,8 @@ Ugm root object::
 
 Nothing created yet::
 
-    >>> os.listdir(tempdir)
-    ['principal_data', 'filestorage']
+    >>> sorted(os.listdir(tempdir))
+    ['filestorage', 'principal_data']
     
 Calling UGM persists::
 
