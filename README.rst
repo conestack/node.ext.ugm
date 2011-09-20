@@ -27,8 +27,8 @@ Contributors
 Changes
 =======
 
-0.9dev  
-------
+0.9
+---
 
 - make it work
   [rnix, chaoflow]
