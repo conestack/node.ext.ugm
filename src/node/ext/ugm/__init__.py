@@ -23,7 +23,8 @@ def initialize_default_ugm(config, global_config, local_config):
                      roles_file=roles_file,
                      data_directory=datadir)
     try:
-        cone.app.cfg.auth.append(ugm)
+        if local_config.get('cone.auth_impl') == 'node.ext.ugm':
+            cone.app.cfg.auth = ugm
     except Exception:                                      #pragma NO COVERAGE
         pass # case uninstalled cone.app. testing purpose  #pragma NO COVERAGE
     return ugm

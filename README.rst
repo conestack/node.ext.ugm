@@ -27,6 +27,13 @@ Contributors
 Changes
 =======
 
+0.9.1dev
+--------
+
+- Adopt application startup hook for cone.ugm only setting auth implementation
+  if explicitely defined.
+  [rnix, 2011-11-21]
+
 0.9
 ---
 
