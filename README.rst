@@ -30,6 +30,9 @@ Changes
 0.9.1dev
 --------
 
+- Implement ``search`` function for file based UGM as described in interface.
+  [rnix, 2011-11-22]
+
 - Adopt application startup hook for cone.ugm only setting auth implementation
   if explicitely defined.
   [rnix, 2011-11-21]

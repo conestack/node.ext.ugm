@@ -418,25 +418,178 @@ Add another Group and add members::
     >>> sepp.groups
     [<Group object 'group2' at ...>]
 
-``search`` function::
+``_compare_value`` helper::
+
+    >>> users = ugm.users
+    >>> users._compare_value('*', '')
+    True
+    
+    >>> users._compare_value('**', '')
+    False
+    
+    >>> users._compare_value('aa', 'aa')
+    True
+    
+    >>> users._compare_value('aa', 'aaa')
+    False
+    
+    >>> users._compare_value('*a*', 'abc')
+    True
+    
+    >>> users._compare_value('*a', 'abc')
+    False
+    
+    >>> users._compare_value('*c', 'abc')
+    True
+    
+    >>> users._compare_value('a*', 'abc')
+    True
+    
+    >>> users._compare_value('c*', 'abc')
+    False
+
+Some more users::
+
+    >>> users.create('maxii')
+    <User object 'maxii' at ...>
+    
+    >>> users.create('123sepp')
+    <User object '123sepp' at ...>
+    
+    >>> users.keys()
+    ['max', 'sepp', 'maxii', '123sepp']
+
+Test Search on users::
+
+    >>> users.search()
+    []
+    
+    >>> users.search(criteria=dict(id='max'))
+    ['max']
+    
+    >>> users.search(criteria=dict(id='max*'))
+    ['max', 'maxii']
+    
+    >>> users.search(criteria=dict(id='sepp'))
+    ['sepp']
+    
+    >>> users.search(criteria=dict(id='*sep*'))
+    ['sepp', '123sepp']
+
+Search on users exact match::
+    
+    >>> users.search(criteria=dict(id='max'), exact_match=True)
+    ['max']
+    
+    >>> users.search(criteria=dict(id='max*'), exact_match=True)
+    Traceback (most recent call last):
+      ...
+    ValueError: Exact match asked but result not unique
+    
+    >>> users.search(criteria=dict(id='inexistent'), exact_match=True)
+    Traceback (most recent call last):
+      ...
+    ValueError: Exact match asked but result length is zero
+    
+Search on users attribute list::
+    
+    >>> users.search(criteria=dict(id='max'), attrlist=['fullname', 'email'])
+    [('max', {'fullname': 'Max Mustermann', 'email': 'foo@bar.com'})]
+    
+    >>> users.search(criteria=dict(id='max*'), attrlist=['fullname', 'email'])
+    [('max', 
+    {'fullname': 'Max Mustermann', 
+    'email': 'foo@bar.com'}), 
+    ('maxii', 
+    {'fullname': '', 
+    'email': ''})]
+    
+    >>> users.search(criteria=dict(id='*ax*'), attrlist=['id'])
+    [('max', {'id': 'max'}), ('maxii', {'id': 'maxii'})]
+
+Search on users or search::
+
+    >>> users.search(criteria=dict(fullname='*Muster*', id='max*'),
+    ...              or_search=True)
+    ['max', 'sepp', 'maxii']
+    
+    >>> users.search(criteria=dict(fullname='*Muster*', id='max*'),
+    ...              or_search=False)
+    ['max']
+
+Some more groups::
 
     >>> groups = ugm.groups
-    >>> groups.search(id='group1')
-    [{'description': 'Group 1 Description', 'id': 'group1'}]
+    >>> groups.create('group3')
+    <Group object 'group3' at ...>
     
-    >>> groups.search(description='group 1')
-    [{'description': 'Group 1 Description', 'id': 'group1'}]
+    >>> groups.keys()
+    ['group1', 'group2', 'group3']
+
+Test Search on groups::
+
+    >>> groups.search(criteria=dict(id='group1'))
+    ['group1']
     
-    >>> groups.search(description='group')
-    [{'description': 'Group 1 Description', 'id': 'group1'}, 
-    {'description': 'Group 2 Description', 'id': 'group2'}]
+    >>> groups.search(criteria=dict(id='group*'))
+    ['group1', 'group2', 'group3']
     
-    >>> users = ugm.users
-    >>> users.search(id='max')
-    [{'fullname': 'Max Mustermann', 'email': 'foo@bar.com', 'id': 'max'}]
+    >>> groups.search(criteria=dict(id='*rou*'))
+    ['group1', 'group2', 'group3']
     
-    >>> users.search(email='baz')
-    [{'fullname': 'Sepp Mustermann', 'email': 'baz@bar.com', 'id': 'sepp'}]
+    >>> groups.search(criteria=dict(id='*3'))
+    ['group3']
+
+Search on groups exact match::
+    
+    >>> groups.search(criteria=dict(id='group1'), exact_match=True)
+    ['group1']
+    
+    >>> groups.search(criteria=dict(id='group*'), exact_match=True)
+    Traceback (most recent call last):
+      ...
+    ValueError: Exact match asked but result not unique
+    
+    >>> groups.search(criteria=dict(id='inexistent'), exact_match=True)
+    Traceback (most recent call last):
+      ...
+    ValueError: Exact match asked but result length is zero
+
+Search on groups attribute list::
+
+    >>> groups['group1'].attrs['description'] = 'Group 1 Description'
+    >>> groups['group2'].attrs['description'] = 'Group 2 Description'
+    
+    >>> groups.search(criteria=dict(id='group*'), attrlist=['description'])
+    [('group1', 
+    {'description': 'Group 1 Description'}), 
+    ('group2', 
+    {'description': 'Group 2 Description'}), 
+    ('group3', 
+    {'description': ''})]
+    
+    >>> groups.search(criteria=dict(id='*2'), attrlist=['id', 'description'])
+    [('group2', {'id': 'group2', 'description': 'Group 2 Description'})]
+
+Search on groups or search::
+
+    >>> groups.search(criteria=dict(description='*Desc*', id='*g*'),
+    ...               or_search=True)
+    ['group1', 'group2', 'group3']
+    
+    >>> groups.search(criteria=dict(description='*Desc*', id='*1'),
+    ...               or_search=False)
+    ['group1']
+    
+    >>> groups.search(criteria=dict(description='*Desc*', id='*3'),
+    ...               or_search=False)
+    []
+
+Remove users and groups created for search tests::
+
+    >>> del users['maxii']
+    >>> del users['123sepp']
+    >>> del groups['group3']
 
 Delete user from group::
 

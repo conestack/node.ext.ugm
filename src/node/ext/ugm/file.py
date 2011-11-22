@@ -262,7 +262,93 @@ class Group(object):
     )
 
 
-class UsersPart(BaseUsersPart):
+class SearchPart(Part):
+    
+    @default
+    def _compare_value(self, term, value):
+        # XXX: this should be done by regular expressions.
+        if term == '*':
+            return True
+        if not len(term.strip('*')):
+            return False
+        if term[0] == '*' and term[-1] == '*':
+            term = term[1:-1]
+            if value.find(term) > -1:
+                return True
+        if term[0] == '*':
+            term = term[1:]
+            if value.endswith(term):
+                return True
+        if term[-1] == '*':
+            term = term[:-1]
+            if value.startswith(term):
+                return True
+        if term == value:
+            return True
+        return False
+    
+    @default
+    def search(self, criteria=None, attrlist=None,
+               exact_match=False, or_search=False):
+        """This is very slow and primary supposed to be used for testing or
+        setups with just a few users and groups.
+        """
+        found = set()
+        if criteria is None:
+            return list()
+        for principal in self.values():
+            # exact match too many
+            if exact_match and len(found) > 1:
+                raise ValueError(
+                    u"Exact match asked but result not unique")
+            # or search
+            if or_search:
+                for key, term in criteria.items():
+                    if key == 'id':
+                        if self._compare_value(term, principal.name):
+                            found.add(principal)
+                        continue
+                    value = principal.attrs.get(key)
+                    if value:
+                        if self._compare_value(term, value):
+                            found.add(principal)
+                            continue
+            # and search
+            else:
+                matches = True
+                for key, term in criteria.items():
+                    if key == 'id':
+                        if not self._compare_value(term, principal.name):
+                            matches = False
+                            break
+                        continue
+                    value = principal.attrs.get(key)
+                    if not value or not self._compare_value(term, value):
+                        matches = False
+                        break
+                if matches:
+                    found.add(principal)
+        # exact match zero found
+        if exact_match and len(found) == 0:
+            raise ValueError(u"Exact match asked but result length is zero")
+        # attr list
+        if attrlist:
+            ret = list()
+            for principal in found:
+                pdata = dict()
+                for key in attrlist:
+                    if key == 'id':
+                        pdata[key] = principal.name
+                        continue
+                    pdata[key] = principal.attrs.get(key, '')
+                ret.append((principal.name, pdata))
+        # keys only
+        else:
+            ret = [principal.name for principal in found]
+        return ret
+
+
+class UsersPart(SearchPart, BaseUsersPart):
     
     unicode_values = default(False)
     
@@ -316,37 +402,6 @@ class UsersPart(BaseUsersPart):
             self.parent.attrs()
     
     @default
-    def search(self, **kw):
-        """
-        XXX: make a Principals part, move search there and implement correct
-             contract.
-             
-        criteria=None,
-        attrlist=None,
-        exact_match=False,
-        or_search=False
-        """
-        ret = list()
-        for user in self.values():
-            for k, v in kw.items():
-                if k == 'id':
-                    if user.name == v:
-                        ret.append(self._search_result_item(user))
-                        continue
-                val = user.attrs.get(k)
-                if val and val.lower().startswith(v.lower()):
-                    ret.append(self._search_result_item(user))
-        return ret
-    
-    @default
-    def _search_result_item(self, node):
-        ret = dict()
-        for k, v in node.attrs.items():
-            ret[k] = v
-        ret['id'] = node.name
-        return ret
-    
-    @default
     def create(self, id, **kw):
         user = User(name=id, parent=self, data_directory=self.data_directory)
         for k, v in kw.items():
@@ -398,7 +453,7 @@ class Users(object):
     )
 
 
-class GroupsPart(BaseGroupsPart):
+class GroupsPart(SearchPart, BaseGroupsPart):
     
     @extend
     def __init__(self, name=None, parent=None,
@@ -447,28 +502,6 @@ class GroupsPart(BaseGroupsPart):
             value(True)
         if not from_parent:
             self.parent.attrs()
-    
-    @default
-    def search(self, **kw):
-        ret = list()
-        for group in self.values():
-            for k, v in kw.items():
-                if k == 'id':
-                    if group.name == v:
-                        ret.append(self._search_result_item(group))
-                        continue
-                val = group.attrs.get(k)
-                if val and val.lower().startswith(v.lower()):
-                    ret.append(self._search_result_item(group))
-        return ret
-    
-    @default
-    def _search_result_item(self, node):
-        ret = dict()
-        for k, v in node.attrs.items():
-            ret[k] = v
-        ret['id'] = node.name
-        return ret
     
     @default
     def create(self, id, **kw):
