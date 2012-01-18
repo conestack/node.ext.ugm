@@ -118,6 +118,13 @@ class IUsers(IPrincipals):
     Child objects must implement IUser.
     """
     
+    def id_for_login(login):
+        """Lookup user id for login name.
+        
+        login
+            The login name
+        """
+    
     def authenticate(id=None, pw=None):
         """Authenticate user with id.
         

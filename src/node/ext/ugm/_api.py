@@ -154,6 +154,11 @@ class Users(Principals):
     implements(IUsers)
     
     @default
+    def id_for_login(self, login):
+        raise NotImplementedError(u"Abstract ``Users`` does not implement "
+                                  u"``id_for_login``")
+    
+    @default
     def authenticate(self, id=None, pw=None):
         raise NotImplementedError(u"Abstract ``Users`` does not implement "
                                   u"``authenticate``")

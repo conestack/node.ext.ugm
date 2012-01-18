@@ -30,6 +30,9 @@ Changes
 0.9.1dev
 --------
 
+- add ``Users.id_for_login``.
+  [rnix, 2012-01-18]
+
 - Implement ``search`` function for file based UGM as described in interface.
   [rnix, 2011-11-22]
 

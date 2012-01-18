@@ -410,6 +410,11 @@ class UsersPart(SearchPart, BaseUsersPart):
         return user
     
     @default
+    def id_for_login(self, login):
+        # XXX
+        return login
+    
+    @default
     def authenticate(self, id=None, pw=None):
         if not id in self.storage:
             return False
