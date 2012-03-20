@@ -27,8 +27,8 @@ Contributors
 Changes
 =======
 
-0.9.1dev
---------
+0.9.1
+-----
 
 - add ``Users.id_for_login``.
   [rnix, 2012-01-18]
