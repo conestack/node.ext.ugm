@@ -30,6 +30,9 @@ Changes
 0.9.2dev
 --------
 
+- Remove outdated stuff.
+  [rnix, 2012-05-18]
+
 - Use ``zope.interface.implementer`` instead of ``zope.interface.implements``.
   [rnix, 2012-05-18]
 
