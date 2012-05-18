@@ -27,6 +27,12 @@ Contributors
 Changes
 =======
 
+0.9.2dev
+--------
+
+- Use ``zope.interface.implementer`` instead of ``zope.interface.implements``.
+  [rnix, 2012-05-18]
+
 0.9.1
 -----
 

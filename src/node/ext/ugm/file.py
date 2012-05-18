@@ -9,7 +9,6 @@ from plumber import (
     extend,
     Part,
 )
-from zope.interface import implements
 from node.interfaces import IStorage
 from node.locking import (
     locktree,
@@ -42,7 +41,6 @@ class FileStorage(Storage):
     XXX: extend node.parts.common.NodeChildValidate by ``allow_node_childs``
          attribute.
     """
-    
     allow_non_node_childs = extend(True)
     unicode_keys = default(True)
     unicode_values = default(True)

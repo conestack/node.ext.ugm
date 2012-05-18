@@ -4,7 +4,7 @@ from plumber import (
     extend,
     finalize,
 )
-from zope.interface import implements
+from zope.interface import implementer
 from node.locking import locktree
 from node.ext.ugm.interfaces import (
     IPrincipal,
@@ -17,10 +17,10 @@ from node.ext.ugm.interfaces import (
 )
 
 
+@implementer(IPrincipal)
 class Principal(Part):
     """Turn a node into a principal.
     """
-    implements(IPrincipal)
     
     @extend
     @property
@@ -49,10 +49,10 @@ class Principal(Part):
                                   u"``__call__``")
 
 
+@implementer(IUser)
 class User(Principal):
     """Turn a node into a user.
     """
-    implements(IUser)
     
     @finalize
     def __getitem__(self, key):
@@ -93,10 +93,10 @@ class User(Principal):
                                   u"``groups``")
 
 
+@implementer(IGroup)
 class Group(Principal):
     """Turn a node into a group.
     """
-    implements(IGroup)
     
     @finalize
     def __setitem__(self, kex, value):
@@ -120,11 +120,10 @@ class Group(Principal):
                                   u"``add``")
 
 
+@implementer(IPrincipals)
 class Principals(Part):
     """Turn a node into a source of principals.
     """
-    implements(IPrincipals)
-    
     principal_factory = default(None)
 
     @extend
@@ -148,10 +147,10 @@ class Principals(Part):
                                   u"``__call__``")
 
 
+@implementer(IUsers)
 class Users(Principals):
     """Turn a node into source of users.
     """
-    implements(IUsers)
     
     @default
     def id_for_login(self, login):
@@ -169,21 +168,18 @@ class Users(Principals):
                                   u"``passwd``")
 
 
+@implementer(IGroups)
 class Groups(Principals):
     """Turn a node into source of groups.
     """
-    implements(IGroups)
 
 
+@implementer(IUgm)
 class Ugm(Part):
     """Turn a node into user and group management API.
     """
-    implements(IUgm)
-    
     users = default(None)
-    
     groups = default(None)
-    
     roles_storage = default(None)
     
     @default
