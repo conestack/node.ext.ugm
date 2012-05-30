@@ -27,7 +27,7 @@ Contributors
 Changes
 =======
 
-0.9.2dev
+0.9.2
 --------
 
 - Remove outdated stuff.
