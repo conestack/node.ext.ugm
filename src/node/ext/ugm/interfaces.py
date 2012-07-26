@@ -53,7 +53,9 @@ class IUser(IPrincipal, ILeaf):
             New password.
         """
     
-    groups = Attribute("List of user referring IGroup implementing objects.")
+    groups = Attribute(u"List of user referring IGroup implementing objects.")
+    
+    group_ids = Attribute(u"List of group id's this user is member of")
 
 
 class IGroup(IPrincipal):
@@ -64,7 +66,7 @@ class IGroup(IPrincipal):
     
     users = Attribute(u"List of group referring IUser implementing objects.")
     
-    member_ids = Attribute(u"List of member ids contained in this group.")
+    member_ids = Attribute(u"List of member id's contained in this group.")
     
     def add(id):
         """Add user with id to group.

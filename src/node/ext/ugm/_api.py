@@ -91,6 +91,12 @@ class User(Principal):
     def groups(self):
         raise NotImplementedError(u"Abstract ``User`` does not implement "
                                   u"``groups``")
+    
+    @default
+    @property
+    def group_ids(self):
+        raise NotImplementedError(u"Abstract ``User`` does not implement "
+                                  u"``group_ids``")
 
 
 @implementer(IGroup)

@@ -27,8 +27,14 @@ Contributors
 Changes
 =======
 
-0.9.2
+0.9.3dev
 --------
+
+- Add ``User.group_ids``.
+  [rnix, 2012-07-26]
+
+0.9.2
+-----
 
 - Remove outdated stuff.
   [rnix, 2012-05-18]

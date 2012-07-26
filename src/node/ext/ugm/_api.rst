@@ -127,12 +127,19 @@ not contained in Users container::
       ...
     AttributeError: 'NoneType' object has no attribute 'passwd'
 
-Also ``groups`` is not implemented in abstract base part::
+``groups`` is not implemented in abstract base part::
 
     >>> user.groups
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``User`` does not implement ``groups``
+
+``group_ids`` is not implemented in abstract base part::
+
+    >>> user.group_ids
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``User`` does not implement ``group_ids``
 
 Abstract group part::
     

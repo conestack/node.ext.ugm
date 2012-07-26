@@ -418,6 +418,14 @@ Add another Group and add members::
     >>> sepp.groups
     [<Group object 'group2' at ...>]
 
+``group_ids`` attribute on user::
+
+    >>> max.group_ids
+    ['group1', 'group2']
+    
+    >>> sepp.group_ids
+    ['group2']
+
 ``_compare_value`` helper::
 
     >>> users = ugm.users

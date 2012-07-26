@@ -152,6 +152,16 @@ class UserPart(BaseUserPart):
             if self.name in group.member_ids:
                 ret.append(group)
         return ret
+    
+    @default
+    @property
+    def group_ids(self):
+        groups = self.parent.parent.groups
+        ret = list()
+        for group in groups.values():
+            if self.name in group.member_ids:
+                ret.append(group.name)
+        return ret
 
 
 class User(object):
