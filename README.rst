@@ -17,10 +17,24 @@ For more information on plumbing see
 `plumber <http://pypi.python.org/pypi/plumber>`_ package.
 
 
+TestCoverage
+============
+
+Summary of the test coverage report::
+
+    lines   cov%   module
+       19   100%   node.ext.ugm.__init__
+       96   100%   node.ext.ugm._api
+      469    99%   node.ext.ugm.file
+       41   100%   node.ext.ugm.interfaces
+       16   100%   node.ext.ugm.tests
+
+
 Contributors
 ============
 
 - Robert Niederreiter <rnix [at] squarewave [dot] at>
+
 - Florian Friesdorf <flo [at] chaoflow [dot] net>
 
 
@@ -29,6 +43,12 @@ Changes
 
 0.9.3dev
 --------
+
+- Rename parts to behaviors.
+  [rnix, 2012-07-29]
+
+- Adopt to ``plumber`` 1.2.
+  [rnix, 2012-07-29]
 
 - Add ``User.group_ids``.
   [rnix, 2012-07-26]

@@ -1,7 +1,7 @@
 from plumber import (
-    Part,
+    Behavior,
     default,
-    extend,
+    override,
     finalize,
 )
 from zope.interface import implementer
@@ -18,11 +18,11 @@ from node.ext.ugm.interfaces import (
 
 
 @implementer(IPrincipal)
-class Principal(Part):
+class Principal(Behavior):
     """Turn a node into a principal.
     """
     
-    @extend
+    @override
     @property
     def id(self):
         return self.name
@@ -70,16 +70,16 @@ class User(Principal):
     def __iter__(self):
         return iter([])
     
-    @extend
+    @override
     @property
     def login(self):
         return self.attrs.get('login', self.name)
 
-    @extend
+    @override
     def authenticate(self, pw):
         return bool(self.parent.authenticate(id=self.id, pw=pw))
 
-    @extend
+    @override
     def passwd(self, oldpw, newpw):
         """Expect ``passwd`` function on ``self.parent`` which should implement
         IUsers.
@@ -127,12 +127,12 @@ class Group(Principal):
 
 
 @implementer(IPrincipals)
-class Principals(Part):
+class Principals(Behavior):
     """Turn a node into a source of principals.
     """
     principal_factory = default(None)
 
-    @extend
+    @override
     @property
     def ids(self):
         return list(self.__iter__())
@@ -181,7 +181,7 @@ class Groups(Principals):
 
 
 @implementer(IUgm)
-class Ugm(Part):
+class Ugm(Behavior):
     """Turn a node into user and group management API.
     """
     users = default(None)

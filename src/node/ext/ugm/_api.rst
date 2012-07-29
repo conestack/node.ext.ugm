@@ -4,7 +4,7 @@ node.ext.ugm
 ::
 
     >>> from plumber import plumber
-    >>> from node.parts import (
+    >>> from node.behaviors import (
     ...     NodeChildValidate,
     ...     Nodespaces,
     ...     Adopt,
@@ -15,7 +15,7 @@ node.ext.ugm
     ...     OdictStorage,
     ... )
 
-Abstract principal part::
+Abstract principal behavior::
 
     >>> from node.ext.ugm.interfaces import IPrincipal
     >>> from node.ext.ugm import Principal
@@ -65,7 +65,7 @@ on abstract principal::
       ...
     NotImplementedError: Abstract ``Principal`` does not implement ``__call__``
 
-Abstract user part::
+Abstract user behavior::
     
     >>> from node.ext.ugm.interfaces import IUser
     >>> from node.ext.ugm import User
@@ -127,21 +127,21 @@ not contained in Users container::
       ...
     AttributeError: 'NoneType' object has no attribute 'passwd'
 
-``groups`` is not implemented in abstract base part::
+``groups`` is not implemented in abstract base behavior::
 
     >>> user.groups
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``User`` does not implement ``groups``
 
-``group_ids`` is not implemented in abstract base part::
+``group_ids`` is not implemented in abstract base behavior::
 
     >>> user.group_ids
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``User`` does not implement ``group_ids``
 
-Abstract group part::
+Abstract group behavior::
     
     >>> from node.ext.ugm.interfaces import IGroup
     >>> from node.ext.ugm import Group
@@ -165,7 +165,7 @@ Abstract group part::
     >>> IGroup.providedBy(group)
     True
 
-``users`` and ``member_ids`` is not implemented in abstract base part::
+``users`` and ``member_ids`` is not implemented in abstract base behavior::
 
     >>> group.users
     Traceback (most recent call last):
@@ -187,7 +187,7 @@ Abstract group part::
       ...
     NotImplementedError: Group does not implement ``__setitem__``
 
-Abstract principals part::
+Abstract principals behavior::
 
     >>> from node.ext.ugm.interfaces import IPrincipals
     >>> from node.ext.ugm import Principals
@@ -215,7 +215,7 @@ Abstract principals part::
     []
 
 ``search`` ,``create`` and ``__call__`` are not implemented in abstract base 
-part::
+behavior::
 
     >>> principals.search()
     Traceback (most recent call last):
@@ -233,7 +233,7 @@ part::
     NotImplementedError: Abstract ``Principals`` does not implement ``__call__``
 
     
-Abstract users part::
+Abstract users behavior::
 
     >>> from node.ext.ugm.interfaces import IUsers
     >>> from node.ext.ugm import Users
@@ -256,6 +256,11 @@ Abstract users part::
     
     >>> IUsers.providedBy(users)
     True
+    
+    >>> users.id_for_login('foo')
+    Traceback (most recent call last):
+      ...
+    NotImplementedError: Abstract ``Users`` does not implement ``id_for_login``
 
 Add previously created user::
 
@@ -267,7 +272,7 @@ Add previously created user::
     >>> users.ids
     ['someuser']
 
-Abstract users part does not implement ``authenticate`` and ``passwd``::
+Abstract users behavior does not implement ``authenticate`` and ``passwd``::
 
     >>> user.authenticate('secret')
     Traceback (most recent call last):
@@ -279,7 +284,7 @@ Abstract users part does not implement ``authenticate`` and ``passwd``::
       ...
     NotImplementedError: Abstract ``Users`` does not implement ``passwd``
 
-Abstract groups part::
+Abstract groups behavior::
 
     >>> from node.ext.ugm.interfaces import IGroups
     >>> from node.ext.ugm import Groups
@@ -303,7 +308,7 @@ Abstract groups part::
     >>> IGroups.providedBy(groups)
     True
 
-Abstract ugm part::
+Abstract ugm behavior::
 
     >>> from node.ext.ugm.interfaces import IUgm
     >>> from node.ext.ugm import Ugm
@@ -348,8 +353,8 @@ Abstract ugm part::
     >>> ugm.roles_storage
     <function <lambda> at ...>
     
-Abstract ugm part does not implement ``add_role``, ``remove_role``, ``roles``
-and ``__call__``::
+Abstract ugm behavior does not implement ``add_role``, ``remove_role``,
+``roles`` and ``__call__``::
 
     >>> ugm.add_role('role', user)
     Traceback (most recent call last):

@@ -7,10 +7,10 @@ Create a test environment::
     >>> import tempfile
     >>> tempdir = tempfile.mkdtemp()
 
-File storage part::
+File storage behavior::
 
     >>> from plumber import plumber
-    >>> from node.parts import (
+    >>> from node.behaviors import (
     ...     NodeChildValidate,
     ...     Nodespaces,
     ...     Adopt,

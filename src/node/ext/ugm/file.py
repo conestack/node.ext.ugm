@@ -6,15 +6,15 @@ from plumber import (
     plumber,
     plumb,
     default,
-    extend,
-    Part,
+    override,
+    Behavior,
 )
 from node.interfaces import IStorage
 from node.locking import (
     locktree,
     TreeLock,
 )
-from node.parts import (
+from node.behaviors import (
     NodeChildValidate,
     Nodespaces,
     Adopt,
@@ -25,28 +25,28 @@ from node.parts import (
     OdictStorage,
 )
 from node.ext.ugm import (
-    User as BaseUserPart,
-    Group as BaseGroupPart,
-    Users as BaseUsersPart,
-    Groups as BaseGroupsPart,
-    Ugm as BaseUgmPart,
+    User as BaseUserBehavior,
+    Group as BaseGroupBehavior,
+    Users as BaseUsersBehavior,
+    Groups as BaseGroupsBehavior,
+    Ugm as BaseUgmBehavior,
 )
 
 
 class FileStorage(Storage):
-    """Storage part handling key/value pairs in a file.
+    """Storage behavior handling key/value pairs in a file.
     
     Cannot contain node children. Useful for node attributes stored in a file.
     
-    XXX: extend node.parts.common.NodeChildValidate by ``allow_node_childs``
+    XXX: extend node.behaviors.common.NodeChildValidate by ``allow_node_childs``
          attribute.
     """
-    allow_non_node_childs = extend(True)
+    allow_non_node_childs = override(True)
     unicode_keys = default(True)
     unicode_values = default(True)
     delimiter = default(':')
     
-    @extend
+    @override
     def __init__(self, name=None, parent=None, file_path=None):
         self.__name__ = name
         self.__parent__ = parent
@@ -105,7 +105,7 @@ class FileAttributes(object):
     )
 
 
-class UserPart(BaseUserPart):
+class UserBehavior(BaseUserBehavior):
     
     @default
     def user_data_attributes_factory(self, name=None, parent=None):
@@ -117,7 +117,7 @@ class UserPart(BaseUserPart):
     
     attributes_factory = default(user_data_attributes_factory)
     
-    @extend
+    @override
     def __init__(self, name=None, parent=None, data_directory=None):
         self.__name__ = name
         self.__parent__ = parent
@@ -167,7 +167,7 @@ class UserPart(BaseUserPart):
 class User(object):
     __metaclass__ = plumber
     __plumbing__ = (
-        UserPart,
+        UserBehavior,
         NodeChildValidate,
         Nodespaces,
         Attributes,
@@ -175,7 +175,7 @@ class User(object):
     )
 
 
-class GroupPart(BaseGroupPart):
+class GroupBehavior(BaseGroupBehavior):
     
     @default
     def group_data_attributes_factory(self, name=None, parent=None):
@@ -187,7 +187,7 @@ class GroupPart(BaseGroupPart):
     
     attributes_factory = default(group_data_attributes_factory)
     
-    @extend
+    @override
     def __init__(self, name=None, parent=None, data_directory=None):
         self.__name__ = name
         self.__parent__ = parent
@@ -262,7 +262,7 @@ class GroupPart(BaseGroupPart):
 class Group(object):
     __metaclass__ = plumber
     __plumbing__ = (
-        GroupPart,
+        GroupBehavior,
         NodeChildValidate,
         Nodespaces,
         Attributes,
@@ -270,7 +270,7 @@ class Group(object):
     )
 
 
-class SearchPart(Part):
+class SearchBehavior(Behavior):
     
     @default
     def _compare_value(self, term, value):
@@ -356,11 +356,11 @@ class SearchPart(Part):
         return ret
 
 
-class UsersPart(SearchPart, BaseUsersPart):
+class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     
     unicode_values = default(False)
     
-    @extend
+    @override
     def __init__(self, name=None, parent=None,
                  file_path=None, data_directory=None):
         self.__name__ = name
@@ -369,7 +369,7 @@ class UsersPart(SearchPart, BaseUsersPart):
         self.data_directory = data_directory
         self._mem_storage = dict()
     
-    @extend
+    @override
     def __getitem__(self, key):
         if not key in self.storage:
             raise KeyError(key)
@@ -381,7 +381,7 @@ class UsersPart(SearchPart, BaseUsersPart):
             self._mem_storage[key] = user
             return user
     
-    @extend
+    @override
     @locktree
     def __setitem__(self, key, value):
         # set empty password on new added user.
@@ -389,7 +389,7 @@ class UsersPart(SearchPart, BaseUsersPart):
             self.storage[key] = ''
         self._mem_storage[key] = value
     
-    @extend
+    @override
     @locktree
     def __delitem__(self, key):
         user = self[key]
@@ -400,7 +400,7 @@ class UsersPart(SearchPart, BaseUsersPart):
         if key in self.parent.attrs:
             del self.parent.attrs[key]
     
-    @extend
+    @override
     @locktree
     def __call__(self, from_parent=False):
         self.write_file()
@@ -456,7 +456,7 @@ class UsersPart(SearchPart, BaseUsersPart):
 class Users(object):
     __metaclass__ = plumber
     __plumbing__ = (
-        UsersPart,
+        UsersBehavior,
         NodeChildValidate,
         Nodespaces,
         Adopt,
@@ -466,9 +466,9 @@ class Users(object):
     )
 
 
-class GroupsPart(SearchPart, BaseGroupsPart):
+class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
     
-    @extend
+    @override
     def __init__(self, name=None, parent=None,
                  file_path=None, data_directory=None):
         self.__name__ = name
@@ -477,7 +477,7 @@ class GroupsPart(SearchPart, BaseGroupsPart):
         self.data_directory = data_directory
         self._mem_storage = dict()
     
-    @extend
+    @override
     def __getitem__(self, key):
         if not key in self.storage:
             raise KeyError(key)
@@ -489,7 +489,7 @@ class GroupsPart(SearchPart, BaseGroupsPart):
             self._mem_storage[key] = group
             return group
     
-    @extend
+    @override
     @locktree
     def __setitem__(self, key, value):
         # set empty group members on new added group.
@@ -497,7 +497,7 @@ class GroupsPart(SearchPart, BaseGroupsPart):
             self.storage[key] = ''
         self._mem_storage[key] = value
     
-    @extend
+    @override
     @locktree
     def __delitem__(self, key):
         del self.storage[key]
@@ -507,7 +507,7 @@ class GroupsPart(SearchPart, BaseGroupsPart):
         if id in self.parent.attrs:
             del self.parent.attrs[id]
     
-    @extend
+    @override
     @locktree
     def __call__(self, from_parent=False):
         self.write_file()
@@ -528,7 +528,7 @@ class GroupsPart(SearchPart, BaseGroupsPart):
 class Groups(object):
     __metaclass__ = plumber
     __plumbing__ = (
-        GroupsPart,
+        GroupsBehavior,
         NodeChildValidate,
         Nodespaces,
         Adopt,
@@ -538,7 +538,7 @@ class Groups(object):
     )
 
 
-class UgmPart(BaseUgmPart):
+class UgmBehavior(BaseUgmBehavior):
     
     @default
     def role_attributes_factory(self, name=None, parent=None):
@@ -548,7 +548,7 @@ class UgmPart(BaseUgmPart):
     
     attributes_factory = default(role_attributes_factory)
     
-    @extend
+    @override
     def __init__(self,
                  name=None,
                  parent=None,
@@ -563,7 +563,7 @@ class UgmPart(BaseUgmPart):
         self.roles_file = roles_file
         self.data_directory = data_directory
     
-    @extend
+    @override
     def __getitem__(self, key):
         if not key in self.storage:
             if key == 'users':
@@ -574,22 +574,22 @@ class UgmPart(BaseUgmPart):
                                       data_directory=self.data_directory)
         return self.storage[key]
     
-    @extend
+    @override
     @locktree
     def __setitem__(self, key, value):
         self._chk_key(key)
         self.storage[key] = value
     
-    @extend
+    @override
     def __delitem__(self, key):
         raise NotImplementedError(u"Operation forbidden on this node.")
     
-    @extend
+    @override
     def __iter__(self):
         for key in ['users', 'groups']:
             yield key
     
-    @extend
+    @override
     @locktree
     def __call__(self):
         self.attrs()
@@ -659,7 +659,7 @@ class UgmPart(BaseUgmPart):
 class Ugm(object):
     __metaclass__ = plumber
     __plumbing__ = (
-        UgmPart,
+        UgmBehavior,
         NodeChildValidate,
         Nodespaces,
         Adopt,
