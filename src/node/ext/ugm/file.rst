@@ -475,14 +475,14 @@ Test Search on users::
     >>> users.search(criteria=dict(id='max'))
     ['max']
     
-    >>> users.search(criteria=dict(id='max*'))
+    >>> sorted(users.search(criteria=dict(id='max*')))
     ['max', 'maxii']
     
     >>> users.search(criteria=dict(id='sepp'))
     ['sepp']
     
-    >>> users.search(criteria=dict(id='*sep*'))
-    ['sepp', '123sepp']
+    >>> sorted(users.search(criteria=dict(id='*sep*')))
+    ['123sepp', 'sepp']
 
 Search on users exact match::
     
@@ -504,7 +504,8 @@ Search on users attribute list::
     >>> users.search(criteria=dict(id='max'), attrlist=['fullname', 'email'])
     [('max', {'fullname': 'Max Mustermann', 'email': 'foo@bar.com'})]
     
-    >>> users.search(criteria=dict(id='max*'), attrlist=['fullname', 'email'])
+    >>> sorted(users.search(criteria=dict(id='max*'),
+    ...                     attrlist=['fullname', 'email']))
     [('max', 
     {'fullname': 'Max Mustermann', 
     'email': 'foo@bar.com'}), 
@@ -512,14 +513,14 @@ Search on users attribute list::
     {'fullname': '', 
     'email': ''})]
     
-    >>> users.search(criteria=dict(id='*ax*'), attrlist=['id'])
+    >>> sorted(users.search(criteria=dict(id='*ax*'), attrlist=['id']))
     [('max', {'id': 'max'}), ('maxii', {'id': 'maxii'})]
 
 Search on users or search::
 
-    >>> users.search(criteria=dict(fullname='*Muster*', id='max*'),
-    ...              or_search=True)
-    ['max', 'sepp', 'maxii']
+    >>> sorted(users.search(criteria=dict(fullname='*Muster*', id='max*'),
+    ...                     or_search=True))
+    ['max', 'maxii', 'sepp']
     
     >>> users.search(criteria=dict(fullname='*Muster*', id='max*'),
     ...              or_search=False)
@@ -539,10 +540,10 @@ Test Search on groups::
     >>> groups.search(criteria=dict(id='group1'))
     ['group1']
     
-    >>> groups.search(criteria=dict(id='group*'))
+    >>> sorted(groups.search(criteria=dict(id='group*')))
     ['group1', 'group2', 'group3']
     
-    >>> groups.search(criteria=dict(id='*rou*'))
+    >>> sorted(groups.search(criteria=dict(id='*rou*')))
     ['group1', 'group2', 'group3']
     
     >>> groups.search(criteria=dict(id='*3'))
@@ -568,7 +569,8 @@ Search on groups attribute list::
     >>> groups['group1'].attrs['description'] = 'Group 1 Description'
     >>> groups['group2'].attrs['description'] = 'Group 2 Description'
     
-    >>> groups.search(criteria=dict(id='group*'), attrlist=['description'])
+    >>> sorted(groups.search(criteria=dict(id='group*'),
+    ...                      attrlist=['description']))
     [('group1', 
     {'description': 'Group 1 Description'}), 
     ('group2', 
@@ -581,8 +583,8 @@ Search on groups attribute list::
 
 Search on groups or search::
 
-    >>> groups.search(criteria=dict(description='*Desc*', id='*g*'),
-    ...               or_search=True)
+    >>> sorted(groups.search(criteria=dict(description='*Desc*', id='*g*'),
+    ...                      or_search=True))
     ['group1', 'group2', 'group3']
     
     >>> groups.search(criteria=dict(description='*Desc*', id='*1'),
