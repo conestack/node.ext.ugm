@@ -41,8 +41,8 @@ Contributors
 Changes
 =======
 
-0.9.3dev
---------
+0.9.3
+-----
 
 - Rename parts to behaviors.
   [rnix, 2012-07-29]
