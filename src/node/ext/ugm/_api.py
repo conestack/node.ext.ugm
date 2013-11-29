@@ -21,28 +21,28 @@ from node.ext.ugm.interfaces import (
 class Principal(Behavior):
     """Turn a node into a principal.
     """
-    
+
     @override
     @property
     def id(self):
         return self.name
-    
+
     @default
     def add_role(self, role):
         raise NotImplementedError(u"Abstract ``Principal`` does not implement "
                                   u"``add_role``")
-    
+
     @default
     def remove_role(self, role):
         raise NotImplementedError(u"Abstract ``Principal`` does not implement "
                                   u"``remove_role``")
-    
+
     @default
     @property
     def roles(self):
         raise NotImplementedError(u"Abstract ``Principal`` does not implement "
                                   u"``roles``")
-    
+
     @default
     def __call__(self):
         raise NotImplementedError(u"Abstract ``Principal`` does not implement "
@@ -53,23 +53,23 @@ class Principal(Behavior):
 class User(Principal):
     """Turn a node into a user.
     """
-    
+
     @finalize
     def __getitem__(self, key):
         raise NotImplementedError(u"User does not implement ``__getitem__``")
-    
+
     @finalize
     def __setitem__(self, key, value):
         raise NotImplementedError(u"User does not implement ``__setitem__``")
-    
+
     @finalize
     def __delitem__(self, key):
         raise NotImplementedError(u"User does not implement ``__delitem__``")
-    
+
     @finalize
     def __iter__(self):
         return iter([])
-    
+
     @override
     @property
     def login(self):
@@ -85,13 +85,13 @@ class User(Principal):
         IUsers.
         """
         self.parent.passwd(id=self.id, oldpw=oldpw, newpw=newpw)
-    
+
     @default
     @property
     def groups(self):
         raise NotImplementedError(u"Abstract ``User`` does not implement "
                                   u"``groups``")
-    
+
     @default
     @property
     def group_ids(self):
@@ -103,23 +103,23 @@ class User(Principal):
 class Group(Principal):
     """Turn a node into a group.
     """
-    
+
     @finalize
     def __setitem__(self, kex, value):
         raise NotImplementedError(u"Group does not implement ``__setitem__``")
-    
+
     @default
     @property
     def users(self):
         raise NotImplementedError(u"Abstract ``Group`` does not implement "
                                   u"``users``")
-    
+
     @default
     @property
     def member_ids(self):
         raise NotImplementedError(u"Abstract ``Group`` does not implement "
                                   u"``member_ids``")
-    
+
     @default
     def add(self, id):
         raise NotImplementedError(u"Abstract ``Group`` does not implement "
@@ -141,12 +141,12 @@ class Principals(Behavior):
     def search(self, **kw):
         raise NotImplementedError(u"Abstract ``Principals`` does not implement "
                                   u"``search``")
-    
+
     @default
     def create(self, _id, **kw):
         raise NotImplementedError(u"Abstract ``Principals`` does not implement "
                                   u"``create``")
-    
+
     @default
     def __call__(self):
         raise NotImplementedError(u"Abstract ``Principals`` does not implement "
@@ -157,17 +157,17 @@ class Principals(Behavior):
 class Users(Principals):
     """Turn a node into source of users.
     """
-    
+
     @default
     def id_for_login(self, login):
         raise NotImplementedError(u"Abstract ``Users`` does not implement "
                                   u"``id_for_login``")
-    
+
     @default
     def authenticate(self, id=None, pw=None):
         raise NotImplementedError(u"Abstract ``Users`` does not implement "
                                   u"``authenticate``")
-    
+
     @default
     def passwd(self, id, oldpw, newpw):
         raise NotImplementedError(u"Abstract ``Users`` does not implement "
@@ -187,22 +187,22 @@ class Ugm(Behavior):
     users = default(None)
     groups = default(None)
     roles_storage = default(None)
-    
+
     @default
     def __call__(self):
         raise NotImplementedError(u"Abstract ``Ugm`` does not implement "
                                   u"``__call__``")
-    
+
     @default
     def add_role(self, role, principal):
         raise NotImplementedError(u"Abstract ``Ugm`` does not implement "
                                   u"``add_role``")
-    
+
     @default
     def remove_role(self, role, principal):
         raise NotImplementedError(u"Abstract ``Ugm`` does not implement "
                                   u"``remove_role``")
-    
+
     @default
     def roles(self, principal):
         raise NotImplementedError(u"Abstract ``Ugm`` does not implement "
