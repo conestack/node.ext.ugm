@@ -23,9 +23,9 @@ TestCoverage
 Summary of the test coverage report::
 
     lines   cov%   module
-       19   100%   node.ext.ugm.__init__
+       18   100%   node.ext.ugm.__init__
        96   100%   node.ext.ugm._api
-      469    99%   node.ext.ugm.file
+      473    99%   node.ext.ugm.file
        41   100%   node.ext.ugm.interfaces
        16   100%   node.ext.ugm.tests
 
@@ -40,6 +40,14 @@ Contributors
 
 Changes
 =======
+
+0.9.4
+-----
+
+- Use better password hashing for file based default UGM implementation.
+  **Warning** - all existing passwords in user table do not work any longer
+  and must be reset.
+  [rnix, 2014-06-13]
 
 0.9.3
 -----

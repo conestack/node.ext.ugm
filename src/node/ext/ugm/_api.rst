@@ -31,14 +31,14 @@ Abstract principal behavior::
     ...         Principal,
     ...         DictStorage,
     ...     )
-    
+
     >>> principal = PrincipalNode(name='someprincipal')
     >>> principal
     <PrincipalNode object 'someprincipal' at ...>
-    
+
     >>> IPrincipal.providedBy(principal)
     True
-    
+
     >>> [key for key in principal]
     []
 
@@ -49,24 +49,24 @@ on abstract principal::
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Principal`` does not implement ``add_role``
-    
+
     >>> principal.remove_role('role')
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Principal`` does not implement ``remove_role``
-    
+
     >>> principal.roles
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Principal`` does not implement ``roles``
-    
+
     >>> principal()
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Principal`` does not implement ``__call__``
 
 Abstract user behavior::
-    
+
     >>> from node.ext.ugm.interfaces import IUser
     >>> from node.ext.ugm import User
     >>> class UserNode(object):
@@ -81,36 +81,36 @@ Abstract user behavior::
     ...         User,
     ...         DictStorage,
     ...     )
-    
+
     >>> user = UserNode(name='someuser')
     >>> user
     <UserNode object 'someuser' at ...>
-    
+
     >>> IUser.providedBy(user)
     True
-    
+
     >>> user.login
     'someuser'
-    
+
     >>> user.attrs['login'] = 'foo@bar.baz'
     >>> user.login
     'foo@bar.baz'
-    
+
     >>> user['foo']
     Traceback (most recent call last):
       ...
     NotImplementedError: User does not implement ``__getitem__``
-    
+
     >>> user['foo'] = UserNode()
     Traceback (most recent call last):
       ...
     NotImplementedError: User does not implement ``__setitem__``
-    
+
     >>> del user['foo']
     Traceback (most recent call last):
       ...
     NotImplementedError: User does not implement ``__delitem__``
-    
+
     >>> [x for x in user]
     []
 
@@ -142,7 +142,7 @@ not contained in Users container::
     NotImplementedError: Abstract ``User`` does not implement ``group_ids``
 
 Abstract group behavior::
-    
+
     >>> from node.ext.ugm.interfaces import IGroup
     >>> from node.ext.ugm import Group
     >>> class GroupNode(object):
@@ -157,11 +157,11 @@ Abstract group behavior::
     ...         Group,
     ...         DictStorage,
     ...     )
-    
+
     >>> group = GroupNode(name='somegroup')
     >>> group
     <GroupNode object 'somegroup' at ...>
-    
+
     >>> IGroup.providedBy(group)
     True
 
@@ -171,17 +171,17 @@ Abstract group behavior::
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Group`` does not implement ``users``
-    
+
     >>> group.member_ids
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Group`` does not implement ``member_ids``
-    
+
     >>> group.add('foo')
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Group`` does not implement ``add``
-    
+
     >>> group['foo'] = GroupNode()
     Traceback (most recent call last):
       ...
@@ -203,14 +203,14 @@ Abstract principals behavior::
     ...         Principals,
     ...         OdictStorage,
     ...     )
-    
+
     >>> principals = PrincipalsNode(name='principals')
     >>> principals
     <PrincipalsNode object 'principals' at ...>
-    
+
     >>> IPrincipals.providedBy(principals)
     True
-    
+
     >>> principals.ids
     []
 
@@ -221,18 +221,17 @@ behavior::
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Principals`` does not implement ``search``
-    
+
     >>> principals.create('foo')
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Principals`` does not implement ``create``
-    
+
     >>> principals()
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Principals`` does not implement ``__call__``
 
-    
 Abstract users behavior::
 
     >>> from node.ext.ugm.interfaces import IUsers
@@ -249,14 +248,14 @@ Abstract users behavior::
     ...         Users,
     ...         OdictStorage,
     ...     )
-    
+
     >>> users = UsersNode(name='users')
     >>> users
     <UsersNode object 'users' at ...>
-    
+
     >>> IUsers.providedBy(users)
     True
-    
+
     >>> users.id_for_login('foo')
     Traceback (most recent call last):
       ...
@@ -268,7 +267,7 @@ Add previously created user::
     >>> users.printtree()
     <class 'UsersNode'>: users
       <class 'UserNode'>: someuser
-    
+
     >>> users.ids
     ['someuser']
 
@@ -300,11 +299,11 @@ Abstract groups behavior::
     ...         Groups,
     ...         OdictStorage,
     ...     )
-    
+
     >>> groups = GroupsNode(name='groups')
     >>> groups
     <GroupsNode object 'groups' at ...>
-    
+
     >>> IGroups.providedBy(groups)
     True
 
@@ -336,23 +335,23 @@ Abstract ugm behavior::
     ...     @property
     ...     def roles_storage(self):
     ...         return lambda: None
-    
+
     >>> ugm = UgmNode('ugm', users, groups)
     >>> ugm
     <UgmNode object 'ugm' at ...>
-    
+
     >>> IUgm.providedBy(ugm)
     True
-    
+
     >>> ugm.users
     <UsersNode object 'users' at ...>
-    
+
     >>> ugm.groups
     <GroupsNode object 'groups' at ...>
-    
+
     >>> ugm.roles_storage
     <function <lambda> at ...>
-    
+
 Abstract ugm behavior does not implement ``add_role``, ``remove_role``,
 ``roles`` and ``__call__``::
 
@@ -360,17 +359,17 @@ Abstract ugm behavior does not implement ``add_role``, ``remove_role``,
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Ugm`` does not implement ``add_role``
-    
+
     >>> ugm.remove_role('role', user)
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Ugm`` does not implement ``remove_role``
-    
+
     >>> ugm.roles(user)
     Traceback (most recent call last):
       ...
     NotImplementedError: Abstract ``Ugm`` does not implement ``roles``
-    
+
     >>> ugm()
     Traceback (most recent call last):
       ...

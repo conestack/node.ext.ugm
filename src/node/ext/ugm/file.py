@@ -1,6 +1,8 @@
 import os
-import crypt
 import hashlib
+import base64
+import getpass
+
 from odict import odict
 from plumber import (
     plumber,
@@ -361,6 +363,8 @@ class SearchBehavior(Behavior):
 class UsersBehavior(SearchBehavior, BaseUsersBehavior):
 
     unicode_values = default(False)
+    salt_len = default(8)
+    hash_func = default(hashlib.sha256)
 
     @override
     def __init__(self, name=None, parent=None,
@@ -441,18 +445,15 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
         if self.storage[id]:
             if not self._chk_pw(oldpw, self.storage[id]):
                 raise ValueError(u"Old password does not match.")
-        self.storage[id] = crypt.crypt(newpw, self._get_salt(id))
-
-    @default
-    def _get_salt(self, id):
-        hash = hashlib.md5()
-        hash.update(id)
-        return hash.digest()[:2]
+        salt = os.urandom(self.salt_len)
+        hashed = base64.b64encode(self.hash_func(newpw + salt).digest() + salt)
+        self.storage[id] = hashed
 
     @default
     def _chk_pw(self, plain, hashed):
-        salt = hashed[:2]
-        return hashed == crypt.crypt(plain, salt)
+        hashed = base64.b64decode(hashed)
+        salt = hashed[-self.salt_len:]
+        return hashed == self.hash_func(plain + salt).digest() + salt
 
 
 class Users(object):

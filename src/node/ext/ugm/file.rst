@@ -19,7 +19,7 @@ File storage behavior::
     ...     Nodify,
     ... )
     >>> from node.ext.ugm.file import FileStorage
-    
+
     >>> class FileStorageNode(object):
     ...     __metaclass__ = plumber
     ...     __plumbing__ = (
@@ -35,44 +35,44 @@ File storage behavior::
     ...         self.__name__ = None
     ...         self.__parent__ = None
     ...         self.file_path = file_path
-    
+
     >>> file_path = os.path.join(tempdir, 'filestorage')
     >>> file_path
     '/.../filestorage'
-    
+
     >>> fsn = FileStorageNode(file_path)
     >>> fsn
     <FileStorageNode object 'None' at ...>
-    
+
     >>> list(fsn.__iter__())
     []
-    
+
     >>> fsn['inexistent']
     Traceback (most recent call last):
       ...
     KeyError: 'inexistent'
-    
+
     >>> del fsn['inexistent']
     Traceback (most recent call last):
       ...
     KeyError: 'inexistent'
-    
+
     >>> fsn['foo'] = 'foo'
     >>> fsn.keys()
     ['foo']
-    
+
     >>> fsn['foo']
     'foo'
-    
+
     >>> fsn['bar'] = 'bar'
-    
+
 File not written yet::
 
     >>> open(file_path)
     Traceback (most recent call last):
       ...
     IOError: [Errno 2] No such file or directory: '/.../filestorage'
-    
+
     >>> fsn()
     >>> with open(file_path) as file:
     ...     for line in file:
@@ -87,7 +87,7 @@ Recreate::
     >>> fsn = FileStorageNode(file_path)
     >>> fsn.keys()
     [u'foo', u'bar']
-    
+
     >>> fsn.values()
     [u'foo', u'bar']
 
@@ -95,7 +95,7 @@ Test unicode::
 
     >>> fsn[u'\xe4\xf6\xfc'] = u'\xe4\xf6\xfc'
     >>> fsn()
-    
+
     >>> fsn = FileStorageNode(file_path)
     >>> fsn.items()
     [(u'foo', u'foo'), (u'bar', u'bar'), (u'\xe4\xf6\xfc', u'\xe4\xf6\xfc')]
@@ -116,30 +116,30 @@ Ugm root object::
     ...           groups_file=groups_file,
     ...           roles_file=roles_file,
     ...           data_directory=datadir)
-    
+
     >>> ugm
     <Ugm object 'ugm' at ...>
-    
+
     >>> ugm.users
     <Users object 'users' at ...>
-    
+
     >>> ugm.groups
     <Groups object 'groups' at ...>
-    
+
     >>> ugm.attrs
     <FileAttributes object '__attrs__' at ...>
-    
+
     >>> ugm.roles_storage
     <FileAttributes object '__attrs__' at ...>
-    
+
     >>> ugm.attrs is ugm.roles_storage
     True
-    
+
     >>> del ugm['users']
     Traceback (most recent call last):
       ...
     NotImplementedError: Operation forbidden on this node.
-    
+
     >>> ugm['inexistent'] = ugm.users
     Traceback (most recent call last):
       ...
@@ -149,7 +149,7 @@ Nothing created yet::
 
     >>> sorted(os.listdir(tempdir))
     ['filestorage', 'principal_data']
-    
+
 Calling UGM persists::
 
     >>> ugm()
@@ -163,7 +163,7 @@ Add new User::
     ...                         email='foo@bar.com')
     >>> user
     <User object 'max' at ...>
-    
+
     >>> ugm.printtree()
     <class 'node.ext.ugm.file.Ugm'>: ugm
       <class 'node.ext.ugm.file.Users'>: users
@@ -175,30 +175,30 @@ Nothing written yet::
     >>> file = open(ugm.users.file_path)
     >>> file.readlines()
     []
-    
+
     >>> file.close()
-    
+
     >>> user.attrs.file_path
     '/.../principal_data/users/max'
-    
+
     >>> file = open(user.attrs.file_path)
     Traceback (most recent call last):
       ...
     IOError: [Errno 2] No such file or directory: '/.../users/max'
-    
+
 Persist and read related files again::
 
     >>> ugm()
     >>> file = open(ugm.users.file_path)
     >>> file.readlines()
     ['max:\n']
-    
+
     >>> file.close()
     >>> file = open(user.attrs.file_path)
     >>> file.readlines()
     ['fullname:Max Mustermann\n', 
     'email:foo@bar.com\n']
-    
+
     >>> file.close()
 
 Authentication is prohibited for users without a password::
@@ -212,8 +212,8 @@ Set Password for new User::
     >>> ugm()
     >>> file = open(ugm.users.file_path)
     >>> file.readlines()
-    ['max:/\xfeqwgR8ohuY5M\n']
-    
+    ['max:...\n']
+
     >>> file.close()
 
 Password for inextistent user::
@@ -236,18 +236,18 @@ Set new password for max::
     >>> ugm()
     >>> file = open(ugm.users.file_path)
     >>> file.readlines()
-    ['max:/\xfe3434cetAdTc\n']
-    
+    ['max:...\n']
+
     >>> file.close()
 
 Authentication::
 
     >>> ugm.users.authenticate('inexistent', 'secret')
     False
-    
+
     >>> ugm.users.authenticate('max', 'secret')
     False
-    
+
     >>> ugm.users.authenticate('max', 'secret1')
     True
 
@@ -258,19 +258,19 @@ Add another user::
     ...                         email='baz@bar.com')
     >>> ugm.users.passwd('sepp', '', 'secret')
     >>> ugm()
-    
+
     >>> ugm.printtree()
     <class 'node.ext.ugm.file.Ugm'>: ugm
       <class 'node.ext.ugm.file.Users'>: users
         <class 'node.ext.ugm.file.User'>: max
         <class 'node.ext.ugm.file.User'>: sepp
       <class 'node.ext.ugm.file.Groups'>: groups
-    
+
     >>> file = open(ugm.users.file_path)
     >>> file.readlines()
-    ['max:/\xfe3434cetAdTc\n', 
-    'sepp:\xec\xb8Go8sxwk1E6g\n']
-    
+    ['max:...\n', 
+    'sepp:...\n']
+
     >>> file.close()
 
 ``__setitem__`` on user is prohibited::
@@ -285,7 +285,7 @@ Add new Group::
     >>> group = ugm.groups.create('group1', description='Group 1 Description')
     >>> group
     <Group object 'group1' at ...>
-    
+
     >>> ugm.printtree()
     <class 'node.ext.ugm.file.Ugm'>: ugm
       <class 'node.ext.ugm.file.Users'>: users
@@ -299,12 +299,12 @@ Nothing written yet::
     >>> file = open(ugm.groups.file_path)
     >>> file.readlines()
     []
-    
+
     >>> file.close()
-    
+
     >>> group.attrs.file_path
     '/.../principal_data/groups/group1'
-    
+
     >>> file = open(group.attrs.file_path)
     Traceback (most recent call last):
       ...
@@ -316,12 +316,12 @@ Persist and read related files again::
     >>> file = open(ugm.groups.file_path)
     >>> file.readlines()
     ['group1:\n']
-    
+
     >>> file.close()
     >>> file = open(group.attrs.file_path)
     >>> file.readlines()
     ['description:Group 1 Description\n']
-    
+
     >>> file.close()
 
 No members yet::
@@ -341,14 +341,14 @@ A user is added to a group via ``add``::
     >>> id = ugm.users['max'].name
     >>> id
     'max'
-    
+
     >>> group.add(id)
     >>> group.member_ids
     ['max']
-    
+
     >>> group.users
     [<User object 'max' at ...>]
-    
+
     >>> group['max']
     <User object 'max' at ...>
 
@@ -357,14 +357,14 @@ Nothing written yet::
     >>> file = open(ugm.groups.file_path)
     >>> file.readlines()
     ['group1:\n']
-    
+
     >>> file.close()
-    
+
     >>> ugm()
     >>> file = open(ugm.groups.file_path)
     >>> file.readlines()
     ['group1:max\n']
-    
+
     >>> file.close()
 
 Note, parent of returned user is users object, not group::
@@ -377,10 +377,10 @@ Add another Group and add members::
     >>> group = ugm.groups.create('group2', description='Group 2 Description')
     >>> group
     <Group object 'group2' at ...>
-    
+
     >>> group.add('max')
     >>> group.add('sepp')
-    
+
     >>> ugm.printtree()
     <class 'node.ext.ugm.file.Ugm'>: ugm
       <class 'node.ext.ugm.file.Users'>: users
@@ -392,19 +392,19 @@ Add another Group and add members::
         <class 'node.ext.ugm.file.Group'>: group2
           <class 'node.ext.ugm.file.User'>: max
           <class 'node.ext.ugm.file.User'>: sepp
-    
+
     >>> file = open(ugm.groups.file_path)
     >>> file.readlines()
     ['group1:max\n']
-    
+
     >>> file.close()
-    
+
     >>> ugm()
     >>> file = open(ugm.groups.file_path)
     >>> file.readlines()
     ['group1:max\n', 
     'group2:max,sepp\n']
-    
+
     >>> file.close()
 
 ``groups`` attribute on user::
@@ -413,7 +413,7 @@ Add another Group and add members::
     >>> max.groups
     [<Group object 'group1' at ...>, 
     <Group object 'group2' at ...>]
-    
+
     >>> sepp = ugm.users['sepp']
     >>> sepp.groups
     [<Group object 'group2' at ...>]
@@ -422,7 +422,7 @@ Add another Group and add members::
 
     >>> max.group_ids
     ['group1', 'group2']
-    
+
     >>> sepp.group_ids
     ['group2']
 
@@ -431,28 +431,28 @@ Add another Group and add members::
     >>> users = ugm.users
     >>> users._compare_value('*', '')
     True
-    
+
     >>> users._compare_value('**', '')
     False
-    
+
     >>> users._compare_value('aa', 'aa')
     True
-    
+
     >>> users._compare_value('aa', 'aaa')
     False
-    
+
     >>> users._compare_value('*a*', 'abc')
     True
-    
+
     >>> users._compare_value('*a', 'abc')
     False
-    
+
     >>> users._compare_value('*c', 'abc')
     True
-    
+
     >>> users._compare_value('a*', 'abc')
     True
-    
+
     >>> users._compare_value('c*', 'abc')
     False
 
@@ -460,10 +460,10 @@ Some more users::
 
     >>> users.create('maxii')
     <User object 'maxii' at ...>
-    
+
     >>> users.create('123sepp')
     <User object '123sepp' at ...>
-    
+
     >>> users.keys()
     ['max', 'sepp', 'maxii', '123sepp']
 
@@ -471,39 +471,39 @@ Test Search on users::
 
     >>> users.search()
     []
-    
+
     >>> users.search(criteria=dict(id='max'))
     ['max']
-    
+
     >>> sorted(users.search(criteria=dict(id='max*')))
     ['max', 'maxii']
-    
+
     >>> users.search(criteria=dict(id='sepp'))
     ['sepp']
-    
+
     >>> sorted(users.search(criteria=dict(id='*sep*')))
     ['123sepp', 'sepp']
 
 Search on users exact match::
-    
+
     >>> users.search(criteria=dict(id='max'), exact_match=True)
     ['max']
-    
+
     >>> users.search(criteria=dict(id='max*'), exact_match=True)
     Traceback (most recent call last):
       ...
     ValueError: Exact match asked but result not unique
-    
+
     >>> users.search(criteria=dict(id='inexistent'), exact_match=True)
     Traceback (most recent call last):
       ...
     ValueError: Exact match asked but result length is zero
-    
+
 Search on users attribute list::
-    
+
     >>> users.search(criteria=dict(id='max'), attrlist=['fullname', 'email'])
     [('max', {'fullname': 'Max Mustermann', 'email': 'foo@bar.com'})]
-    
+
     >>> sorted(users.search(criteria=dict(id='max*'),
     ...                     attrlist=['fullname', 'email']))
     [('max', 
@@ -512,7 +512,7 @@ Search on users attribute list::
     ('maxii', 
     {'fullname': '', 
     'email': ''})]
-    
+
     >>> sorted(users.search(criteria=dict(id='*ax*'), attrlist=['id']))
     [('max', {'id': 'max'}), ('maxii', {'id': 'maxii'})]
 
@@ -521,7 +521,7 @@ Search on users or search::
     >>> sorted(users.search(criteria=dict(fullname='*Muster*', id='max*'),
     ...                     or_search=True))
     ['max', 'maxii', 'sepp']
-    
+
     >>> users.search(criteria=dict(fullname='*Muster*', id='max*'),
     ...              or_search=False)
     ['max']
@@ -531,7 +531,7 @@ Some more groups::
     >>> groups = ugm.groups
     >>> groups.create('group3')
     <Group object 'group3' at ...>
-    
+
     >>> groups.keys()
     ['group1', 'group2', 'group3']
 
@@ -539,26 +539,26 @@ Test Search on groups::
 
     >>> groups.search(criteria=dict(id='group1'))
     ['group1']
-    
+
     >>> sorted(groups.search(criteria=dict(id='group*')))
     ['group1', 'group2', 'group3']
-    
+
     >>> sorted(groups.search(criteria=dict(id='*rou*')))
     ['group1', 'group2', 'group3']
-    
+
     >>> groups.search(criteria=dict(id='*3'))
     ['group3']
 
 Search on groups exact match::
-    
+
     >>> groups.search(criteria=dict(id='group1'), exact_match=True)
     ['group1']
-    
+
     >>> groups.search(criteria=dict(id='group*'), exact_match=True)
     Traceback (most recent call last):
       ...
     ValueError: Exact match asked but result not unique
-    
+
     >>> groups.search(criteria=dict(id='inexistent'), exact_match=True)
     Traceback (most recent call last):
       ...
@@ -568,7 +568,7 @@ Search on groups attribute list::
 
     >>> groups['group1'].attrs['description'] = 'Group 1 Description'
     >>> groups['group2'].attrs['description'] = 'Group 2 Description'
-    
+
     >>> sorted(groups.search(criteria=dict(id='group*'),
     ...                      attrlist=['description']))
     [('group1', 
@@ -577,7 +577,7 @@ Search on groups attribute list::
     {'description': 'Group 2 Description'}), 
     ('group3', 
     {'description': ''})]
-    
+
     >>> groups.search(criteria=dict(id='*2'), attrlist=['id', 'description'])
     [('group2', {'id': 'group2', 'description': 'Group 2 Description'})]
 
@@ -586,11 +586,11 @@ Search on groups or search::
     >>> sorted(groups.search(criteria=dict(description='*Desc*', id='*g*'),
     ...                      or_search=True))
     ['group1', 'group2', 'group3']
-    
+
     >>> groups.search(criteria=dict(description='*Desc*', id='*1'),
     ...               or_search=False)
     ['group1']
-    
+
     >>> groups.search(criteria=dict(description='*Desc*', id='*3'),
     ...               or_search=False)
     []
@@ -610,12 +610,12 @@ Delete user from group::
       <class 'node.ext.ugm.file.Group'>: group2
         <class 'node.ext.ugm.file.User'>: max
         <class 'node.ext.ugm.file.User'>: sepp
-    
+
     >>> del ugm.groups['group2']['inexistent']
     Traceback (most recent call last):
       ...
     KeyError: 'inexistent'
-    
+
     >>> del ugm.groups['group2']['max']
     >>> ugm.groups.printtree()
     <class 'node.ext.ugm.file.Groups'>: groups
@@ -630,7 +630,7 @@ Not persisted yet::
     >>> file.readlines()
     ['group1:max\n', 
     'group2:max,sepp\n']
-    
+
     >>> file.close()
 
 Call tree and check result::
@@ -640,7 +640,7 @@ Call tree and check result::
     >>> file.readlines()
     ['group1:max\n', 
     'group2:sepp\n']
-    
+
     >>> file.close()
 
 Recreate ugm object::
@@ -657,7 +657,7 @@ Users ``__getitem__``::
     Traceback (most recent call last):
       ...
     KeyError: 'inexistent'
-    
+
     >>> ugm.users['max']
     <User object 'max' at ...>
 
@@ -667,7 +667,7 @@ Groups ``__getitem__``::
     Traceback (most recent call last):
       ...
     KeyError: 'inexistent'
-    
+
     >>> ugm.groups['group1']
     <Group object 'group1' at ...>
 
@@ -724,7 +724,7 @@ After ``__call__`` roles are persisted::
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
     ['max::manager\n']
-    
+
     >>> file.close()
 
 Add role for User via Ugm object::
@@ -732,7 +732,7 @@ Add role for User via Ugm object::
     >>> ugm.add_role('supervisor', user)
     >>> user.roles
     ['manager', 'supervisor']
-    
+
     >>> ugm.roles(user) == user.roles
     True
 
@@ -742,7 +742,7 @@ Call and check result::
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
     ['max::manager,supervisor\n']
-    
+
     >>> file.close()
 
 Remove User role::
@@ -764,7 +764,7 @@ Call persists::
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
     ['max::manager\n']
-    
+
     >>> file.close()
 
 Role Management for Group.
@@ -793,7 +793,7 @@ Group role not written yet::
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
     ['max::manager\n']
-    
+
     >>> file.close()
 
 After ``__call__`` roles are persisted::
@@ -803,7 +803,7 @@ After ``__call__`` roles are persisted::
     >>> file.readlines()
     ['max::manager\n', 
     'group:group1::authenticated\n']
-    
+
     >>> file.close()
 
 Add role for Group via Ugm object::
@@ -811,7 +811,7 @@ Add role for Group via Ugm object::
     >>> ugm.add_role('editor', group)
     >>> group.roles
     ['authenticated', 'editor']
-    
+
     >>> ugm.roles(group) == group.roles
     True
 
@@ -822,7 +822,7 @@ Call and check result::
     >>> file.readlines()
     ['max::manager\n', 
     'group:group1::authenticated,editor\n']
-    
+
     >>> file.close()
 
 Remove Group role::
@@ -839,13 +839,13 @@ Remove inexistent role fails::
     ValueError: Principal does not has role 'editor'
 
 Call persists::
-    
+
     >>> group()
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
     ['max::manager\n', 
     'group:group1::authenticated\n']
-    
+
     >>> file.close()
 
 Users ``__delitem__``::
@@ -860,12 +860,12 @@ Users ``__delitem__``::
         <class 'node.ext.ugm.file.Group'>: group1
         <class 'node.ext.ugm.file.Group'>: group2
           <class 'node.ext.ugm.file.User'>: sepp
-    
+
     >>> users()
     >>> file = open(ugm.users.file_path)
     >>> file.readlines()
-    ['sepp:\xec\xb8Go8sxwk1E6g\n']
-    
+    ['sepp:...\n']
+
     >>> file.close()
 
 Roles for user are deleted as well::
@@ -873,7 +873,7 @@ Roles for user are deleted as well::
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
     ['group:group1::authenticated\n']
-    
+
     >>> file.close()
 
 Groups ``__delitem__``::
@@ -887,12 +887,12 @@ Groups ``__delitem__``::
       <class 'node.ext.ugm.file.Groups'>: groups
         <class 'node.ext.ugm.file.Group'>: group2
           <class 'node.ext.ugm.file.User'>: sepp
-    
+
     >>> groups()
     >>> file = open(ugm.groups.file_path)
     >>> file.readlines()
     ['group2:sepp\n']
-    
+
     >>> file.close()
 
 Roles for group are deleted as well::
@@ -900,10 +900,10 @@ Roles for group are deleted as well::
     >>> file = open(ugm.roles_file)
     >>> file.readlines()
     []
-    
+
     >>> file.close()
 
 Cleanup test environment::
-  
+
     >>> import shutil
     >>> shutil.rmtree(tempdir)
