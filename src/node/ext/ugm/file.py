@@ -1,8 +1,6 @@
 import os
 import hashlib
 import base64
-import getpass
-
 from odict import odict
 from plumber import (
     plumber,
