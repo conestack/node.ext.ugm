@@ -3,7 +3,7 @@ import hashlib
 import base64
 from odict import odict
 from plumber import (
-    plumber,
+    plumbing,
     plumb,
     default,
     override,
@@ -97,14 +97,13 @@ class FileStorage(Storage):
         self.write_file()
 
 
+@plumbing(
+    NodeChildValidate,
+    Adopt,
+    Nodify,
+    FileStorage)
 class FileAttributes(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        NodeChildValidate,
-        Adopt,
-        Nodify,
-        FileStorage,
-    )
+    pass
 
 
 class UserBehavior(BaseUserBehavior):
@@ -166,15 +165,14 @@ class UserBehavior(BaseUserBehavior):
         return ret
 
 
+@plumbing(
+    UserBehavior,
+    NodeChildValidate,
+    Nodespaces,
+    Attributes,
+    Nodify)
 class User(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        UserBehavior,
-        NodeChildValidate,
-        Nodespaces,
-        Attributes,
-        Nodify,
-    )
+    pass
 
 
 class GroupBehavior(BaseGroupBehavior):
@@ -261,15 +259,14 @@ class GroupBehavior(BaseGroupBehavior):
         self.parent.storage[self.name] = ','.join(member_ids)
 
 
+@plumbing(
+    GroupBehavior,
+    NodeChildValidate,
+    Nodespaces,
+    Attributes,
+    Nodify)
 class Group(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        GroupBehavior,
-        NodeChildValidate,
-        Nodespaces,
-        Attributes,
-        Nodify,
-    )
+    pass
 
 
 class SearchBehavior(Behavior):
@@ -454,17 +451,16 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
         return hashed == self.hash_func(plain + salt).digest() + salt
 
 
+@plumbing(
+    UsersBehavior,
+    NodeChildValidate,
+    Nodespaces,
+    Adopt,
+    Attributes,
+    Nodify,
+    FileStorage)
 class Users(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        UsersBehavior,
-        NodeChildValidate,
-        Nodespaces,
-        Adopt,
-        Attributes,
-        Nodify,
-        FileStorage,
-    )
+    pass
 
 
 class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
@@ -526,17 +522,16 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
         return group
 
 
+@plumbing(
+    GroupsBehavior,
+    NodeChildValidate,
+    Nodespaces,
+    Adopt,
+    Attributes,
+    Nodify,
+    FileStorage)
 class Groups(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        GroupsBehavior,
-        NodeChildValidate,
-        Nodespaces,
-        Adopt,
-        Attributes,
-        Nodify,
-        FileStorage,
-    )
+    pass
 
 
 class UgmBehavior(BaseUgmBehavior):
@@ -657,15 +652,14 @@ class UgmBehavior(BaseUgmBehavior):
             raise KeyError(key)
 
 
+@plumbing(
+    UgmBehavior,
+    NodeChildValidate,
+    Nodespaces,
+    Adopt,
+    Attributes,
+    DefaultInit,
+    Nodify,
+    OdictStorage)
 class Ugm(object):
-    __metaclass__ = plumber
-    __plumbing__ = (
-        UgmBehavior,
-        NodeChildValidate,
-        Nodespaces,
-        Adopt,
-        Attributes,
-        DefaultInit,
-        Nodify,
-        OdictStorage,
-    )
+    pass

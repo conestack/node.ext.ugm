@@ -3,7 +3,7 @@ node.ext.ugm
 
 ::
 
-    >>> from plumber import plumber
+    >>> from plumber import plumbing
     >>> from node.behaviors import (
     ...     NodeChildValidate,
     ...     Nodespaces,
@@ -19,18 +19,18 @@ Abstract principal behavior::
 
     >>> from node.ext.ugm.interfaces import IPrincipal
     >>> from node.ext.ugm import Principal
-    >>> class PrincipalNode(object):
-    ...     __metaclass__ = plumber
-    ...     __plumbing__ = (
-    ...         NodeChildValidate,
-    ...         Nodespaces,
-    ...         Adopt,
-    ...         Attributes,
-    ...         DefaultInit,
-    ...         Nodify,
-    ...         Principal,
-    ...         DictStorage,
-    ...     )
+
+    >>> @plumbing(
+    ...     NodeChildValidate,
+    ...     Nodespaces,
+    ...     Adopt,
+    ...     Attributes,
+    ...     DefaultInit,
+    ...     Nodify,
+    ...     Principal,
+    ...     DictStorage)
+    ... class PrincipalNode(object):
+    ...     pass
 
     >>> principal = PrincipalNode(name='someprincipal')
     >>> principal
@@ -69,18 +69,18 @@ Abstract user behavior::
 
     >>> from node.ext.ugm.interfaces import IUser
     >>> from node.ext.ugm import User
-    >>> class UserNode(object):
-    ...     __metaclass__ = plumber
-    ...     __plumbing__ = (
-    ...         NodeChildValidate,
-    ...         Nodespaces,
-    ...         Adopt,
-    ...         Attributes,
-    ...         DefaultInit,
-    ...         Nodify,
-    ...         User,
-    ...         DictStorage,
-    ...     )
+
+    >>> @plumbing(
+    ...     NodeChildValidate,
+    ...     Nodespaces,
+    ...     Adopt,
+    ...     Attributes,
+    ...     DefaultInit,
+    ...     Nodify,
+    ...     User,
+    ...     DictStorage)
+    ... class UserNode(object):
+    ...     pass
 
     >>> user = UserNode(name='someuser')
     >>> user
@@ -145,18 +145,18 @@ Abstract group behavior::
 
     >>> from node.ext.ugm.interfaces import IGroup
     >>> from node.ext.ugm import Group
-    >>> class GroupNode(object):
-    ...     __metaclass__ = plumber
-    ...     __plumbing__ = (
-    ...         NodeChildValidate,
-    ...         Nodespaces,
-    ...         Adopt,
-    ...         Attributes,
-    ...         DefaultInit,
-    ...         Nodify,
-    ...         Group,
-    ...         DictStorage,
-    ...     )
+
+    >>> @plumbing(
+    ...     NodeChildValidate,
+    ...     Nodespaces,
+    ...     Adopt,
+    ...     Attributes,
+    ...     DefaultInit,
+    ...     Nodify,
+    ...     Group,
+    ...     DictStorage)
+    ... class GroupNode(object):
+    ...     pass
 
     >>> group = GroupNode(name='somegroup')
     >>> group
@@ -191,18 +191,18 @@ Abstract principals behavior::
 
     >>> from node.ext.ugm.interfaces import IPrincipals
     >>> from node.ext.ugm import Principals
-    >>> class PrincipalsNode(object):
-    ...     __metaclass__ = plumber
-    ...     __plumbing__ = (
-    ...         NodeChildValidate,
-    ...         Nodespaces,
-    ...         Adopt,
-    ...         Attributes,
-    ...         DefaultInit,
-    ...         Nodify,
-    ...         Principals,
-    ...         OdictStorage,
-    ...     )
+
+    >>> @plumbing(
+    ...     NodeChildValidate,
+    ...     Nodespaces,
+    ...     Adopt,
+    ...     Attributes,
+    ...     DefaultInit,
+    ...     Nodify,
+    ...     Principals,
+    ...     OdictStorage)
+    ... class PrincipalsNode(object):
+    ...     pass
 
     >>> principals = PrincipalsNode(name='principals')
     >>> principals
@@ -236,18 +236,18 @@ Abstract users behavior::
 
     >>> from node.ext.ugm.interfaces import IUsers
     >>> from node.ext.ugm import Users
-    >>> class UsersNode(object):
-    ...     __metaclass__ = plumber
-    ...     __plumbing__ = (
-    ...         NodeChildValidate,
-    ...         Nodespaces,
-    ...         Adopt,
-    ...         Attributes,
-    ...         DefaultInit,
-    ...         Nodify,
-    ...         Users,
-    ...         OdictStorage,
-    ...     )
+
+    >>> @plumbing(
+    ...     NodeChildValidate,
+    ...     Nodespaces,
+    ...     Adopt,
+    ...     Attributes,
+    ...     DefaultInit,
+    ...     Nodify,
+    ...     Users,
+    ...     OdictStorage)
+    ... class UsersNode(object):
+    ...     pass
 
     >>> users = UsersNode(name='users')
     >>> users
@@ -287,18 +287,18 @@ Abstract groups behavior::
 
     >>> from node.ext.ugm.interfaces import IGroups
     >>> from node.ext.ugm import Groups
-    >>> class GroupsNode(object):
-    ...     __metaclass__ = plumber
-    ...     __plumbing__ = (
-    ...         NodeChildValidate,
-    ...         Nodespaces,
-    ...         Adopt,
-    ...         Attributes,
-    ...         DefaultInit,
-    ...         Nodify,
-    ...         Groups,
-    ...         OdictStorage,
-    ...     )
+
+    >>> @plumbing(
+    ...     NodeChildValidate,
+    ...     Nodespaces,
+    ...     Adopt,
+    ...     Attributes,
+    ...     DefaultInit,
+    ...     Nodify,
+    ...     Groups,
+    ...     OdictStorage)
+    ... class GroupsNode(object):
+    ...     pass
 
     >>> groups = GroupsNode(name='groups')
     >>> groups
@@ -311,17 +311,16 @@ Abstract ugm behavior::
 
     >>> from node.ext.ugm.interfaces import IUgm
     >>> from node.ext.ugm import Ugm
-    >>> class UgmNode(object):
-    ...     __metaclass__ = plumber
-    ...     __plumbing__ = (
-    ...         NodeChildValidate,
-    ...         Nodespaces,
-    ...         Adopt,
-    ...         Attributes,
-    ...         Nodify,
-    ...         Ugm,
-    ...         OdictStorage,
-    ...     )
+
+    >>> @plumbing(
+    ...     NodeChildValidate,
+    ...     Nodespaces,
+    ...     Adopt,
+    ...     Attributes,
+    ...     Nodify,
+    ...     Ugm,
+    ...     OdictStorage)
+    ... class UgmNode(object):
     ...     def __init__(self, name, users, groups):
     ...         self.__name__ = name
     ...         self['users'] = users

@@ -25,7 +25,7 @@ Summary of the test coverage report::
     lines   cov%   module
        18   100%   node.ext.ugm.__init__
        96   100%   node.ext.ugm._api
-      473    99%   node.ext.ugm.file
+      478    99%   node.ext.ugm.file
        41   100%   node.ext.ugm.interfaces
        16   100%   node.ext.ugm.tests
 
@@ -40,6 +40,12 @@ Contributors
 
 Changes
 =======
+
+0.9.5 (unreleased)
+------------------
+
+- Use ``plumbing`` decorator instead of ``plumber`` metaclass.
+  [rnix, 2014-08-01]
 
 0.9.4
 -----

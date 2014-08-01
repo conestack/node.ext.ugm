@@ -9,7 +9,7 @@ Create a test environment::
 
 File storage behavior::
 
-    >>> from plumber import plumber
+    >>> from plumber import plumbing
     >>> from node.behaviors import (
     ...     NodeChildValidate,
     ...     Nodespaces,
@@ -20,17 +20,15 @@ File storage behavior::
     ... )
     >>> from node.ext.ugm.file import FileStorage
 
-    >>> class FileStorageNode(object):
-    ...     __metaclass__ = plumber
-    ...     __plumbing__ = (
-    ...         NodeChildValidate,
-    ...         Nodespaces,
-    ...         Adopt,
-    ...         Attributes,
-    ...         DefaultInit,
-    ...         Nodify,
-    ...         FileStorage,
-    ...     )
+    >>> @plumbing(
+    ...     NodeChildValidate,
+    ...     Nodespaces,
+    ...     Adopt,
+    ...     Attributes,
+    ...     DefaultInit,
+    ...     Nodify,
+    ...     FileStorage)
+    ... class FileStorageNode(object):
     ...     def __init__(self, file_path):
     ...         self.__name__ = None
     ...         self.__parent__ = None
