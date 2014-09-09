@@ -41,8 +41,8 @@ Contributors
 Changes
 =======
 
-0.9.5 (unreleased)
-------------------
+0.9.5
+-----
 
 - Use ``plumbing`` decorator instead of ``plumber`` metaclass.
   [rnix, 2014-08-01]
