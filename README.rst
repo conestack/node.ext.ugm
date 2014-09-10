@@ -41,10 +41,11 @@ Contributors
 Changes
 =======
 
-0.9.6 (unreleased)
-------------------
+0.9.6
+-----
 
-- no changes yet.
+- Encode plain passwd for comparing with hash.
+  [rnix, 2014-09-10]
 
 0.9.5
 -----

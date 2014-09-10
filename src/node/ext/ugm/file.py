@@ -448,7 +448,8 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     def _chk_pw(self, plain, hashed):
         hashed = base64.b64decode(hashed)
         salt = hashed[-self.salt_len:]
-        return hashed == self.hash_func(plain + salt).digest() + salt
+        return hashed == self.hash_func(
+            plain.encode('utf-8') + salt).digest() + salt
 
 
 @plumbing(

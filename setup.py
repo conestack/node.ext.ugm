@@ -5,7 +5,7 @@ from setuptools import (
 )
 
 
-version = '0.9.6.dev0'
+version = '0.9.6'
 shortdesc = "Node-based user and group management"
 longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 longdesc += open(os.path.join(os.path.dirname(__file__), 'LICENSE.rst')).read()
