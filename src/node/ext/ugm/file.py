@@ -112,7 +112,7 @@ class UserBehavior(BaseUserBehavior):
     def user_data_attributes_factory(self, name=None, parent=None):
         user_data_dir = os.path.join(parent.data_directory, 'users')
         if not os.path.exists(user_data_dir):
-            os.mkdir(user_data_dir)
+            os.makedirs(user_data_dir)
         user_data_path = os.path.join(user_data_dir, parent.name)
         return FileAttributes(name, parent, user_data_path)
 
@@ -181,7 +181,7 @@ class GroupBehavior(BaseGroupBehavior):
     def group_data_attributes_factory(self, name=None, parent=None):
         group_data_dir = os.path.join(parent.data_directory, 'groups')
         if not os.path.exists(group_data_dir):
-            os.mkdir(group_data_dir)
+            os.makedirs(group_data_dir)
         group_data_path = os.path.join(group_data_dir, parent.name)
         return FileAttributes(name, parent, group_data_path)
 

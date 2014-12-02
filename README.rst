@@ -41,6 +41,12 @@ Contributors
 Changes
 =======
 
+0.9.7
+-----
+
+- Create user and group data directories recursiv if not exists.
+  [rnix, 2014-12-02]
+
 0.9.6
 -----
 
