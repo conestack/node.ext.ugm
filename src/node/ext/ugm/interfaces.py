@@ -45,8 +45,8 @@ class IUser(IPrincipal, ILeaf):
         """Set password for this user.
 
         oldpw
-            Old password. If None, newpassword is always written. This
-            is needed for adding new users.
+            Old password. If old password is None, new password is always
+            set, otherwise an Exception is raised.
 
         newpw
             New password.

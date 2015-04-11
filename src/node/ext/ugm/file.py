@@ -436,8 +436,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     def passwd(self, id, oldpw, newpw):
         if not id in self.storage:
             raise ValueError(u"User with id '%s' does not exist." % id)
-        # case pwd overwrite
-        if self.storage[id]:
+        if oldpw is not None:
             if not self._chk_pw(oldpw, self.storage[id]):
                 raise ValueError(u"Old password does not match.")
         salt = os.urandom(self.salt_len)

@@ -44,7 +44,8 @@ Changes
 0.9.8 (unreleased)
 ------------------
 
-- No changes yet.
+- Fix ``node.ext.ugm.file.UsersBehavior.passwd`` behavior.
+  [rnix, 2015-04-11]
 
 0.9.7
 -----

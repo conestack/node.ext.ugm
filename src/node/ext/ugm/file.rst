@@ -206,7 +206,7 @@ Authentication is prohibited for users without a password::
 
 Set Password for new User::
 
-    >>> ugm.users.passwd('max', '', 'secret')
+    >>> ugm.users.passwd('max', None, 'secret')
     >>> ugm()
     >>> file = open(ugm.users.file_path)
     >>> file.readlines()
@@ -216,7 +216,7 @@ Set Password for new User::
 
 Password for inextistent user::
 
-    >>> ugm.users.passwd('sepp', '', 'secret')
+    >>> ugm.users.passwd('sepp', None, 'secret')
     Traceback (most recent call last):
       ...
     ValueError: User with id 'sepp' does not exist.
@@ -254,7 +254,7 @@ Add another user::
     >>> user = ugm.users.create('sepp',
     ...                         fullname='Sepp Mustermann',
     ...                         email='baz@bar.com')
-    >>> ugm.users.passwd('sepp', '', 'secret')
+    >>> ugm.users.passwd('sepp', None, 'secret')
     >>> ugm()
 
     >>> ugm.printtree()
