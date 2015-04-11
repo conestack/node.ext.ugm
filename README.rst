@@ -25,7 +25,7 @@ Summary of the test coverage report::
     lines   cov%   module
        18   100%   node.ext.ugm.__init__
        96   100%   node.ext.ugm._api
-      478    99%   node.ext.ugm.file
+      494    99%   node.ext.ugm.file
        41   100%   node.ext.ugm.interfaces
        16   100%   node.ext.ugm.tests
 
@@ -43,6 +43,9 @@ Changes
 
 0.9.8 (unreleased)
 ------------------
+
+- Also delete user and group corresponding data if user or group is deleted.
+  [rnix, 2015-04-11]
 
 - Fix ``node.ext.ugm.file.UsersBehavior.passwd`` behavior.
   [rnix, 2015-04-11]

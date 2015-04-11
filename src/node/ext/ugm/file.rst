@@ -170,11 +170,9 @@ Add new User::
 
 Nothing written yet::
 
-    >>> file = open(ugm.users.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.users.file_path) as file:
+    ...     print file.readlines()
     []
-
-    >>> file.close()
 
     >>> user.attrs.file_path
     '/.../principal_data/users/max'
@@ -187,17 +185,14 @@ Nothing written yet::
 Persist and read related files again::
 
     >>> ugm()
-    >>> file = open(ugm.users.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.users.file_path) as file:
+    ...     print file.readlines()
     ['max:\n']
 
-    >>> file.close()
-    >>> file = open(user.attrs.file_path)
-    >>> file.readlines()
+    >>> with open(user.attrs.file_path) as file:
+    ...     print file.readlines()
     ['fullname:Max Mustermann\n', 
     'email:foo@bar.com\n']
-
-    >>> file.close()
 
 Authentication is prohibited for users without a password::
 
@@ -208,11 +203,9 @@ Set Password for new User::
 
     >>> ugm.users.passwd('max', None, 'secret')
     >>> ugm()
-    >>> file = open(ugm.users.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.users.file_path) as file:
+    ...     print file.readlines()
     ['max:...\n']
-
-    >>> file.close()
 
 Password for inextistent user::
 
@@ -232,11 +225,9 @@ Set new password for max::
 
     >>> ugm.users.passwd('max', 'secret', 'secret1')
     >>> ugm()
-    >>> file = open(ugm.users.file_path)
-    >>> file.readlines()
+    >>> with  open(ugm.users.file_path) as file:
+    ...     print file.readlines()
     ['max:...\n']
-
-    >>> file.close()
 
 Authentication::
 
@@ -264,12 +255,10 @@ Add another user::
         <class 'node.ext.ugm.file.User'>: sepp
       <class 'node.ext.ugm.file.Groups'>: groups
 
-    >>> file = open(ugm.users.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.users.file_path) as file:
+    ...     print file.readlines()
     ['max:...\n', 
     'sepp:...\n']
-
-    >>> file.close()
 
 ``__setitem__`` on user is prohibited::
 
@@ -294,11 +283,9 @@ Add new Group::
 
 Nothing written yet::
 
-    >>> file = open(ugm.groups.file_path)
-    >>> file.readlines()
+    >>> with  open(ugm.groups.file_path) as file:
+    ...     print file.readlines()
     []
-
-    >>> file.close()
 
     >>> group.attrs.file_path
     '/.../principal_data/groups/group1'
@@ -311,16 +298,13 @@ Nothing written yet::
 Persist and read related files again::
 
     >>> ugm()
-    >>> file = open(ugm.groups.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.groups.file_path) as file:
+    ...     print file.readlines()
     ['group1:\n']
 
-    >>> file.close()
-    >>> file = open(group.attrs.file_path)
-    >>> file.readlines()
+    >>> with open(group.attrs.file_path) as file:
+    ...     print file.readlines()
     ['description:Group 1 Description\n']
-
-    >>> file.close()
 
 No members yet::
 
@@ -352,18 +336,14 @@ A user is added to a group via ``add``::
 
 Nothing written yet::
 
-    >>> file = open(ugm.groups.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.groups.file_path) as file:
+    ...     print file.readlines()
     ['group1:\n']
 
-    >>> file.close()
-
     >>> ugm()
-    >>> file = open(ugm.groups.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.groups.file_path) as file:
+    ...     print file.readlines()
     ['group1:max\n']
-
-    >>> file.close()
 
 Note, parent of returned user is users object, not group::
 
@@ -391,19 +371,15 @@ Add another Group and add members::
           <class 'node.ext.ugm.file.User'>: max
           <class 'node.ext.ugm.file.User'>: sepp
 
-    >>> file = open(ugm.groups.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.groups.file_path) as file:
+    ...     print file.readlines()
     ['group1:max\n']
 
-    >>> file.close()
-
     >>> ugm()
-    >>> file = open(ugm.groups.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.groups.file_path) as file:
+    ...     print file.readlines()
     ['group1:max\n', 
     'group2:max,sepp\n']
-
-    >>> file.close()
 
 ``groups`` attribute on user::
 
@@ -624,22 +600,18 @@ Delete user from group::
 
 Not persisted yet::
 
-    >>> file = open(ugm.groups.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.groups.file_path) as file:
+    ...     print file.readlines()
     ['group1:max\n', 
     'group2:max,sepp\n']
-
-    >>> file.close()
 
 Call tree and check result::
 
     >>> ugm()
-    >>> file = open(ugm.groups.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.groups.file_path) as file:
+    ...     print file.readlines()
     ['group1:max\n', 
     'group2:sepp\n']
-
-    >>> file.close()
 
 Recreate ugm object::
 
@@ -710,20 +682,16 @@ Add same role twice fails::
 
 Not written yet::
 
-    >>> file = open(ugm.roles_file)
-    >>> file.readlines()
+    >>> with open(ugm.roles_file) as file:
+    ...     print file.readlines()
     []
-
-    >>> file.close()
 
 After ``__call__`` roles are persisted::
 
     >>> user()
-    >>> file = open(ugm.roles_file)
-    >>> file.readlines()
+    >>> with open(ugm.roles_file) as file:
+    ...     file.readlines()
     ['max::manager\n']
-
-    >>> file.close()
 
 Add role for User via Ugm object::
 
@@ -737,11 +705,9 @@ Add role for User via Ugm object::
 Call and check result::
 
     >>> ugm()
-    >>> file = open(ugm.roles_file)
-    >>> file.readlines()
+    >>> with open(ugm.roles_file) as file:
+    ...     print file.readlines()
     ['max::manager,supervisor\n']
-
-    >>> file.close()
 
 Remove User role::
 
@@ -759,11 +725,9 @@ Remove inexistent role fails::
 Call persists::
 
     >>> user()
-    >>> file = open(ugm.roles_file)
-    >>> file.readlines()
+    >>> with open(ugm.roles_file) as file:
+    ...     print file.readlines()
     ['max::manager\n']
-
-    >>> file.close()
 
 Role Management for Group.
 
@@ -788,21 +752,17 @@ Add same role twice fails::
 
 Group role not written yet::
 
-    >>> file = open(ugm.roles_file)
-    >>> file.readlines()
+    >>> with open(ugm.roles_file) as file:
+    ...     print file.readlines()
     ['max::manager\n']
-
-    >>> file.close()
 
 After ``__call__`` roles are persisted::
 
     >>> group()
-    >>> file = open(ugm.roles_file)
-    >>> file.readlines()
+    >>> with open(ugm.roles_file) as file:
+    ...     print file.readlines()
     ['max::manager\n', 
     'group:group1::authenticated\n']
-
-    >>> file.close()
 
 Add role for Group via Ugm object::
 
@@ -816,12 +776,10 @@ Add role for Group via Ugm object::
 Call and check result::
 
     >>> ugm()
-    >>> file = open(ugm.roles_file)
-    >>> file.readlines()
+    >>> with open(ugm.roles_file) as file:
+    ...     print file.readlines()
     ['max::manager\n', 
     'group:group1::authenticated,editor\n']
-
-    >>> file.close()
 
 Remove Group role::
 
@@ -839,12 +797,10 @@ Remove inexistent role fails::
 Call persists::
 
     >>> group()
-    >>> file = open(ugm.roles_file)
-    >>> file.readlines()
+    >>> with open(ugm.roles_file) as file:
+    ...     print file.readlines()
     ['max::manager\n', 
     'group:group1::authenticated\n']
-
-    >>> file.close()
 
 Users ``__delitem__``::
 
@@ -860,19 +816,20 @@ Users ``__delitem__``::
           <class 'node.ext.ugm.file.User'>: sepp
 
     >>> users()
-    >>> file = open(ugm.users.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.users.file_path) as file:
+    ...     print file.readlines()
     ['sepp:...\n']
 
-    >>> file.close()
+User data is deleted::
+
+    >>> os.listdir(os.path.join(ugm.data_directory, 'users'))
+    ['sepp']
 
 Roles for user are deleted as well::
 
-    >>> file = open(ugm.roles_file)
-    >>> file.readlines()
+    >>> with open(ugm.roles_file) as file:
+    ...     print file.readlines()
     ['group:group1::authenticated\n']
-
-    >>> file.close()
 
 Groups ``__delitem__``::
 
@@ -887,19 +844,20 @@ Groups ``__delitem__``::
           <class 'node.ext.ugm.file.User'>: sepp
 
     >>> groups()
-    >>> file = open(ugm.groups.file_path)
-    >>> file.readlines()
+    >>> with open(ugm.groups.file_path) as file:
+    ...     print file.readlines()
     ['group2:sepp\n']
 
-    >>> file.close()
+Group data is deleted::
+
+    >>> os.listdir(os.path.join(ugm.data_directory, 'groups'))
+    ['group2']
 
 Roles for group are deleted as well::
 
-    >>> file = open(ugm.roles_file)
-    >>> file.readlines()
+    >>> with open(ugm.roles_file) as file:
+    ...     print file.readlines()
     []
-
-    >>> file.close()
 
 Cleanup test environment::
 

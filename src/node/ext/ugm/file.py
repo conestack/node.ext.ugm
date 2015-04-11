@@ -369,6 +369,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
         self.file_path = file_path
         self.data_directory = data_directory
         self._mem_storage = dict()
+        self._user_data_to_remove = list()
 
     @override
     def __getitem__(self, key):
@@ -400,6 +401,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
         del self._mem_storage[key]
         if key in self.parent.attrs:
             del self.parent.attrs[key]
+        self._user_data_to_remove.append(key)
 
     @override
     @locktree
@@ -409,6 +411,11 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
             value(True)
         if not from_parent:
             self.parent.attrs()
+        for userid in self._user_data_to_remove:
+            user_data_path = os.path.join(self.data_directory, 'users', userid)
+            if os.path.exists(user_data_path):
+                os.remove(user_data_path)
+        self._user_data_to_remove = list()
 
     @default
     def create(self, id, **kw):
@@ -473,6 +480,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
         self.file_path = file_path
         self.data_directory = data_directory
         self._mem_storage = dict()
+        self._group_data_to_remove = list()
 
     @override
     def __getitem__(self, key):
@@ -503,6 +511,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
         id = 'group:%s' % key
         if id in self.parent.attrs:
             del self.parent.attrs[id]
+        self._group_data_to_remove.append(key)
 
     @override
     @locktree
@@ -512,6 +521,12 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
             value(True)
         if not from_parent:
             self.parent.attrs()
+        for groupid in self._group_data_to_remove:
+            group_data_path = os.path.join(
+                self.data_directory, 'groups', groupid)
+            if os.path.exists(group_data_path):
+                os.remove(group_data_path)
+        self._group_data_to_remove = list()
 
     @default
     def create(self, id, **kw):
