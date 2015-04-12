@@ -41,8 +41,8 @@ Contributors
 Changes
 =======
 
-0.9.8 (unreleased)
-------------------
+0.9.8
+-----
 
 - Fix bug where non related principal data has been overwritten when adding
   principal on partial loaded ugm tree.
