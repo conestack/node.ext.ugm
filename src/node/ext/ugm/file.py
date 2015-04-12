@@ -51,11 +51,12 @@ class FileStorage(Storage):
         self.__name__ = name
         self.__parent__ = parent
         self.file_path = file_path
+        self._storage_data = None
 
     @default
     @property
     def storage(self):
-        if not hasattr(self, '_storage_data'):
+        if self._storage_data is None:
             self._storage_data = odict()
             if self.file_path and os.path.isfile(self.file_path):
                 self.read_file()
@@ -76,10 +77,12 @@ class FileStorage(Storage):
     @default
     def write_file(self):
         lines = list()
-        if hasattr(self, '_storage_data'):
-            data = self._storage_data
-        else:
-            data = dict()
+        if self._storage_data is None:
+            if not os.path.exists(self.file_path):
+                with open(self.file_path, 'w') as file:
+                    file.write('')
+            return
+        data = self._storage_data
         for k, v in data.items():
             if isinstance(k, unicode) and self.unicode_keys:
                 k = k.encode('utf-8')
@@ -368,6 +371,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
         self.__parent__ = parent
         self.file_path = file_path
         self.data_directory = data_directory
+        self._storage_data = None
         self._mem_storage = dict()
         self._user_data_to_remove = list()
 
@@ -479,6 +483,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
         self.__parent__ = parent
         self.file_path = file_path
         self.data_directory = data_directory
+        self._storage_data = None
         self._mem_storage = dict()
         self._group_data_to_remove = list()
 

@@ -33,6 +33,7 @@ File storage behavior::
     ...         self.__name__ = None
     ...         self.__parent__ = None
     ...         self.file_path = file_path
+    ...         self._storage_data = None
 
     >>> file_path = os.path.join(tempdir, 'filestorage')
     >>> file_path
@@ -64,6 +65,8 @@ File storage behavior::
 
     >>> fsn['bar'] = 'bar'
 
+    >>> fsn['none'] = None
+
 File not written yet::
 
     >>> open(file_path)
@@ -79,15 +82,17 @@ File not written yet::
     <BLANKLINE>
     bar:bar
     <BLANKLINE>
+    none:
+    <BLANKLINE>
 
 Recreate:: 
 
     >>> fsn = FileStorageNode(file_path)
     >>> fsn.keys()
-    [u'foo', u'bar']
+    [u'foo', u'bar', u'none']
 
     >>> fsn.values()
-    [u'foo', u'bar']
+    [u'foo', u'bar', u'']
 
 Test unicode::
 
@@ -96,7 +101,10 @@ Test unicode::
 
     >>> fsn = FileStorageNode(file_path)
     >>> fsn.items()
-    [(u'foo', u'foo'), (u'bar', u'bar'), (u'\xe4\xf6\xfc', u'\xe4\xf6\xfc')]
+    [(u'foo', u'foo'), 
+    (u'bar', u'bar'), 
+    (u'none', u''), 
+    (u'\xe4\xf6\xfc', u'\xe4\xf6\xfc')]
 
 Create principal data directory::
 

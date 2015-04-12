@@ -25,7 +25,7 @@ Summary of the test coverage report::
     lines   cov%   module
        18   100%   node.ext.ugm.__init__
        96   100%   node.ext.ugm._api
-      494    99%   node.ext.ugm.file
+      500    99%   node.ext.ugm.file
        41   100%   node.ext.ugm.interfaces
        16   100%   node.ext.ugm.tests
 
@@ -43,6 +43,10 @@ Changes
 
 0.9.8 (unreleased)
 ------------------
+
+- Fix bug where non related principal data has been overwritten when adding
+  principal on partial loaded ugm tree.
+  [rnix, 2015-04-12]
 
 - Also delete user and group corresponding data if user or group is deleted.
   [rnix, 2015-04-11]
