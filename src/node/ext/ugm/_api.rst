@@ -4,16 +4,14 @@ node.ext.ugm
 ::
 
     >>> from plumber import plumbing
-    >>> from node.behaviors import (
-    ...     NodeChildValidate,
-    ...     Nodespaces,
-    ...     Adopt,
-    ...     Attributes,
-    ...     DefaultInit,
-    ...     Nodify,
-    ...     DictStorage,
-    ...     OdictStorage,
-    ... )
+    >>> from node.behaviors import NodeChildValidate
+    >>> from node.behaviors import Nodespaces
+    >>> from node.behaviors import Adopt
+    >>> from node.behaviors import Attributes
+    >>> from node.behaviors import DefaultInit
+    >>> from node.behaviors import Nodify
+    >>> from node.behaviors import DictStorage
+    >>> from node.behaviors import OdictStorage
 
 Abstract principal behavior::
 

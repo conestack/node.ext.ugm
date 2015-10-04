@@ -1,20 +1,16 @@
-from plumber import (
-    Behavior,
-    default,
-    override,
-    finalize,
-)
-from zope.interface import implementer
+from node.ext.ugm.interfaces import IGroup
+from node.ext.ugm.interfaces import IGroups
+from node.ext.ugm.interfaces import IPrincipal
+from node.ext.ugm.interfaces import IPrincipals
+from node.ext.ugm.interfaces import IUgm
+from node.ext.ugm.interfaces import IUser
+from node.ext.ugm.interfaces import IUsers
 from node.locking import locktree
-from node.ext.ugm.interfaces import (
-    IPrincipal,
-    IUser,
-    IGroup,
-    IPrincipals,
-    IUsers,
-    IGroups,
-    IUgm,
-)
+from plumber import Behavior
+from plumber import default
+from plumber import finalize
+from plumber import override
+from zope.interface import implementer
 
 
 @implementer(IPrincipal)
