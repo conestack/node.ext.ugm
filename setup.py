@@ -38,6 +38,7 @@ setup(
             'zope.testing'
         ]
     },
+    test_suite='node.ext.ugm.tests.test_suite',
     entry_points="""
     """
 )
