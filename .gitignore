@@ -3,10 +3,12 @@
 *.egg-info
 /.*.cfg
 /.mrsd
+/.coverage
 /py2/
 /py3/
 /pypy/
 /coverage/
+/htmlcov/
 /dist/
 /bin/
 /develop-eggs/

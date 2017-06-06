@@ -51,6 +51,11 @@ class TestFile(NodeTestCase):
     def tearDown(self):
         shutil.rmtree(self.tempdir)
 
+    def _read_file(self, file_path):
+        with open(file_path) as f:
+            lines = f.readlines()
+        return lines
+
     def _create_ugm(self):
         # Create principal data directory
         datadir = os.path.join(self.tempdir, 'principal_data')
@@ -104,8 +109,7 @@ class TestFile(NodeTestCase):
 
         # Persist and check written file
         fsn()
-        with open(file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(file_path)
         self.assertEqual(lines, [
             'foo:foo\n',
             'bar:bar\n',
@@ -184,8 +188,7 @@ class TestFile(NodeTestCase):
         ))
 
         # Nothing written yet
-        with open(ugm.users.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.users.file_path)
         self.assertEqual(lines, [])
 
         self.check_output("""\
@@ -199,12 +202,10 @@ class TestFile(NodeTestCase):
 
         # Persist and read related files again
         ugm()
-        with open(ugm.users.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.users.file_path)
         self.assertEqual(lines, ['max:\n'])
 
-        with open(user.attrs.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(user.attrs.file_path)
         self.assertEqual(sorted(lines), [
             'email:foo@bar.com\n',
             'fullname:Max\n'
@@ -216,8 +217,7 @@ class TestFile(NodeTestCase):
         # Set Password for new User
         ugm.users.passwd('max', None, 'secret')
         ugm()
-        with open(ugm.users.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.users.file_path)
         self.check_output("""\
         ['max:...\\n']
         """, str(lines))
@@ -237,8 +237,7 @@ class TestFile(NodeTestCase):
         # Set new password for max
         ugm.users.passwd('max', 'secret', 'secret1')
         ugm()
-        with open(ugm.users.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.users.file_path)
         self.check_output("""\
         ['max:...\\n']
         """, str(lines))
@@ -259,8 +258,7 @@ class TestFile(NodeTestCase):
             '    <class \'node.ext.ugm.file.User\'>: sepp\n'
             '  <class \'node.ext.ugm.file.Groups\'>: groups\n'
         ))
-        with open(ugm.users.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.users.file_path)
         self.check_output("""\
         ['max:...\\n',
         'sepp:...\\n']
@@ -295,8 +293,7 @@ class TestFile(NodeTestCase):
         ))
 
         # Nothing written yet
-        with open(ugm.groups.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.groups.file_path)
         self.assertEqual(lines, [])
 
         self.check_output("""\
@@ -310,12 +307,10 @@ class TestFile(NodeTestCase):
 
         # Persist and read related files again
         ugm()
-        with open(ugm.groups.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.groups.file_path)
         self.assertEqual(lines, ['group1:\n'])
 
-        with open(group.attrs.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(group.attrs.file_path)
         self.assertEqual(lines, ['description:Group 1\n'])
 
         # No members yet
@@ -338,13 +333,11 @@ class TestFile(NodeTestCase):
         self.assertEqual(group['max'], ugm.users['max'])
 
         # Nothing written yet
-        with open(ugm.groups.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.groups.file_path)
         self.assertEqual(lines, ['group1:\n'])
 
         ugm()
-        with open(ugm.groups.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.groups.file_path)
         self.assertEqual(lines, ['group1:max\n'])
 
         # Note, parent of returned user is users object, not group
@@ -369,13 +362,11 @@ class TestFile(NodeTestCase):
             '      <class \'node.ext.ugm.file.User\'>: sepp\n'
         ))
 
-        with open(ugm.groups.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.groups.file_path)
         self.assertEqual(lines, ['group1:max\n'])
 
         ugm()
-        with open(ugm.groups.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.groups.file_path)
         self.assertEqual(lines, [
             'group1:max\n',
             'group2:max,sepp\n'
@@ -630,8 +621,7 @@ class TestFile(NodeTestCase):
         ))
 
         # Not persisted yet
-        with open(ugm.groups.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.groups.file_path)
         self.assertEqual(sorted(lines), [
             'group1:max\n',
             'group2:max,sepp\n'
@@ -639,261 +629,221 @@ class TestFile(NodeTestCase):
 
         # Call tree and check result
         ugm()
-        with open(ugm.groups.file_path) as f:
-            lines = f.readlines()
+        lines = self._read_file(ugm.groups.file_path)
         self.assertEqual(sorted(lines), [
             'group1:max\n',
             'group2:sepp\n'
         ])
 
     def test_user_roles(self):
-        pass
-
-"""
-Role Management for User.
-
-No roles yet::
-
-    >>> user = ugm.users['max']
-    >>> user.roles
-    []
-
-Add role via User object::
-
-    >>> user.add_role('manager')
-    >>> user.roles
-    ['manager']
-
-Add same role twice fails::
-
-    >>> user.add_role('manager')
-    Traceback (most recent call last):
-      ...
-    ValueError: Principal already has role 'manager'
-
-Not written yet::
-
-    >>> with open(ugm.roles_file) as file:
-    ...     print file.readlines()
-    []
-
-After ``__call__`` roles are persisted::
-
-    >>> user()
-    >>> with open(ugm.roles_file) as file:
-    ...     file.readlines()
-    ['max::manager\n']
-
-Add role for User via Ugm object::
-
-    >>> ugm.add_role('supervisor', user)
-    >>> user.roles
-    ['manager', 'supervisor']
-
-    >>> ugm.roles(user) == user.roles
-    True
-
-Call and check result::
-
-    >>> ugm()
-    >>> with open(ugm.roles_file) as file:
-    ...     print file.readlines()
-    ['max::manager,supervisor\n']
-
-Remove User role::
-
-    >>> user.remove_role('supervisor')
-    >>> user.roles
-    ['manager']
-
-Remove inexistent role fails::
-
-    >>> user.remove_role('supervisor')
-    Traceback (most recent call last):
-      ...
-    ValueError: Principal does not has role 'supervisor'
-
-Call persists::
-
-    >>> user()
-    >>> with open(ugm.roles_file) as file:
-    ...     print file.readlines()
-    ['max::manager\n']
-
-Role Management for Group.
-
-No roles yet::
-
-    >>> group = ugm.groups['group1']
-    >>> group.roles
-    []
-
-Add role via Group object::
-
-    >>> group.add_role('authenticated')
-    >>> group.roles
-    ['authenticated']
-
-Add same role twice fails::
-
-    >>> group.add_role('authenticated')
-    Traceback (most recent call last):
-      ...
-    ValueError: Principal already has role 'authenticated'
-
-Group role not written yet::
-
-    >>> with open(ugm.roles_file) as file:
-    ...     print file.readlines()
-    ['max::manager\n']
-
-After ``__call__`` roles are persisted::
-
-    >>> group()
-    >>> with open(ugm.roles_file) as file:
-    ...     print file.readlines()
-    ['max::manager\n',
-    'group:group1::authenticated\n']
-
-Add role for Group via Ugm object::
-
-    >>> ugm.add_role('editor', group)
-    >>> group.roles
-    ['authenticated', 'editor']
-
-    >>> ugm.roles(group) == group.roles
-    True
-
-Call and check result::
-
-    >>> ugm()
-    >>> with open(ugm.roles_file) as file:
-    ...     print file.readlines()
-    ['max::manager\n',
-    'group:group1::authenticated,editor\n']
-
-Remove Group role::
-
-    >>> group.remove_role('editor')
-    >>> group.roles
-    ['authenticated']
-
-Remove inexistent role fails::
-
-    >>> group.remove_role('editor')
-    Traceback (most recent call last):
-      ...
-    ValueError: Principal does not has role 'editor'
-
-Call persists::
-
-    >>> group()
-    >>> with open(ugm.roles_file) as file:
-    ...     print file.readlines()
-    ['max::manager\n',
-    'group:group1::authenticated\n']
-
-Recreate ugm object::
-
-    >>> ugm = Ugm(name='ugm',
-    ...           users_file=users_file,
-    ...           groups_file=groups_file,
-    ...           roles_file=roles_file,
-    ...           data_directory=datadir)
-
-Users ``__getitem__``::
-
-    >>> ugm.users['inexistent']
-    Traceback (most recent call last):
-      ...
-    KeyError: 'inexistent'
-
-    >>> ugm.users['max']
-    <User object 'max' at ...>
-
-Groups ``__getitem__``::
-
-    >>> ugm.groups['inexistent']
-    Traceback (most recent call last):
-      ...
-    KeyError: 'inexistent'
-
-    >>> ugm.groups['group1']
-    <Group object 'group1' at ...>
-
-``printtree`` of alredy initialized ugm instance::
-
-    >>> ugm = Ugm(name='ugm',
-    ...           users_file=users_file,
-    ...           groups_file=groups_file,
-    ...           roles_file=roles_file,
-    ...           data_directory=datadir)
-    >>> ugm.printtree()
-    <class 'node.ext.ugm.file.Ugm'>: ugm
-      <class 'node.ext.ugm.file.Users'>: users
-        <class 'node.ext.ugm.file.User'>: max
-        <class 'node.ext.ugm.file.User'>: sepp
-      <class 'node.ext.ugm.file.Groups'>: groups
-        <class 'node.ext.ugm.file.Group'>: group1
-          <class 'node.ext.ugm.file.User'>: max
-        <class 'node.ext.ugm.file.Group'>: group2
-          <class 'node.ext.ugm.file.User'>: sepp
-
-Users ``__delitem__``::
-
-    >>> users = ugm.users
-    >>> del users['max']
-    >>> ugm.printtree()
-    <class 'node.ext.ugm.file.Ugm'>: ugm
-      <class 'node.ext.ugm.file.Users'>: users
-        <class 'node.ext.ugm.file.User'>: sepp
-      <class 'node.ext.ugm.file.Groups'>: groups
-        <class 'node.ext.ugm.file.Group'>: group1
-        <class 'node.ext.ugm.file.Group'>: group2
-          <class 'node.ext.ugm.file.User'>: sepp
-
-    >>> users()
-    >>> with open(ugm.users.file_path) as file:
-    ...     print file.readlines()
-    ['sepp:...\n']
-
-User data is deleted::
-
-    >>> os.listdir(os.path.join(ugm.data_directory, 'users'))
-    ['sepp']
-
-Roles for user are deleted as well::
-
-    >>> with open(ugm.roles_file) as file:
-    ...     print file.readlines()
-    ['group:group1::authenticated\n']
-
-Groups ``__delitem__``::
-
-    >>> groups = ugm.groups
-    >>> del groups['group1']
-    >>> ugm.printtree()
-    <class 'node.ext.ugm.file.Ugm'>: ugm
-      <class 'node.ext.ugm.file.Users'>: users
-        <class 'node.ext.ugm.file.User'>: sepp
-      <class 'node.ext.ugm.file.Groups'>: groups
-        <class 'node.ext.ugm.file.Group'>: group2
-          <class 'node.ext.ugm.file.User'>: sepp
-
-    >>> groups()
-    >>> with open(ugm.groups.file_path) as file:
-    ...     print file.readlines()
-    ['group2:sepp\n']
-
-Group data is deleted::
-
-    >>> os.listdir(os.path.join(ugm.data_directory, 'groups'))
-    ['group2']
-
-Roles for group are deleted as well::
-
-    >>> with open(ugm.roles_file) as file:
-    ...     print file.readlines()
-    []
-
-"""
+        ugm = self._create_ugm()
+        ugm.users.create('max', fullname='Max Muster', email='foo@bar.com')
+        ugm()
+
+        # No roles yet
+        user = ugm.users['max']
+        self.assertEqual(user.roles, [])
+
+        # Add role via User object
+        user.add_role('manager')
+        self.assertEqual(user.roles, ['manager'])
+
+        # Add same role twice fails
+        def add_role_fails():
+            user.add_role('manager')
+        err = self.expect_error(ValueError, add_role_fails)
+        expected = 'Principal already has role \'manager\''
+        self.assertEqual(str(err), expected)
+
+        # Not written yet
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(lines, [])
+
+        # After ``__call__`` roles are persisted
+        user()
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(lines, ['max::manager\n'])
+
+        # Add role for User via Ugm object
+        ugm.add_role('supervisor', user)
+        self.assertEqual(user.roles, ['manager', 'supervisor'])
+        self.assertTrue(ugm.roles(user) == user.roles)
+
+        # Call and check result
+        ugm()
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(lines, ['max::manager,supervisor\n'])
+
+        # Remove User role
+        user.remove_role('supervisor')
+        self.assertEqual(user.roles, ['manager'])
+
+        # Remove inexistent role fails
+        def remove_role_fails():
+            user.remove_role('supervisor')
+        err = self.expect_error(ValueError, remove_role_fails)
+        expected = 'Principal does not has role \'supervisor\''
+        self.assertEqual(str(err), expected)
+
+        # Call persists
+        user()
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(lines, ['max::manager\n'])
+
+    def test_group_roles(self):
+        ugm = self._create_ugm()
+        ugm.groups.create('group1', description='Group 1 Description')
+        ugm.groups['group1'].add('max')
+        ugm()
+
+        # No roles yet
+        group = ugm.groups['group1']
+        self.assertEqual(group.roles, [])
+
+        # Add role via Group object
+        group.add_role('authenticated')
+        self.assertEqual(group.roles, ['authenticated'])
+
+        # Add same role twice fails
+        def add_role_fails():
+            group.add_role('authenticated')
+        err = self.expect_error(ValueError, add_role_fails)
+        expected = 'Principal already has role \'authenticated\''
+        self.assertEqual(str(err), expected)
+
+        # Group role not written yet
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(lines, [])
+
+        # After ``__call__`` roles are persisted
+        group()
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(lines, ['group:group1::authenticated\n'])
+
+        # Add role for Group via Ugm object
+        ugm.add_role('editor', group)
+        self.assertEqual(group.roles, ['authenticated', 'editor'])
+        self.assertTrue(ugm.roles(group) == group.roles)
+
+        # Call and check result
+        ugm()
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(lines, ['group:group1::authenticated,editor\n'])
+
+        # Remove Group role
+        group.remove_role('editor')
+        self.assertEqual(group.roles, ['authenticated'])
+
+        # Remove inexistent role fails
+        def remove_role_fails():
+            group.remove_role('editor')
+        err = self.expect_error(ValueError, remove_role_fails)
+        expected = 'Principal does not has role \'editor\''
+        self.assertEqual(str(err), expected)
+
+        # Call persists
+        group()
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(lines, ['group:group1::authenticated\n'])
+
+    def test_users___delitem__(self):
+        ugm = self._create_ugm()
+        ugm.users.create('max', fullname='Max Muster', email='foo@bar.com')
+        ugm.users['max'].add_role('manager')
+        ugm.groups.create('group1', description='Group 1 Description')
+        ugm.groups.create('group2', description='Group 2 Description')
+        ugm.groups['group1'].add('max')
+        ugm.groups['group2'].add('max')
+        ugm()
+
+        lines = self._read_file(ugm.users.file_path)
+        self.assertEqual(sorted(lines), ['max:\n'])
+
+        lines = self._read_file(ugm.groups.file_path)
+        self.assertEqual(sorted(lines), ['group1:max\n', 'group2:max\n'])
+
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(sorted(lines), ['max::manager\n'])
+
+        self.assertEqual(
+            os.listdir(os.path.join(ugm.data_directory, 'users')),
+            ['max']
+        )
+
+        # Delete user. User gets removed from groups and roles
+        del ugm.users['max']
+        self.assertEqual(ugm.treerepr(), (
+            '<class \'node.ext.ugm.file.Ugm\'>: ugm\n'
+            '  <class \'node.ext.ugm.file.Users\'>: users\n'
+            '  <class \'node.ext.ugm.file.Groups\'>: groups\n'
+            '    <class \'node.ext.ugm.file.Group\'>: group1\n'
+            '    <class \'node.ext.ugm.file.Group\'>: group2\n'
+        ))
+        ugm()
+
+        lines = self._read_file(ugm.users.file_path)
+        self.assertEqual(sorted(lines), [])
+
+        lines = self._read_file(ugm.groups.file_path)
+        self.assertEqual(sorted(lines), ['group1:\n', 'group2:\n'])
+
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(sorted(lines), [])
+
+        # User data is deleted as well
+        self.assertEqual(
+            os.listdir(os.path.join(ugm.data_directory, 'users')),
+            []
+        )
+
+    def test_groups___delitem__(self):
+        ugm = self._create_ugm()
+        ugm.users.create('max', fullname='Max Muster', email='foo@bar.com')
+        ugm.groups.create('group1', description='Group 1 Description')
+        ugm.groups['group1'].add('max')
+        ugm.groups['group1'].add_role('manager')
+
+        self.assertEqual(ugm.users['max'].groups, [ugm.groups['group1']])
+        self.assertEqual(ugm.groups['group1'].roles, ['manager'])
+
+        ugm()
+
+        lines = self._read_file(ugm.users.file_path)
+        self.assertEqual(sorted(lines), ['max:\n'])
+
+        lines = self._read_file(ugm.groups.file_path)
+        self.assertEqual(sorted(lines), ['group1:max\n'])
+
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(sorted(lines), ['group:group1::manager\n'])
+
+        self.assertEqual(
+            os.listdir(os.path.join(ugm.data_directory, 'groups')),
+            ['group1']
+        )
+
+        # Delete group. Group gets removed from user and from roles
+        del ugm.groups['group1']
+        self.assertEqual(ugm.treerepr(), (
+            '<class \'node.ext.ugm.file.Ugm\'>: ugm\n'
+            '  <class \'node.ext.ugm.file.Users\'>: users\n'
+            '    <class \'node.ext.ugm.file.User\'>: max\n'
+            '  <class \'node.ext.ugm.file.Groups\'>: groups\n'
+        ))
+        self.assertEqual(ugm.users['max'].groups, [])
+        ugm()
+
+        lines = self._read_file(ugm.users.file_path)
+        self.assertEqual(sorted(lines), ['max:\n'])
+
+        lines = self._read_file(ugm.groups.file_path)
+        self.assertEqual(sorted(lines), [])
+
+        lines = self._read_file(ugm.roles_file)
+        self.assertEqual(sorted(lines), [])
+
+        # Group data is deleted as well
+        self.assertEqual(
+            os.listdir(os.path.join(ugm.data_directory, 'groups')),
+            []
+        )
