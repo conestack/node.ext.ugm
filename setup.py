@@ -29,15 +29,13 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'node',
-        'plumber',
         'setuptools',
+        'node',
+        'plumber'
     ],
     extras_require={
         'test': [
-            'interlude',
-            'unittest2',
-            'zope.testing',
+            'zope.testing'
         ]
     },
     entry_points="""
