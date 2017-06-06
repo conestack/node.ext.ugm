@@ -41,7 +41,7 @@ import unittest
     Principal,
     DictStorage)
 class PrincipalNode(object):
-    """Abstract principal behavior.
+    """Abstract principal.
     """
 
 
@@ -55,7 +55,7 @@ class PrincipalNode(object):
     User,
     DictStorage)
 class UserNode(object):
-    """Abstract user behavior.
+    """Abstract user.
     """
 
 
@@ -69,7 +69,7 @@ class UserNode(object):
     Group,
     DictStorage)
 class GroupNode(object):
-    """Abstract group behavior.
+    """Abstract group.
     """
 
 
@@ -83,7 +83,7 @@ class GroupNode(object):
     Principals,
     OdictStorage)
 class PrincipalsNode(object):
-    """Abstract principals behavior.
+    """Abstract principals.
     """
 
 
@@ -97,7 +97,7 @@ class PrincipalsNode(object):
     Users,
     OdictStorage)
 class UsersNode(object):
-    """Abstract users behavior.
+    """Abstract users.
     """
 
 
@@ -111,7 +111,7 @@ class UsersNode(object):
     Groups,
     OdictStorage)
 class GroupsNode(object):
-    """Abstract groups behavior.
+    """Abstract groups.
     """
 
 
@@ -124,7 +124,7 @@ class GroupsNode(object):
     Ugm,
     OdictStorage)
 class UgmNode(object):
-    """Abstract ugm behavior.
+    """Abstract ugm.
     """
 
     def __init__(self, name, users, groups):

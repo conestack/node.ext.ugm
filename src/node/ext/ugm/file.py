@@ -6,6 +6,8 @@ from node.behaviors import Nodespaces
 from node.behaviors import Nodify
 from node.behaviors import OdictStorage
 from node.behaviors import Storage
+from node.compat import IS_PY2
+from node.compat import UNICODE_TYPE
 from node.ext.ugm import Group as BaseGroupBehavior
 from node.ext.ugm import Groups as BaseGroupsBehavior
 from node.ext.ugm import Ugm as BaseUgmBehavior
@@ -34,8 +36,8 @@ class FileStorage(Storage):
          attribute.
     """
     allow_non_node_childs = override(True)
-    unicode_keys = default(True)
-    unicode_values = default(True)
+    unicode_keys = default(True)  # Python 2 only
+    unicode_values = default(True)  # Python 2 only
     delimiter = default(':')
 
     @override
@@ -60,9 +62,9 @@ class FileStorage(Storage):
         with open(self.file_path) as file:
             for line in file:
                 k, v = line.split(self.delimiter)
-                if not isinstance(k, unicode) and self.unicode_keys:
+                if IS_PY2 and not isinstance(k, unicode) and self.unicode_keys:
                     k = k.decode('utf-8')
-                if not isinstance(v, unicode) and self.unicode_values:
+                if IS_PY2 and not isinstance(v, unicode) and self.unicode_values:
                     v = v.decode('utf-8')
                 data[k] = v.strip('\n')
 
@@ -76,9 +78,9 @@ class FileStorage(Storage):
             return
         data = self._storage_data
         for k, v in data.items():
-            if isinstance(k, unicode) and self.unicode_keys:
+            if IS_PY2 and isinstance(k, unicode) and self.unicode_keys:
                 k = k.encode('utf-8')
-            if isinstance(v, unicode) and self.unicode_values:
+            if IS_PY2 and isinstance(v, unicode) and self.unicode_values:
                 v = v.encode('utf-8')
             if v is None:
                 v = ''
@@ -351,8 +353,7 @@ class SearchBehavior(Behavior):
 
 
 class UsersBehavior(SearchBehavior, BaseUsersBehavior):
-
-    unicode_values = default(False)
+    unicode_values = default(False)  # Python 2 only
     salt_len = default(8)
     hash_func = default(hashlib.sha256)
 
@@ -443,6 +444,8 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
             if not self._chk_pw(oldpw, self.storage[id]):
                 raise ValueError(u"Old password does not match.")
         salt = os.urandom(self.salt_len)
+        #if isinstance(newpw, UNICODE_TYPE):
+        #    newpw = newpw.encode('utf-8')
         hashed = base64.b64encode(self.hash_func(newpw + salt).digest() + salt)
         self.storage[id] = hashed
 
