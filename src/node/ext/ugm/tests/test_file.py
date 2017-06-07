@@ -59,7 +59,8 @@ class TestFile(NodeTestCase):
     def _create_ugm(self):
         # Create principal data directory
         datadir = os.path.join(self.tempdir, 'principal_data')
-        os.mkdir(datadir)
+        if not os.path.exists(datadir):
+            os.mkdir(datadir)
         # Return Ugm root object
         return Ugm(
             name='ugm',
@@ -746,7 +747,7 @@ class TestFile(NodeTestCase):
         lines = self._read_file(ugm.roles_file)
         self.assertEqual(lines, ['group:group1::authenticated\n'])
 
-    def test_users___delitem__(self):
+    def test_users(self):
         ugm = self._create_ugm()
         ugm.users.create('max', fullname='Max Muster', email='foo@bar.com')
         ugm.users['max'].add_role('manager')
@@ -770,6 +771,20 @@ class TestFile(NodeTestCase):
             ['max']
         )
 
+        # Recreate ugm object
+        ugm = self._create_ugm()
+
+        # XXX: id_for_login actually just returns given login name
+        self.assertEqual(ugm.users.id_for_login('max'), 'max')
+
+        def __getitem__fails():
+            ugm.users['inexistent']
+        err = self.expect_error(KeyError, __getitem__fails)
+        self.assertEqual(str(err), '\'inexistent\'')
+
+        expected = '<User object \'max\' at '
+        self.assertTrue(str(ugm.users['max']).startswith(expected))
+
         # Delete user. User gets removed from groups and roles
         del ugm.users['max']
         self.assertEqual(ugm.treerepr(), (
@@ -779,7 +794,7 @@ class TestFile(NodeTestCase):
             '    <class \'node.ext.ugm.file.Group\'>: group1\n'
             '    <class \'node.ext.ugm.file.Group\'>: group2\n'
         ))
-        ugm()
+        ugm.users()
 
         lines = self._read_file(ugm.users.file_path)
         self.assertEqual(sorted(lines), [])
@@ -796,7 +811,7 @@ class TestFile(NodeTestCase):
             []
         )
 
-    def test_groups___delitem__(self):
+    def test_groups(self):
         ugm = self._create_ugm()
         ugm.users.create('max', fullname='Max Muster', email='foo@bar.com')
         ugm.groups.create('group1', description='Group 1 Description')
@@ -822,6 +837,17 @@ class TestFile(NodeTestCase):
             ['group1']
         )
 
+        # Recreate ugm object
+        ugm = self._create_ugm()
+
+        def __getitem__fails():
+            ugm.groups['inexistent']
+        err = self.expect_error(KeyError, __getitem__fails)
+        self.assertEqual(str(err), '\'inexistent\'')
+
+        expected = '<Group object \'group1\' at '
+        self.assertTrue(str(ugm.groups['group1']).startswith(expected))
+
         # Delete group. Group gets removed from user and from roles
         del ugm.groups['group1']
         self.assertEqual(ugm.treerepr(), (
@@ -831,7 +857,7 @@ class TestFile(NodeTestCase):
             '  <class \'node.ext.ugm.file.Groups\'>: groups\n'
         ))
         self.assertEqual(ugm.users['max'].groups, [])
-        ugm()
+        ugm.groups()
 
         lines = self._read_file(ugm.users.file_path)
         self.assertEqual(sorted(lines), ['max:\n'])

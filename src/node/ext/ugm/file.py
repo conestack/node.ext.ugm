@@ -270,7 +270,7 @@ class SearchBehavior(Behavior):
 
     @default
     def _compare_value(self, term, value):
-        # XXX: this should be done by regular expressions.
+        # XXX: should this be done by regular expressions?
         if term == '*':
             return True
         if not len(term.strip('*')):
@@ -303,15 +303,16 @@ class SearchBehavior(Behavior):
         for principal in self.values():
             # exact match too many
             if exact_match and len(found) > 1:
-                raise ValueError(
-                    u"Exact match asked but result not unique")
+                raise ValueError('Exact match asked but result not unique')
             # or search
             if or_search:
                 for key, term in criteria.items():
                     if key == 'id':
                         if self._compare_value(term, principal.name):
                             found.add(principal)
-                        continue
+                        # continue never executed due to cpython peephole
+                        # optimization, thus not counted in coverage
+                        continue                             # pragma: no cover
                     value = principal.attrs.get(key)
                     if value:
                         if self._compare_value(term, value):
@@ -325,7 +326,9 @@ class SearchBehavior(Behavior):
                         if not self._compare_value(term, principal.name):
                             matches = False
                             break
-                        continue
+                        # continue never executed due to cpython peephole
+                        # optimization, thus not counted in coverage
+                        continue                             # pragma: no cover
                     value = principal.attrs.get(key)
                     if not value or not self._compare_value(term, value):
                         matches = False
@@ -334,7 +337,7 @@ class SearchBehavior(Behavior):
                     found.add(principal)
         # exact match zero found
         if exact_match and len(found) == 0:
-            raise ValueError(u"Exact match asked but result length is zero")
+            raise ValueError('Exact match asked but result length is zero')
         # attr list
         if attrlist:
             ret = list()
@@ -408,6 +411,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
             value(True)
         if not from_parent:
             self.parent.attrs()
+            self.parent.groups(from_parent=True)
         for userid in self._user_data_to_remove:
             user_data_path = os.path.join(self.data_directory, 'users', userid)
             if os.path.exists(user_data_path):
@@ -439,10 +443,10 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     @default
     def passwd(self, id, oldpw, newpw):
         if not id in self.storage:
-            raise ValueError(u"User with id '%s' does not exist." % id)
+            raise ValueError(u"User with id '{}' does not exist.".format(id))
         if oldpw is not None:
             if not self._chk_pw(oldpw, self.storage[id]):
-                raise ValueError(u"Old password does not match.")
+                raise ValueError('Old password does not match.')
         salt = os.urandom(self.salt_len)
         #if isinstance(newpw, UNICODE_TYPE):
         #    newpw = newpw.encode('utf-8')
@@ -508,7 +512,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
         del self.storage[key]
         if key in self._mem_storage:
             del self._mem_storage[key]
-        id = 'group:%s' % key
+        id = 'group:{}'.format(key)
         if id in self.parent.attrs:
             del self.parent.attrs[id]
         self._group_data_to_remove.append(key)
@@ -521,6 +525,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
             value(True)
         if not from_parent:
             self.parent.attrs()
+            self.parent.users(from_parent=True)
         for groupid in self._group_data_to_remove:
             group_data_path = os.path.join(
                 self.data_directory, 'groups', groupid)
@@ -593,7 +598,7 @@ class UgmBehavior(BaseUgmBehavior):
 
     @override
     def __delitem__(self, key):
-        raise NotImplementedError(u"Operation forbidden on this node.")
+        raise NotImplementedError('Operation forbidden on this node.')
 
     @override
     def __iter__(self):
@@ -604,8 +609,8 @@ class UgmBehavior(BaseUgmBehavior):
     @locktree
     def __call__(self):
         self.attrs()
-        self.users(True)
-        self.groups(True)
+        self.users(from_parent=True)
+        self.groups(from_parent=True)
 
     @default
     @property
@@ -632,7 +637,7 @@ class UgmBehavior(BaseUgmBehavior):
     def add_role(self, role, principal):
         roles = self.roles(principal)
         if role in roles:
-            raise ValueError(u"Principal already has role '%s'" % role)
+            raise ValueError(u"Principal already has role '{}'".format(role))
         roles.append(role)
         roles = sorted(roles)
         self.attrs[self._principal_id(principal)] = ','.join(roles)
@@ -642,7 +647,7 @@ class UgmBehavior(BaseUgmBehavior):
     def remove_role(self, role, principal):
         roles = self.roles(principal)
         if not role in roles:
-            raise ValueError(u"Principal does not has role '%s'" % role)
+            raise ValueError(u"Principal does not has role '{}'".format(role))
         roles.remove(role)
         roles = sorted(roles)
         self.attrs[self._principal_id(principal)] = ','.join(roles)
@@ -651,7 +656,7 @@ class UgmBehavior(BaseUgmBehavior):
     def _principal_id(self, principal):
         id = principal.name
         if isinstance(principal, Group):
-            id = 'group:%s' % id
+            id = 'group:{}'.format(id)
         return id
 
     @default

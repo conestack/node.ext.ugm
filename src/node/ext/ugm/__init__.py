@@ -22,15 +22,15 @@ def initialize_default_ugm(config, global_config, local_config):
                      data_directory=datadir)
     try:
         if local_config.get('cone.auth_impl') == 'node.ext.ugm':
-            cone.app.cfg.auth = ugm                        #pragma NO COVERAGE
-    except Exception:                                      #pragma NO COVERAGE
-        pass # case uninstalled cone.app. testing purpose  #pragma NO COVERAGE
+            cone.app.cfg.auth = ugm                           # pragma no cover
+    except Exception:                                         # pragma no cover
+        pass # case uninstalled cone.app. testing purpose     # pragma no cover
     return ugm
 
 
 try:
-    import cone.app                                         #pragma NO COVERAGE
-    cone.app.register_main_hook(initialize_default_ugm)     #pragma NO COVERAGE
-except ImportError:                                         #pragma NO COVERAGE
+    import cone.app                                            # pragma no cover
+    cone.app.register_main_hook(initialize_default_ugm)        # pragma no cover
+except ImportError:                                            # pragma no cover
     # cone.app not installed
-    pass                                                    #pragma NO COVERAGE
+    pass                                                       # pragma no cover
