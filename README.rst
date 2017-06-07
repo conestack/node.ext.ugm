@@ -57,8 +57,8 @@ Contributors
 Changes
 =======
 
-0.9.9 (unreleased)
-------------------
+0.9.9
+-----
 
 - ``node.ext.ugm.file.FileStorage`` no longer provides ``unicode_keys`` and
   ``unicode_values``, files are always read and written encoded by encoding
