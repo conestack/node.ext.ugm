@@ -20,6 +20,9 @@ For more information on plumbing see
 TestCoverage
 ============
 
+.. image:: https://travis-ci.org/bluedynamics/node.ext.ugm.svg?branch=master
+    :target: https://travis-ci.org/bluedynamics/node.ext.ugm
+
 Summary of the test coverage report::
 
     Name                                                    Stmts   Miss  Cover
