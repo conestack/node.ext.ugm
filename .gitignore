@@ -1,12 +1,17 @@
 # /
 *.pyc
 *.egg-info
-/coverage
-/dist
-/bin
-/develop-eggs
-/parts
 /.*.cfg
-/devsrc
-/eggs
-.mrsd
+/.mrsd
+/.coverage
+/py2/
+/py3/
+/pypy/
+/coverage/
+/htmlcov/
+/dist/
+/bin/
+/develop-eggs/
+/parts/
+/devsrc/
+/eggs/

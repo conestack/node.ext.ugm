@@ -3,10 +3,17 @@ from setuptools import setup
 import os
 
 
+def read_file(name):
+    with open(os.path.join(os.path.dirname(__file__), name)) as f:
+        return f.read()
+
+
 version = '0.9.9.dev0'
 shortdesc = "Node-based user and group management"
-longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
-longdesc += open(os.path.join(os.path.dirname(__file__), 'LICENSE.rst')).read()
+longdesc = '\n\n'.join([read_file(name) for name in [
+    'README.rst',
+    'LICENSE.rst'
+]])
 
 
 setup(
@@ -15,8 +22,16 @@ setup(
     description=shortdesc,
     long_description=longdesc,
     classifiers=[
-        'Environment :: Web Environment',
+        'License :: OSI Approved :: BSD License',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development',
+        'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6'
     ],
     keywords='node user group role',
     author='BlueDynamics Alliance',
@@ -29,17 +44,16 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'node',
-        'plumber',
         'setuptools',
+        'node',
+        'plumber'
     ],
     extras_require={
         'test': [
-            'interlude',
-            'unittest2',
-            'zope.testing',
+            'zope.testing'
         ]
     },
+    test_suite='node.ext.ugm.tests.test_suite',
     entry_points="""
     """
 )
