@@ -35,12 +35,20 @@ Summary of the test coverage report::
     TOTAL                                                    1282      0   100%
 
 
+Python Versions
+===============
+
+- Python 2.7, 3.3+, pypy
+
+- May work with other versions (untested)
+
+
 Contributors
 ============
 
-- Robert Niederreiter <rnix [at] squarewave [dot] at>
+- Robert Niederreiter
 
-- Florian Friesdorf <flo [at] chaoflow [dot] net>
+- Florian Friesdorf
 
 
 Changes
