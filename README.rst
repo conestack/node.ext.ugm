@@ -22,12 +22,17 @@ TestCoverage
 
 Summary of the test coverage report::
 
-    lines   cov%   module
-       18   100%   node.ext.ugm.__init__
-       96   100%   node.ext.ugm._api
-      500    99%   node.ext.ugm.file
-       41   100%   node.ext.ugm.interfaces
-       16   100%   node.ext.ugm.tests
+    Name                                                    Stmts   Miss  Cover
+    ---------------------------------------------------------------------------
+    src/node/ext/ugm/__init__.py                               18      0   100%
+    src/node/ext/ugm/_api.py                                   98      0   100%
+    src/node/ext/ugm/file.py                                  464      0   100%
+    src/node/ext/ugm/interfaces.py                             34      0   100%
+    src/node/ext/ugm/tests/__init__.py                         12      0   100%
+    src/node/ext/ugm/tests/test_api.py                        197      0   100%
+    src/node/ext/ugm/tests/test_file.py                       459      0   100%
+    ---------------------------------------------------------------------------
+    TOTAL                                                    1282      0   100%
 
 
 Contributors
@@ -44,7 +49,14 @@ Changes
 0.9.9 (unreleased)
 ------------------
 
-- No changes yet.
+- ``node.ext.ugm.file.FileStorage`` no longer provides ``unicode_keys`` and
+  ``unicode_values``, files are always read and written encoded by encoding
+  defined at ``node.ext.ugm.file.ENCODING``, keys and values are always decoded
+  to unicode on read.
+  [rnix, 2017-06-07]
+
+- Python 3 Support.
+  [rnix, 2017-06-07]
 
 
 0.9.8

@@ -6,7 +6,6 @@ from node.behaviors import Nodespaces
 from node.behaviors import Nodify
 from node.behaviors import OdictStorage
 from node.behaviors import Storage
-from node.compat import IS_PY2
 from node.compat import UNICODE_TYPE
 from node.ext.ugm import Group as BaseGroupBehavior
 from node.ext.ugm import Groups as BaseGroupsBehavior
@@ -27,6 +26,9 @@ import hashlib
 import os
 
 
+ENCODING = 'utf-8'
+
+
 class FileStorage(Storage):
     """Storage behavior handling key/value pairs in a file.
 
@@ -36,8 +38,6 @@ class FileStorage(Storage):
          attribute.
     """
     allow_non_node_childs = override(True)
-    unicode_keys = default(True)  # Python 2 only
-    unicode_values = default(True)  # Python 2 only
     delimiter = default(':')
 
     @override
@@ -59,13 +59,13 @@ class FileStorage(Storage):
     @default
     def read_file(self):
         data = self._storage_data
-        with open(self.file_path) as file:
-            for line in file:
-                k, v = line.split(self.delimiter)
-                if IS_PY2 and not isinstance(k, unicode) and self.unicode_keys:
-                    k = k.decode('utf-8')
-                if IS_PY2 and not isinstance(v, unicode) and self.unicode_values:
-                    v = v.decode('utf-8')
+        delimiter = self.delimiter.encode(ENCODING) \
+            if isinstance(self.delimiter, UNICODE_TYPE) \
+            else self.delimiter
+        with open(self.file_path, 'rb') as f:
+            for line in f:
+                k, v = line.split(delimiter)
+                k, v = k.decode(ENCODING), v.decode(ENCODING)
                 data[k] = v.strip('\n')
 
     @default
@@ -73,21 +73,29 @@ class FileStorage(Storage):
         lines = list()
         if self._storage_data is None:
             if not os.path.exists(self.file_path):
-                with open(self.file_path, 'w') as file:
-                    file.write('')
+                with open(self.file_path, 'wb') as file:
+                    file.write(b'')
             return
         data = self._storage_data
+        delimiter = self.delimiter.encode(ENCODING) \
+            if isinstance(self.delimiter, UNICODE_TYPE) \
+            else self.delimiter
         for k, v in data.items():
-            if IS_PY2 and isinstance(k, unicode) and self.unicode_keys:
-                k = k.encode('utf-8')
-            if IS_PY2 and isinstance(v, unicode) and self.unicode_values:
-                v = v.encode('utf-8')
+            if isinstance(k, UNICODE_TYPE):
+                k = k.encode(ENCODING)
+            if isinstance(v, UNICODE_TYPE):
+                v = v.encode(ENCODING)
             if v is None:
-                v = ''
-            line = self.delimiter.join([k, v]) + '\n'
+                v = b''
+            line = delimiter.join([k, v]) + b'\n'
             lines.append(line)
-        with open(self.file_path, 'w') as file:
-            file.writelines(lines)
+        with open(self.file_path, 'wb') as f:
+            f.writelines(lines)
+
+    @override
+    def keys(self):
+        # Make pypy happy by overriding ``keys``
+        return self.storage.keys()
 
     @default
     def __call__(self):
@@ -356,7 +364,6 @@ class SearchBehavior(Behavior):
 
 
 class UsersBehavior(SearchBehavior, BaseUsersBehavior):
-    unicode_values = default(False)  # Python 2 only
     salt_len = default(8)
     hash_func = default(hashlib.sha256)
 
@@ -373,15 +380,18 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
 
     @override
     def __getitem__(self, key):
-        if not key in self.storage:
-            raise KeyError(key)
-        if key in self._mem_storage:
+        # access storage, if key not contained, KeyError is raised
+        self.storage[key]
+        try:
             return self._mem_storage[key]
-        with TreeLock(self):
-            user = User(
-                name=key, parent=self, data_directory=self.data_directory)
-            self._mem_storage[key] = user
-            return user
+        except KeyError:
+            with TreeLock(self):
+                user = self._mem_storage[key] = User(
+                    name=key,
+                    parent=self,
+                    data_directory=self.data_directory
+                )
+                return user
 
     @override
     @locktree
@@ -448,8 +458,9 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
             if not self._chk_pw(oldpw, self.storage[id]):
                 raise ValueError('Old password does not match.')
         salt = os.urandom(self.salt_len)
-        #if isinstance(newpw, UNICODE_TYPE):
-        #    newpw = newpw.encode('utf-8')
+        newpw = newpw.encode(ENCODING) \
+            if isinstance(newpw, UNICODE_TYPE) \
+            else newpw
         hashed = base64.b64encode(self.hash_func(newpw + salt).digest() + salt)
         self.storage[id] = hashed
 
@@ -457,8 +468,10 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     def _chk_pw(self, plain, hashed):
         hashed = base64.b64decode(hashed)
         salt = hashed[-self.salt_len:]
-        return hashed == self.hash_func(
-            plain.encode('utf-8') + salt).digest() + salt
+        plain = plain.encode(ENCODING) \
+            if isinstance(plain, UNICODE_TYPE) \
+            else plain
+        return hashed == self.hash_func(plain + salt).digest() + salt
 
 
 @plumbing(
@@ -488,15 +501,18 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
 
     @override
     def __getitem__(self, key):
-        if not key in self.storage:
-            raise KeyError(key)
-        if key in self._mem_storage:
+        # access storage, if key not contained, KeyError is raised
+        self.storage[key]
+        try:
             return self._mem_storage[key]
-        with TreeLock(self):
-            group = Group(
-                name=key, parent=self, data_directory=self.data_directory)
-            self._mem_storage[key] = group
-            return group
+        except KeyError:
+            with TreeLock(self):
+                group = self._mem_storage[key] = Group(
+                    name=key,
+                    parent=self,
+                    data_directory=self.data_directory
+                )
+                return group
 
     @override
     @locktree
@@ -583,11 +599,15 @@ class UgmBehavior(BaseUgmBehavior):
     def __getitem__(self, key):
         if not key in self.storage:
             if key == 'users':
-                self['users'] = Users(file_path=self.users_file,
-                                      data_directory=self.data_directory)
+                self['users'] = Users(
+                    file_path=self.users_file,
+                    data_directory=self.data_directory
+                )
             else:
-                self['groups'] = Groups(file_path=self.groups_file,
-                                      data_directory=self.data_directory)
+                self['groups'] = Groups(
+                    file_path=self.groups_file,
+                    data_directory=self.data_directory
+                )
         return self.storage[key]
 
     @override
