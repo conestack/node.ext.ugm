@@ -1,6 +1,20 @@
 User and group management
 =========================
 
+.. image:: https://img.shields.io/pypi/v/node.ext.ugm.svg
+    :target: https://pypi.python.org/pypi/node.ext.ugm
+    :alt: Latest PyPI version
+
+.. image:: https://img.shields.io/pypi/dm/node.ext.ugm.svg
+    :target: https://pypi.python.org/pypi/node.ext.ugm
+    :alt: Number of PyPI downloads
+
+.. image:: https://travis-ci.org/bluedynamics/node.ext.ugm.svg?branch=master
+    :target: https://travis-ci.org/bluedynamics/node.ext.ugm
+
+.. image:: https://coveralls.io/repos/github/bluedynamics/node.ext.ugm/badge.svg?branch=master
+    :target: https://coveralls.io/github/bluedynamics/node.ext.ugm?branch=master
+
 ``node.ext.ugm`` provides an API for node based managing of users and groups.
 
 See ``node.ext.ugm.interfaces`` for a description of the API.
@@ -15,27 +29,6 @@ package.
 
 For more information on plumbing see
 `plumber <http://pypi.python.org/pypi/plumber>`_ package.
-
-
-TestCoverage
-============
-
-.. image:: https://travis-ci.org/bluedynamics/node.ext.ugm.svg?branch=master
-    :target: https://travis-ci.org/bluedynamics/node.ext.ugm
-
-Summary of the test coverage report::
-
-    Name                                                    Stmts   Miss  Cover
-    ---------------------------------------------------------------------------
-    src/node/ext/ugm/__init__.py                               18      0   100%
-    src/node/ext/ugm/_api.py                                   98      0   100%
-    src/node/ext/ugm/file.py                                  464      0   100%
-    src/node/ext/ugm/interfaces.py                             34      0   100%
-    src/node/ext/ugm/tests/__init__.py                         12      0   100%
-    src/node/ext/ugm/tests/test_api.py                        197      0   100%
-    src/node/ext/ugm/tests/test_file.py                       459      0   100%
-    ---------------------------------------------------------------------------
-    TOTAL                                                    1282      0   100%
 
 
 Python Versions
@@ -60,7 +53,9 @@ Changes
 0.9.10 (unreleased)
 -------------------
 
-- No changes yet.
+- Remove ``cone.app`` main hook for initializing file based UGM implementation.
+  This is handled in ``cone.app`` itself as of version 1.0
+  [rnix, 2019-03-28]
 
 
 0.9.9

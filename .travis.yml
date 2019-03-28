@@ -11,6 +11,8 @@ python:
   - "pypy-5.3.1"
 
 install:
+  - pip install coverage
+  - pip install coveralls
   - pip install zope.interface
   - pip install zope.lifecycleevent
   - pip install zope.component
@@ -18,6 +20,12 @@ install:
   - pip install https://github.com/bluedynamics/odict/archive/master.zip
   - pip install https://github.com/bluedynamics/plumber/archive/master.zip
   - pip install https://github.com/bluedynamics/node/archive/master.zip
-  - pip install .
+  - pip install -e .
 
-script: python -m unittest node.ext.ugm.tests.test_suite
+script:
+  - python -m node.ext.ugm.tests.__init__
+  - coverage run --source src/node/ext/ugm -m node.ext.ugm.tests.__init__
+  - coverage report
+
+after_success:
+  - coveralls
