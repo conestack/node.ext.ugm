@@ -11,8 +11,11 @@ python:
   - "pypy-5.3.1"
 
 install:
-  - pip install coverage
-  - pip install coveralls
+  - |
+    if [[ $TRAVIS_PYTHON_VERSION != 'pypy-5.3.1' ]]; then
+        pip install coverage
+        pip install coveralls
+    fi
   - pip install zope.interface
   - pip install zope.lifecycleevent
   - pip install zope.component
@@ -24,8 +27,14 @@ install:
 
 script:
   - python -m node.ext.ugm.tests.__init__
-  - coverage run --source src/node/ext/ugm -m node.ext.ugm.tests.__init__
-  - coverage report
+  - |
+    if [[ $TRAVIS_PYTHON_VERSION != 'pypy-5.3.1' ]]; then
+        coverage run --source src/node/ext/ugm -m node.ext.ugm.tests.__init__
+        coverage report
+    fi
 
 after_success:
-  - coveralls
+  - |
+    if [[ $TRAVIS_PYTHON_VERSION != 'pypy-5.3.1' ]]; then
+        coveralls
+    fi
