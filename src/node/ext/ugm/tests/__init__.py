@@ -1,4 +1,3 @@
-from node.tests import NodeTestCase
 import unittest
 
 

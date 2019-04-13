@@ -5,7 +5,6 @@ from node.ext.ugm.interfaces import IPrincipals
 from node.ext.ugm.interfaces import IUgm
 from node.ext.ugm.interfaces import IUser
 from node.ext.ugm.interfaces import IUsers
-from node.locking import locktree
 from plumber import Behavior
 from plumber import default
 from plumber import finalize

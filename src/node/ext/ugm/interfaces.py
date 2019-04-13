@@ -84,13 +84,13 @@ class IPrincipals(INode):
         """Search for principals.
 
         criteria
-            Dict like object defining the principal attributes to be matched. 
+            Dict like object defining the principal attributes to be matched.
 
         attrlist
             Normally a list of keys is returned. By defining attrlist the
             return format will be ``[(key, {attr1: [value1, ...]}), ...]``. To
             get this format without any attributs, i.e. empty dicts in the
-            tuples, specify an empty attrlist. 
+            tuples, specify an empty attrlist.
 
         exact_match
             raise ValueError if not one match, return format is a single key or

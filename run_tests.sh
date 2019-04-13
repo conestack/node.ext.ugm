@@ -1,10 +1,21 @@
 #!/bin/sh
+set -e
+TEST="bin/python -m node.ext.ugm.tests.__init__"
+
+clear
+
 if [ -x "$(which python)" ]; then
-    ./py2/bin/python -m unittest node.ext.ugm.tests.test_suite
+    ./py2/$TEST
 fi
+
+echo ""
+
 if [ -x "$(which python3)" ]; then
-    ./py3/bin/python -m unittest node.ext.ugm.tests.test_suite
+    ./py3/$TEST
 fi
+
+echo ""
+
 if [ -x "$(which pypy)" ]; then
-    ./pypy/bin/python -m unittest node.ext.ugm.tests.test_suite
+    ./pypy/$TEST
 fi

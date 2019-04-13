@@ -34,7 +34,7 @@ setup(
         'Programming Language :: Python :: 3.6'
     ],
     keywords='node user group role',
-    author='BlueDynamics Alliance',
+    author='Robert Niederreiter',
     author_email='dev@bluedynamics.com',
     url='https://github.com/bluedynamics/node.ext.ugm',
     license='Simplified BSD',
@@ -48,12 +48,5 @@ setup(
         'node',
         'plumber'
     ],
-    extras_require={
-        'test': [
-            'zope.testing'
-        ]
-    },
-    test_suite='node.ext.ugm.tests.test_suite',
-    entry_points="""
-    """
+    test_suite='node.ext.ugm.tests.test_suite'
 )

@@ -1,6 +1,3 @@
-User and group management
-=========================
-
 .. image:: https://img.shields.io/pypi/v/node.ext.ugm.svg
     :target: https://pypi.python.org/pypi/node.ext.ugm
     :alt: Latest PyPI version
@@ -14,6 +11,10 @@ User and group management
 
 .. image:: https://coveralls.io/repos/github/bluedynamics/node.ext.ugm/badge.svg?branch=master
     :target: https://coveralls.io/github/bluedynamics/node.ext.ugm?branch=master
+
+
+User and group management
+=========================
 
 ``node.ext.ugm`` provides an API for node based managing of users and groups.
 
@@ -52,6 +53,9 @@ Changes
 
 0.9.10 (unreleased)
 -------------------
+
+- Remove superfluous ``configure.zcml`` file.
+  [rnix, 2019-04-13]
 
 - Remove ``cone.app`` main hook for initializing file based UGM implementation.
   This is handled in ``cone.app`` itself as of version 1.0
