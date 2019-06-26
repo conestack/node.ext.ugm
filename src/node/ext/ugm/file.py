@@ -62,9 +62,17 @@ class FileStorage(Storage):
             else self.delimiter
         with open(self.file_path, 'rb') as f:
             for line in f:
-                k, v = line.split(delimiter)
-                k, v = k.decode(ENCODING), v.decode(ENCODING)
-                data[k] = v.strip('\n')
+                idx = line.find(delimiter)
+                if idx == -1:
+                    # malformed line, ignore
+                    continue
+                k = line[:idx]
+                v = line[idx + len(delimiter):].strip(b'\n')
+                if v.startswith(b'b64:'):
+                    v = base64.b64decode(v[4:])
+                else:
+                    v = v.decode(ENCODING)
+                data[k.decode(ENCODING)] = v
 
     @default
     def write_file(self):
@@ -83,8 +91,10 @@ class FileStorage(Storage):
                 k = k.encode(ENCODING)
             if isinstance(v, UNICODE_TYPE):
                 v = v.encode(ENCODING)
-            if v is None:
+            elif v is None:
                 v = b''
+            else:
+                v = b'b64:' + base64.b64encode(v)
             line = delimiter.join([k, v]) + b'\n'
             lines.append(line)
         with open(self.file_path, 'wb') as f:
@@ -462,7 +472,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
             if isinstance(newpw, UNICODE_TYPE) \
             else newpw
         hashed = base64.b64encode(self.hash_func(newpw + salt).digest() + salt)
-        self.storage[id] = hashed
+        self.storage[id] = hashed.decode()
 
     @default
     def _chk_pw(self, plain, hashed):

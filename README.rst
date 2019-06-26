@@ -54,6 +54,9 @@ Changes
 0.9.10 (unreleased)
 -------------------
 
+- File based principals support binary attributes now.
+  [rnix, 2019-06-26]
+
 - Return all principals in file based UGM imlementation if no search criteria
   given.
   [rnix, 2019-06-26]

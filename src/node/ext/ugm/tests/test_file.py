@@ -134,6 +134,20 @@ class TestFile(NodeTestCase):
             (u'\xe4\xf6\xfc', u'\xe4\xf6\xfc')
         ])
 
+        # Test binary data
+        fsn[u'binary'] = b'Hello'
+        fsn()
+        fsn = FileStorageNode(file_path)
+        self.assertEqual(sorted(list(fsn.items())), [
+            (u'bar', u'bar'),
+            (u'binary', b'Hello'),
+            (u'foo', u'foo'),
+            (u'none', u''),
+            (u'\xe4\xf6\xfc', u'\xe4\xf6\xfc')
+        ])
+        lines = self._read_file(file_path)
+        self.assertTrue('binary:b64:SGVsbG8=\n' in lines)
+
     def test_ugm(self):
         ugm = self._create_ugm()
 
