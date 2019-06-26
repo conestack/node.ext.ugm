@@ -203,7 +203,7 @@ class GroupBehavior(BaseGroupBehavior):
     @default
     @locktree
     def __delitem__(self, key):
-        if not key in self.member_ids:
+        if key not in self.member_ids:
             raise KeyError(key)
         self._remove_member(key)
 
@@ -221,7 +221,7 @@ class GroupBehavior(BaseGroupBehavior):
 
     @default
     def add(self, id):
-        if not id in self.member_ids:
+        if id not in self.member_ids:
             self._add_member(id)
 
     @default
@@ -397,7 +397,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     @locktree
     def __setitem__(self, key, value):
         # set empty password on new added user.
-        if not key in self.storage:
+        if key not in self.storage:
             self.storage[key] = ''
         self._mem_storage[key] = value
 
@@ -443,7 +443,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
 
     @default
     def authenticate(self, id=None, pw=None):
-        if not id in self.storage:
+        if id not in self.storage:
             return False
         # cannot authenticate user with unset password
         if not self.storage[id]:
@@ -452,7 +452,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
 
     @default
     def passwd(self, id, oldpw, newpw):
-        if not id in self.storage:
+        if id not in self.storage:
             raise ValueError(u"User with id '{}' does not exist.".format(id))
         if oldpw is not None:
             if not self._chk_pw(oldpw, self.storage[id]):
@@ -518,7 +518,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
     @locktree
     def __setitem__(self, key, value):
         # set empty group members on new added group.
-        if not key in self.storage:
+        if key not in self.storage:
             self.storage[key] = ''
         self._mem_storage[key] = value
 
@@ -597,7 +597,7 @@ class UgmBehavior(BaseUgmBehavior):
 
     @override
     def __getitem__(self, key):
-        if not key in self.storage:
+        if key not in self.storage:
             if key == 'users':
                 self['users'] = Users(
                     file_path=self.users_file,
@@ -666,7 +666,7 @@ class UgmBehavior(BaseUgmBehavior):
     @locktree
     def remove_role(self, role, principal):
         roles = self.roles(principal)
-        if not role in roles:
+        if role not in roles:
             raise ValueError(u"Principal does not has role '{}'".format(role))
         roles.remove(role)
         roles = sorted(roles)
@@ -682,13 +682,13 @@ class UgmBehavior(BaseUgmBehavior):
     @default
     def _roles(self, id):
         attrs = self.attrs
-        if not id in attrs:
+        if id not in attrs:
             return list()
         return [role for role in attrs[id].split(',') if role]
 
     @default
     def _chk_key(self, key):
-        if not key in ['users', 'groups']:
+        if key not in ['users', 'groups']:
             raise KeyError(key)
 
 
