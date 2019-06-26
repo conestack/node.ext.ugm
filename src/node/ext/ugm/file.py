@@ -304,12 +304,14 @@ class SearchBehavior(Behavior):
         setups with just a few users and groups.
         """
         found = set()
-        if criteria is None:
-            return list()
         for principal in self.values():
             # exact match too many
             if exact_match and len(found) > 1:
                 raise ValueError('Exact match asked but result not unique')
+            # no criteria, all principals match
+            if not criteria:
+                found.add(principal)
+                continue
             # or search
             if or_search:
                 for key, term in criteria.items():

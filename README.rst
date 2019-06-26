@@ -54,6 +54,10 @@ Changes
 0.9.10 (unreleased)
 -------------------
 
+- Return all principals in file based UGM imlementation if no search criteria
+  given.
+  [rnix, 2019-06-26]
+
 - Remove superfluous ``configure.zcml`` file.
   [rnix, 2019-04-13]
 

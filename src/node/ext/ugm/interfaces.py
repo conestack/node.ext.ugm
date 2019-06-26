@@ -85,6 +85,7 @@ class IPrincipals(INode):
 
         criteria
             Dict like object defining the principal attributes to be matched.
+            If no criteria given, all users are returned.
 
         attrlist
             Normally a list of keys is returned. By defining attrlist the

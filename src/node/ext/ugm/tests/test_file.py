@@ -423,7 +423,14 @@ class TestFile(NodeTestCase):
         )
 
         # Test Search on users
-        self.assertEqual(users.search(), [])
+        self.assertEqual(
+            sorted(users.search()),
+            ['123sepp', 'max', 'maxii', 'sepp']
+        )
+        self.assertEqual(
+            sorted(users.search(criteria=dict())),
+            ['123sepp', 'max', 'maxii', 'sepp']
+        )
         self.assertEqual(users.search(criteria=dict(id='max')), ['max'])
         self.assertEqual(
             sorted(users.search(criteria=dict(id='max*'))),
