@@ -54,6 +54,11 @@ Changes
 0.9.10 (unreleased)
 -------------------
 
+- Add ``UserAttributes`` and ``GroupAttributes`` classes deriving from
+  ``FileAttributes`` and handle reserved attributes expected by ``cone.ugm``
+  there. This might change in future.
+  [rnix, 2019-06-27]
+
 - File based principals support binary attributes now.
   [rnix, 2019-06-26]
 

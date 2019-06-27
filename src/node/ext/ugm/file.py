@@ -119,6 +119,20 @@ class FileAttributes(object):
     pass
 
 
+class UserAttributes(FileAttributes):
+
+    def __getitem__(self, key):
+        # provide id attribute expected by cone.ugm
+        # XXX: think about principal_id property on interface
+        if key == 'id':
+            return self.parent.name
+        # provide password attribute expected by cone.ugm
+        # XXX: think about password property on interface
+        if key == 'password':
+            return self.parent.parent.storage[self.parent.name]
+        return super(UserAttributes, self).__getitem__(key)
+
+
 class UserBehavior(BaseUserBehavior):
 
     @default
@@ -127,7 +141,7 @@ class UserBehavior(BaseUserBehavior):
         if not os.path.exists(user_data_dir):
             os.makedirs(user_data_dir)
         user_data_path = os.path.join(user_data_dir, parent.name)
-        return FileAttributes(name, parent, user_data_path)
+        return UserAttributes(name, parent, user_data_path)
 
     attributes_factory = default(user_data_attributes_factory)
 
@@ -188,6 +202,16 @@ class User(object):
     pass
 
 
+class GroupAttributes(FileAttributes):
+
+    def __getitem__(self, key):
+        # provide id attribute expected by cone.ugm
+        # XXX: think about principal_id property on interface
+        if key == 'id':
+            return self.parent.name
+        return super(GroupAttributes, self).__getitem__(key)
+
+
 class GroupBehavior(BaseGroupBehavior):
 
     @default
@@ -196,7 +220,7 @@ class GroupBehavior(BaseGroupBehavior):
         if not os.path.exists(group_data_dir):
             os.makedirs(group_data_dir)
         group_data_path = os.path.join(group_data_dir, parent.name)
-        return FileAttributes(name, parent, group_data_path)
+        return GroupAttributes(name, parent, group_data_path)
 
     attributes_factory = default(group_data_attributes_factory)
 
