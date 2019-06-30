@@ -147,6 +147,11 @@ class Principals(Behavior):
         raise NotImplementedError(
             'Abstract ``Principals`` does not implement ``__call__``')
 
+    @default
+    def invalidate(self, key=None):
+        raise NotImplementedError(
+            'Abstract ``Principals`` does not implement ``invalidate``')
+
 
 @implementer(IUsers)
 class Users(Principals):

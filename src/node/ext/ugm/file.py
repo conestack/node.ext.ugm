@@ -12,6 +12,7 @@ from node.ext.ugm import Groups as BaseGroupsBehavior
 from node.ext.ugm import Ugm as BaseUgmBehavior
 from node.ext.ugm import User as BaseUserBehavior
 from node.ext.ugm import Users as BaseUsersBehavior
+from node.interfaces import IInvalidate
 from node.locking import locktree
 from node.locking import TreeLock
 from odict import odict
@@ -19,6 +20,7 @@ from plumber import Behavior
 from plumber import default
 from plumber import override
 from plumber import plumbing
+from zope.interface import implementer
 import base64
 import hashlib
 import os
@@ -27,6 +29,7 @@ import os
 ENCODING = 'utf-8'
 
 
+@implementer(IInvalidate)
 class FileStorage(Storage):
     """Storage behavior handling key/value pairs in a file.
 
@@ -104,6 +107,12 @@ class FileStorage(Storage):
     def keys(self):
         # Make pypy happy by overriding ``keys``
         return self.storage.keys()
+
+    @default
+    def invalidate(self, key=None):
+        # This storage not provides invalidation by key. always entire storage
+        # gets invalidated
+        self._storage_data = None
 
     @default
     def __call__(self):
@@ -497,6 +506,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
             else newpw
         hashed = base64.b64encode(self.hash_func(newpw + salt).digest() + salt)
         self.storage[id] = hashed.decode()
+        self()
 
     @default
     def _chk_pw(self, plain, hashed):

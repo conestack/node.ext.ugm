@@ -54,6 +54,13 @@ Changes
 0.9.10 (unreleased)
 -------------------
 
+- Also derive ``IPrincipals`` interface from ``node.interfaces.IInvalidate``.
+  Implement ``invalidate`` function on ``FileStorage``.
+  [rnix, 2019-06-30]
+
+- Persist users file on password change.
+  [rnix, 2019-06-30]
+
 - Add ``UserAttributes`` and ``GroupAttributes`` classes deriving from
   ``FileAttributes`` and handle reserved attributes expected by ``cone.ugm``
   there. This might change in future.

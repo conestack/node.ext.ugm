@@ -1,3 +1,4 @@
+from node.interfaces import IInvalidate
 from node.interfaces import ILeaf
 from node.interfaces import INode
 from zope.interface import Attribute
@@ -73,7 +74,7 @@ class IGroup(IPrincipal):
         """
 
 
-class IPrincipals(INode):
+class IPrincipals(INode, IInvalidate):
     """Interface describing a principals container.
     """
 
