@@ -51,7 +51,7 @@ Contributors
 Changes
 =======
 
-0.9.10 (unreleased)
+0.9.10 (2019-11-07)
 -------------------
 
 - Also derive ``IPrincipals`` interface from ``node.interfaces.IInvalidate``.
