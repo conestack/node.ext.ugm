@@ -23,7 +23,7 @@ install:
   - pip install https://github.com/bluedynamics/odict/archive/master.zip
   - pip install https://github.com/bluedynamics/plumber/archive/master.zip
   - pip install https://github.com/bluedynamics/node/archive/master.zip
-  - pip install -e .
+  - pip install -e .[test]
 
 script:
   - python -m node.ext.ugm.tests.__init__

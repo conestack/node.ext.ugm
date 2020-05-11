@@ -13,7 +13,7 @@ if [ -x "$(which python)" ]; then
     ./py2/bin/pip install https://github.com/bluedynamics/odict/archive/master.zip
     ./py2/bin/pip install https://github.com/bluedynamics/plumber/archive/master.zip
     ./py2/bin/pip install https://github.com/bluedynamics/node/archive/master.zip
-    ./py2/bin/python setup.py develop
+    ./py2/bin/pip install -e .[test]
 fi
 if [ -x "$(which python3)" ]; then
     rm -r py3
@@ -28,7 +28,7 @@ if [ -x "$(which python3)" ]; then
     ./py3/bin/pip install https://github.com/bluedynamics/odict/archive/master.zip
     ./py3/bin/pip install https://github.com/bluedynamics/plumber/archive/master.zip
     ./py3/bin/pip install https://github.com/bluedynamics/node/archive/master.zip
-    ./py3/bin/python setup.py develop
+    ./py3/bin/pip install -e .[test]
 fi
 if [ -x "$(which pypy)" ]; then
     rm -r pypy
@@ -43,5 +43,5 @@ if [ -x "$(which pypy)" ]; then
     ./pypy/bin/pip install https://github.com/bluedynamics/odict/archive/master.zip
     ./pypy/bin/pip install https://github.com/bluedynamics/plumber/archive/master.zip
     ./pypy/bin/pip install https://github.com/bluedynamics/node/archive/master.zip
-    ./pypy/bin/python setup.py develop
+    ./pypy/bin/pip install -e .[test]
 fi
