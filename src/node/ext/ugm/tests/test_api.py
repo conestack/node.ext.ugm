@@ -196,19 +196,19 @@ class TestAPI(NodeTestCase):
         def __getitem__fails():
             user['foo']
         err = self.expect_error(NotImplementedError, __getitem__fails)
-        expected = 'User does not implement ``__getitem__``'
+        expected = 'User does not support ``__getitem__``'
         self.assertEqual(str(err), expected)
 
         def __setitem__fails():
             user['foo'] = UserNode()
         err = self.expect_error(NotImplementedError, __setitem__fails)
-        expected = 'User does not implement ``__setitem__``'
+        expected = 'User does not support ``__setitem__``'
         self.assertEqual(str(err), expected)
 
         def __delitem__fails():
             del user['foo']
         err = self.expect_error(NotImplementedError, __delitem__fails)
-        expected = 'User does not implement ``__delitem__``'
+        expected = 'User does not support ``__delitem__``'
         self.assertEqual(str(err), expected)
 
         self.assertEqual([x for x in user], [])
@@ -256,7 +256,7 @@ class TestAPI(NodeTestCase):
         def __setitem__fails():
             group['foo'] = GroupNode()
         err = self.expect_error(NotImplementedError, __setitem__fails)
-        expected = 'Group does not implement ``__setitem__``'
+        expected = 'Group does not support ``__setitem__``'
         self.assertEqual(str(err), expected)
 
     def test_abstract_principals(self):

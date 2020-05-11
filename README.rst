@@ -54,7 +54,17 @@ Changes
 0.9.11 (unreleased)
 -------------------
 
-- No changes yet.
+- Describe behavior of ``__getitem__``, ``__delitem__`` and ``__iter__`` on
+  ``IGroup`` interface.
+  [rnix, 2020-05-11]
+
+- Fix file based ``GroupBehavior.__getitem__`` to properly raise ``KeyError``
+  when accessing user which is no member of group.
+  [rnix, 2020-05-11]
+
+- Make clear on ``User`` and ``Group`` behaviors which not impelented functions
+  are abstract and which are not supported.
+  [rnix, 2020-05-11]
 
 
 0.9.10 (2019-11-07)

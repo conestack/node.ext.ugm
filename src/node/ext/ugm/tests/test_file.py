@@ -80,9 +80,9 @@ class TestFile(NodeTestCase):
         self.assertEqual(list(fsn.__iter__()), [])
 
         # __setitem__
-        fsn['foo'] = 'foo'
-        fsn['bar'] = 'bar'
-        fsn['baz'] = 'baz'
+        fsn['foo'] = u'foo'
+        fsn['bar'] = u'bar'
+        fsn['baz'] = u'baz'
         fsn['none'] = None
 
         # __getitem__
@@ -193,7 +193,7 @@ class TestFile(NodeTestCase):
         ugm()
 
         # Add new User
-        user = ugm.users.create('max', fullname='Max', email='foo@bar.com')
+        user = ugm.users.create('max', fullname=u'Max', email=u'foo@bar.com')
         expected = '<User object \'max\' at '
         self.assertTrue(str(user).startswith(expected))
         self.assertEqual(ugm.treerepr(), (
@@ -264,7 +264,7 @@ class TestFile(NodeTestCase):
         self.assertTrue(ugm.users.authenticate('max', 'secret1'))
 
         # Add another user
-        user = ugm.users.create('sepp', fullname='Sepp', email='baz@bar.com')
+        user = ugm.users.create('sepp', fullname=u'Sepp', email=u'baz@bar.com')
         ugm.users.passwd('sepp', None, 'secret')
         ugm()
         self.assertEqual(ugm.treerepr(), (
@@ -284,7 +284,7 @@ class TestFile(NodeTestCase):
         def __setitem__fails():
             ugm.users['max']['foo'] = user
         err = self.expect_error(NotImplementedError, __setitem__fails)
-        expected = 'User does not implement ``__setitem__``'
+        expected = 'User does not support ``__setitem__``'
         self.assertEqual(str(err), expected)
 
     def test_group(self):
@@ -292,11 +292,11 @@ class TestFile(NodeTestCase):
         ugm()
 
         # Add users
-        ugm.users.create('max', fullname='Max', email='foo@bar.com')
-        ugm.users.create('sepp', fullname='Sepp', email='baz@bar.com')
+        ugm.users.create('max', fullname=u'Max', email=u'foo@bar.com')
+        ugm.users.create('sepp', fullname=u'Sepp', email=u'baz@bar.com')
 
         # Add new Group
-        group = ugm.groups.create('group1', description='Group 1')
+        group = ugm.groups.create('group1', description=u'Group 1')
         expected = '<Group object \'group1\' at '
         self.assertTrue(str(group).startswith(expected))
         self.assertEqual(ugm.treerepr(), (
@@ -336,7 +336,7 @@ class TestFile(NodeTestCase):
         def __setitem__fails():
             group['foo'] = ugm.users['max']
         err = self.expect_error(NotImplementedError, __setitem__fails)
-        expected = 'Group does not implement ``__setitem__``'
+        expected = 'Group does not support ``__setitem__``'
         self.assertEqual(str(err), expected)
 
         # A user is added to a group via ``add``
@@ -360,7 +360,7 @@ class TestFile(NodeTestCase):
         self.assertEqual(group['max'].path, ['ugm', 'users', 'max'])
 
         # Add another Group and add members
-        group = ugm.groups.create('group2', description='Group 2')
+        group = ugm.groups.create('group2', description=u'Group 2')
         expected = '<Group object \'group2\' at '
         self.assertTrue(str(group).startswith(expected))
         group.add('max')
@@ -390,11 +390,11 @@ class TestFile(NodeTestCase):
 
     def test_groups_on_user(self):
         ugm = self._create_ugm()
-        ugm.users.create('max', fullname='Max', email='foo@bar.com')
-        ugm.users.create('sepp', fullname='Sepp', email='baz@bar.com')
-        group1 = ugm.groups.create('group1', description='Group 1')
+        ugm.users.create('max', fullname=u'Max', email=u'foo@bar.com')
+        ugm.users.create('sepp', fullname=u'Sepp', email=u'baz@bar.com')
+        group1 = ugm.groups.create('group1', description=u'Group 1')
         group1.add('max')
-        group2 = ugm.groups.create('group2', description='Group 2')
+        group2 = ugm.groups.create('group2', description=u'Group 2')
         group2.add('max')
         group2.add('sepp')
         ugm()
@@ -424,8 +424,8 @@ class TestFile(NodeTestCase):
 
     def test_search_users(self):
         ugm = self._create_ugm()
-        ugm.users.create('max', fullname='Max Muster', email='foo@bar.com')
-        ugm.users.create('sepp', fullname='Sepp Muster', email='baz@bar.com')
+        ugm.users.create('max', fullname=u'Max Muster', email=u'foo@bar.com')
+        ugm.users.create('sepp', fullname=u'Sepp Muster', email=u'baz@bar.com')
         ugm.users.create('maxii')
         ugm.users.create('123sepp')
         ugm()
@@ -461,6 +461,7 @@ class TestFile(NodeTestCase):
             users.search(criteria=dict(id='max'), exact_match=True),
             ['max']
         )
+
         def search_fails():
             users.search(criteria=dict(id='max*'), exact_match=True)
         err = self.expect_error(ValueError, search_fails)
@@ -526,8 +527,8 @@ class TestFile(NodeTestCase):
 
     def test_search_groups(self):
         ugm = self._create_ugm()
-        ugm.groups.create('group1', description='Group 1 Description')
-        ugm.groups.create('group2', description='Group 2 Description')
+        ugm.groups.create('group1', description=u'Group 1 Description')
+        ugm.groups.create('group2', description=u'Group 2 Description')
         ugm.groups.create('group3')
         ugm()
 
@@ -606,10 +607,10 @@ class TestFile(NodeTestCase):
 
     def test_delete_user_from_group(self):
         ugm = self._create_ugm()
-        ugm.users.create('max', fullname='Max Muster', email='foo@bar.com')
-        ugm.users.create('sepp', fullname='Sepp Muster', email='baz@bar.com')
-        ugm.groups.create('group1', description='Group 1 Description')
-        ugm.groups.create('group2', description='Group 2 Description')
+        ugm.users.create('max', fullname=u'Max Muster', email=u'foo@bar.com')
+        ugm.users.create('sepp', fullname=u'Sepp Muster', email=u'baz@bar.com')
+        ugm.groups.create('group1', description=u'Group 1 Description')
+        ugm.groups.create('group2', description=u'Group 2 Description')
         ugm.groups['group1'].add('max')
         ugm.groups['group2'].add('max')
         ugm.groups['group2'].add('sepp')
@@ -660,7 +661,7 @@ class TestFile(NodeTestCase):
 
     def test_user_roles(self):
         ugm = self._create_ugm()
-        ugm.users.create('max', fullname='Max Muster', email='foo@bar.com')
+        ugm.users.create('max', fullname=u'Max Muster', email=u'foo@bar.com')
         ugm()
 
         # No roles yet
@@ -715,7 +716,7 @@ class TestFile(NodeTestCase):
 
     def test_group_roles(self):
         ugm = self._create_ugm()
-        ugm.groups.create('group1', description='Group 1 Description')
+        ugm.groups.create('group1', description=u'Group 1 Description')
         ugm.groups['group1'].add('max')
         ugm()
 
@@ -771,10 +772,10 @@ class TestFile(NodeTestCase):
 
     def test_users(self):
         ugm = self._create_ugm()
-        ugm.users.create('max', fullname='Max Muster', email='foo@bar.com')
+        ugm.users.create('max', fullname=u'Max Muster', email=u'foo@bar.com')
         ugm.users['max'].add_role('manager')
-        ugm.groups.create('group1', description='Group 1 Description')
-        ugm.groups.create('group2', description='Group 2 Description')
+        ugm.groups.create('group1', description=u'Group 1 Description')
+        ugm.groups.create('group2', description=u'Group 2 Description')
         ugm.groups['group1'].add('max')
         ugm.groups['group2'].add('max')
         ugm()
@@ -835,8 +836,8 @@ class TestFile(NodeTestCase):
 
     def test_groups(self):
         ugm = self._create_ugm()
-        ugm.users.create('max', fullname='Max Muster', email='foo@bar.com')
-        ugm.groups.create('group1', description='Group 1 Description')
+        ugm.users.create('max', fullname=u'Max Muster', email=u'foo@bar.com')
+        ugm.groups.create('group1', description=u'Group 1 Description')
         ugm.groups['group1'].add('max')
         ugm.groups['group1'].add_role('manager')
 

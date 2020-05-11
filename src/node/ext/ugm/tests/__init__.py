@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 
 def test_suite():
@@ -13,6 +14,13 @@ def test_suite():
     return suite
 
 
+def run_tests():
+    from zope.testrunner.runner import Runner
+
+    runner = Runner(found_suites=[test_suite()])
+    runner.run()
+    sys.exit(int(runner.failed))
+
+
 if __name__ == '__main__':
-    runner = unittest.TextTestRunner(failfast=True)
-    runner.run(test_suite())
+    run_tests()

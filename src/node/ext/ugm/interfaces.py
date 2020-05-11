@@ -73,6 +73,26 @@ class IGroup(IPrincipal):
             User id.
         """
 
+    def __getitem__(key):
+        """Return group related ``User`` object. Raise ``KeyError`` if user not
+        member of this group.
+
+        key
+            User id.
+        """
+
+    def __delitem__(key):
+        """Delete membership of user from this group. Raise ``KeyError`` if user not
+        member of this group.
+
+        key
+            User id.
+        """
+
+    def __iter__():
+        """Iterate over ``member_ids``.
+        """
+
 
 class IPrincipals(INode, IInvalidate):
     """Interface describing a principals container.

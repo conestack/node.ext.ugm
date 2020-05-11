@@ -1,5 +1,6 @@
 from setuptools import find_packages
 from setuptools import setup
+from setuptools.command.test import test
 import os
 
 
@@ -14,6 +15,13 @@ longdesc = '\n\n'.join([read_file(name) for name in [
     'README.rst',
     'LICENSE.rst'
 ]])
+
+
+class Test(test):
+
+    def run_tests(self):
+        from node.ext.ugm import tests
+        tests.run_tests()
 
 
 setup(
@@ -48,5 +56,13 @@ setup(
         'node',
         'plumber'
     ],
-    test_suite='node.ext.ugm.tests.test_suite'
+    extras_require=dict(
+        test=[
+            'zope.testrunner'
+        ]
+    ),
+    tests_require=[
+        'zope.testrunner'
+    ],
+    cmdclass=dict(test=Test)
 )

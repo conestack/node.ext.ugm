@@ -51,18 +51,22 @@ class User(Principal):
 
     @finalize
     def __getitem__(self, key):
-        raise NotImplementedError('User does not implement ``__getitem__``')
+        # __getitem__ API not supported
+        raise NotImplementedError('User does not support ``__getitem__``')
 
     @finalize
     def __setitem__(self, key, value):
-        raise NotImplementedError('User does not implement ``__setitem__``')
+        # __setitem__ API not supported
+        raise NotImplementedError('User does not support ``__setitem__``')
 
     @finalize
     def __delitem__(self, key):
-        raise NotImplementedError('User does not implement ``__delitem__``')
+        # __delitem__ API not supported
+        raise NotImplementedError('User does not support ``__delitem__``')
 
     @finalize
     def __iter__(self):
+        # __iter__ API not supported
         return iter([])
 
     @override
@@ -100,8 +104,24 @@ class Group(Principal):
     """
 
     @finalize
-    def __setitem__(self, kex, value):
-        raise NotImplementedError('Group does not implement ``__setitem__``')
+    def __setitem__(self, key, value):
+        # __setitem__ API not supported
+        raise NotImplementedError('Group does not support ``__setitem__``')
+
+    @default
+    def __getitem__(self, key):
+        raise NotImplementedError(
+            'Abstract ``Group`` does not implement ``__getitem__``')
+
+    @default
+    def __delitem__(self, key):
+        raise NotImplementedError(
+            'Abstract ``Group`` does not implement ``__delitem__``')
+
+    @default
+    def __iter__(self):
+        raise NotImplementedError(
+            'Abstract ``Group`` does not implement ``__iter__``')
 
     @default
     @property

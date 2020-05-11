@@ -241,6 +241,8 @@ class GroupBehavior(BaseGroupBehavior):
 
     @default
     def __getitem__(self, key):
+        if key not in self.member_ids:
+            raise KeyError(key)
         return self.parent.parent.users[key]
 
     @default
@@ -288,21 +290,21 @@ class GroupBehavior(BaseGroupBehavior):
     @default
     @property
     def member_ids(self):
-        return [id for id in self.parent.storage[self.name].split(',') if id]
+        return [id for id in self.parent.storage[self.name].split(u',') if id]
 
     @default
     def _add_member(self, id):
         member_ids = self.member_ids
         member_ids.append(id)
         member_ids = sorted(member_ids)
-        self.parent.storage[self.name] = ','.join(member_ids)
+        self.parent.storage[self.name] = u','.join(member_ids)
 
     @default
     def _remove_member(self, id):
         member_ids = self.member_ids
         member_ids.remove(id)
         member_ids = sorted(member_ids)
-        self.parent.storage[self.name] = ','.join(member_ids)
+        self.parent.storage[self.name] = u','.join(member_ids)
 
 
 @plumbing(
@@ -441,7 +443,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     def __setitem__(self, key, value):
         # set empty password on new added user.
         if key not in self.storage:
-            self.storage[key] = ''
+            self.storage[key] = u''
         self._mem_storage[key] = value
 
     @override
@@ -563,7 +565,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
     def __setitem__(self, key, value):
         # set empty group members on new added group.
         if key not in self.storage:
-            self.storage[key] = ''
+            self.storage[key] = u''
         self._mem_storage[key] = value
 
     @override
@@ -704,7 +706,7 @@ class UgmBehavior(BaseUgmBehavior):
             raise ValueError(u"Principal already has role '{}'".format(role))
         roles.append(role)
         roles = sorted(roles)
-        self.attrs[self._principal_id(principal)] = ','.join(roles)
+        self.attrs[self._principal_id(principal)] = u','.join(roles)
 
     @default
     @locktree
@@ -714,7 +716,7 @@ class UgmBehavior(BaseUgmBehavior):
             raise ValueError(u"Principal does not has role '{}'".format(role))
         roles.remove(role)
         roles = sorted(roles)
-        self.attrs[self._principal_id(principal)] = ','.join(roles)
+        self.attrs[self._principal_id(principal)] = u','.join(roles)
 
     @default
     def _principal_id(self, principal):
