@@ -109,8 +109,8 @@ class IPrincipals(INode, IInvalidate):
             If no criteria given, all users are returned.
 
         attrlist
-            Normally a list of keys is returned. By defining attrlist the
-            return format will be ``[(key, {attr1: [value1, ...]}), ...]``. To
+            if no ``attrlist`` is given a list of ids is returned. By defining attrlist the
+            return format will be ``[(id, {attr1: value1, attr2: value2, ...}), ...]``. To
             get this format without any attributs, i.e. empty dicts in the
             tuples, specify an empty attrlist.
 
@@ -120,6 +120,8 @@ class IPrincipals(INode, IInvalidate):
 
         or_search
             flag whether criteria should be ORer or ANDed. defaults to False.
+
+        :return: list of ids - if no ``attrlist`` is given else see ``attrlist``
         """
 
     def create(_id, **kw):
