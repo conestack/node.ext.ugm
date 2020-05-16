@@ -188,6 +188,13 @@ class TestFile(NodeTestCase):
             ['groups', 'principal_data', 'roles', 'users']
         )
 
+        # Invalidate
+        self.assertEqual(ugm.storage.keys(), ['users', 'groups'])
+        ugm.invalidate(key='users')
+        self.assertEqual(ugm.storage.keys(), ['groups'])
+        ugm.invalidate()
+        self.assertEqual(ugm.storage.keys(), [])
+
     def test_user(self):
         ugm = self._create_ugm()
         ugm()

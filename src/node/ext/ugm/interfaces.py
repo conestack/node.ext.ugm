@@ -180,7 +180,7 @@ class IGroups(IPrincipals):
     """
 
 
-class IUgm(INode):
+class IUgm(INode, IInvalidate):
     """Interface describing user and group management API.
     """
 
@@ -188,6 +188,8 @@ class IUgm(INode):
 
     groups = Attribute(u"IGroups implementation")
 
+    # XXX: roles storage is implementation specific and should be removed from
+    #      here
     roles_storage = Attribute(u"Callable for persisting roles.")
 
     def add_role(role, principal):

@@ -748,4 +748,9 @@ class UgmBehavior(BaseUgmBehavior):
     Nodify,
     OdictStorage)
 class Ugm(object):
-    pass
+
+    def invalidate(self, key=None):
+        if key is None:
+            self.storage.clear()
+            return
+        del self.storage[key]

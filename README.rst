@@ -54,6 +54,13 @@ Changes
 0.9.11 (unreleased)
 -------------------
 
+- Implement ``invalidate`` on ``node.ext.ugm.file.Ugm``.
+  [rnix, 2020-05-16]
+
+- ``node.ext.ugm.interfaces.IUgm`` inherits from
+  ``node.interfaces.IInvalidate`` now.
+  [rnix, 2020-05-16]
+
 - Describe behavior of ``__getitem__``, ``__delitem__`` and ``__iter__`` on
   ``IGroup`` interface.
   [rnix, 2020-05-11]
