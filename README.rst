@@ -51,7 +51,7 @@ Contributors
 Changes
 =======
 
-0.9.11 (unreleased)
+0.9.11 (2020-05-28)
 -------------------
 
 - Implement ``invalidate`` on ``node.ext.ugm.file.Ugm``.
