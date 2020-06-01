@@ -8,6 +8,7 @@ from node.behaviors import Nodify
 from node.ext.ugm.file import FileStorage
 from node.ext.ugm.file import Ugm
 from node.tests import NodeTestCase
+from node.utils import UNSET
 from plumber import plumbing
 import os
 import shutil
@@ -84,6 +85,7 @@ class TestFile(NodeTestCase):
         fsn['bar'] = u'bar'
         fsn['baz'] = u'baz'
         fsn['none'] = None
+        fsn['unset'] = UNSET
 
         # __getitem__
         def __getitem__fails():
@@ -92,9 +94,13 @@ class TestFile(NodeTestCase):
         self.assertEqual(str(err), '\'inexistent\'')
         self.assertEqual(fsn['foo'], 'foo')
         self.assertEqual(fsn['none'], None)
+        self.assertEqual(fsn['unset'], UNSET)
 
         # __iter__
-        self.assertEqual(list(fsn.keys()), ['foo', 'bar', 'baz', 'none'])
+        self.assertEqual(
+            list(fsn.keys()),
+            ['foo', 'bar', 'baz', 'none', 'unset']
+        )
 
         # __delitem__
         def __delitem__fails():
@@ -115,13 +121,14 @@ class TestFile(NodeTestCase):
         self.assertEqual(lines, [
             'foo:foo\n',
             'bar:bar\n',
-            'none:\n'
+            'none:\n',
+            'unset:\n'
         ])
 
         # Recreate
         fsn = FileStorageNode(file_path)
-        self.assertEqual(list(fsn.keys()), [u'foo', u'bar', u'none'])
-        self.assertEqual(list(fsn.values()), [u'foo', u'bar', u''])
+        self.assertEqual(list(fsn.keys()), [u'foo', u'bar', u'none', u'unset'])
+        self.assertEqual(list(fsn.values()), [u'foo', u'bar', u'', u''])
 
         # Test unicode
         fsn[u'\xe4\xf6\xfc'] = u'\xe4\xf6\xfc'
@@ -131,6 +138,7 @@ class TestFile(NodeTestCase):
             (u'bar', u'bar'),
             (u'foo', u'foo'),
             (u'none', u''),
+            (u'unset', u''),
             (u'\xe4\xf6\xfc', u'\xe4\xf6\xfc')
         ])
 
@@ -143,6 +151,7 @@ class TestFile(NodeTestCase):
             (u'binary', b'Hello'),
             (u'foo', u'foo'),
             (u'none', u''),
+            (u'unset', u''),
             (u'\xe4\xf6\xfc', u'\xe4\xf6\xfc')
         ])
         lines = self._read_file(file_path)
@@ -723,6 +732,7 @@ class TestFile(NodeTestCase):
 
     def test_group_roles(self):
         ugm = self._create_ugm()
+        ugm.users.create('max')
         ugm.groups.create('group1', description=u'Group 1 Description')
         ugm.groups['group1'].add('max')
         ugm()
@@ -873,6 +883,13 @@ class TestFile(NodeTestCase):
         def __getitem__fails():
             ugm.groups['inexistent']
         err = self.expect_error(KeyError, __getitem__fails)
+        self.assertEqual(str(err), '\'inexistent\'')
+
+        err = self.expect_error(
+            KeyError,
+            ugm.groups['group1'].add,
+            'inexistent'
+        )
         self.assertEqual(str(err), '\'inexistent\'')
 
         expected = '<Group object \'group1\' at '

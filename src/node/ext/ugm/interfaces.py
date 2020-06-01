@@ -67,7 +67,7 @@ class IGroup(IPrincipal):
     member_ids = Attribute(u"List of member id's contained in this group.")
 
     def add(id):
-        """Add user with id to group.
+        """Add user with id to group. Raise ``KeyError`` if user not exists.
 
         id
             User id.
