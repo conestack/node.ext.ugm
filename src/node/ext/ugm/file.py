@@ -15,6 +15,7 @@ from node.ext.ugm import Users as BaseUsersBehavior
 from node.interfaces import IInvalidate
 from node.locking import locktree
 from node.locking import TreeLock
+from node.utils import UNSET
 from odict import odict
 from plumber import Behavior
 from plumber import default
@@ -96,6 +97,8 @@ class FileStorage(Storage):
                 v = v.encode(ENCODING)
             elif v is None:
                 v = b''
+            elif v is UNSET:
+                v = b''
             else:
                 v = b'b64:' + base64.b64encode(v)
             line = delimiter.join([k, v]) + b'\n'
@@ -108,7 +111,7 @@ class FileStorage(Storage):
         # Make pypy happy by overriding ``keys``
         return self.storage.keys()
 
-    @default
+    @override
     def invalidate(self, key=None):
         # This storage not provides invalidation by key. always entire storage
         # gets invalidated
@@ -165,6 +168,7 @@ class UserBehavior(BaseUserBehavior):
     def __call__(self, from_parent=False):
         self.attrs()
         if not from_parent:
+            self.parent()
             self.parent.parent.attrs()
 
     @default
@@ -262,11 +266,13 @@ class GroupBehavior(BaseGroupBehavior):
     def __call__(self, from_parent=False):
         self.attrs()
         if not from_parent:
+            self.parent()
             self.parent.parent.attrs()
 
     @default
     def add(self, id):
         if id not in self.member_ids:
+            self.parent.parent.users[id]
             self._add_member(id)
 
     @default
@@ -463,7 +469,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     def __call__(self, from_parent=False):
         self.write_file()
         for value in self.values():
-            value(True)
+            value(from_parent=True)
         if not from_parent:
             self.parent.attrs()
             self.parent.groups(from_parent=True)
@@ -584,7 +590,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
     def __call__(self, from_parent=False):
         self.write_file()
         for value in self.values():
-            value(True)
+            value(from_parent=True)
         if not from_parent:
             self.parent.attrs()
             self.parent.users(from_parent=True)

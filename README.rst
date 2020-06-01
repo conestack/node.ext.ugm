@@ -54,7 +54,21 @@ Changes
 0.9.12 (unreleased)
 -------------------
 
-- No changes yet.
+- ``node.ext.ugm.file.GroupBehavior.add`` properly raises ``KeyError`` if given
+  user not exists.
+  [rnix]
+
+- Also call parent in ``node.ext.ugm.file.UserBehavior.__call__`` and
+  ``node.ext.ugm.file.GroupBehavior.__call__`` if not called from parent.
+  [rnix]
+
+- ``node.ext.ugm.file.FileStorage.invalidate`` gets set with
+  ``plumber.override`` instead of ``plumber.default`` to work on
+  ``node.ext.ugm.file.Users`` and ``node.ext.ugm.file.Groups``.
+  [rnix]
+
+- ``node.ext.ugm.file.FileStorage`` values can be ``node.utils.UNSET``.
+  [rnix]
 
 
 0.9.11 (2020-05-28)
