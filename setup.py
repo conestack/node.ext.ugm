@@ -9,10 +9,11 @@ def read_file(name):
         return f.read()
 
 
-version = '0.9.12.dev0'
+version = '0.9.12'
 shortdesc = "Node-based user and group management"
 longdesc = '\n\n'.join([read_file(name) for name in [
     'README.rst',
+    'CHANGES.rst',
     'LICENSE.rst'
 ]])
 
