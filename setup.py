@@ -43,9 +43,9 @@ setup(
         'Programming Language :: Python :: 3.6'
     ],
     keywords='node user group role',
-    author='Robert Niederreiter',
-    author_email='dev@bluedynamics.com',
-    url='https://github.com/bluedynamics/node.ext.ugm',
+    author='Node Contributors',
+    author_email='dev@conestack.org',
+    url='https://github.com/conestack/node.ext.ugm',
     license='Simplified BSD',
     packages=find_packages('src'),
     package_dir={'': 'src'},
