@@ -35,11 +35,8 @@ class FileStorage(Storage):
     """Storage behavior handling key/value pairs in a file.
 
     Cannot contain node children. Useful for node attributes stored in a file.
-
-    XXX: extend node.behaviors.common.NodeChildValidate by ``allow_node_childs``
-         attribute.
     """
-    allow_non_node_childs = override(True)
+    allow_non_node_children = override(True)
     delimiter = default(':')
 
     @override

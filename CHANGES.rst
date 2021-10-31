@@ -4,7 +4,9 @@ Changes
 0.9.13 (unreleased)
 -------------------
 
-- No changes yet.
+- Rename deprecated ``FileStorage.allow_non_node_childs`` to
+  ``allow_non_node_children``
+  [rnix]
 
 
 0.9.12 (2020-07-09)
