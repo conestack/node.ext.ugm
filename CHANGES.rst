@@ -1,7 +1,7 @@
 Changes
 =======
 
-0.9.13 (unreleased)
+0.9.13 (2021-11-08)
 -------------------
 
 - Rename deprecated ``FileStorage.allow_non_node_childs`` to
