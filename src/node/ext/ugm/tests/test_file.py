@@ -1,10 +1,10 @@
 from __future__ import print_function
-from node.behaviors import Adopt
 from node.behaviors import Attributes
 from node.behaviors import DefaultInit
-from node.behaviors import NodeChildValidate
+from node.behaviors import MappingAdopt
+from node.behaviors import MappingConstraints
+from node.behaviors import MappingNode
 from node.behaviors import Nodespaces
-from node.behaviors import Nodify
 from node.ext.ugm.file import FileStorage
 from node.ext.ugm.file import Ugm
 from node.tests import NodeTestCase
@@ -20,12 +20,12 @@ import tempfile
 ###############################################################################
 
 @plumbing(
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
-    Adopt,
+    MappingAdopt,
     Attributes,
     DefaultInit,
-    Nodify,
+    MappingNode,
     FileStorage)
 class FileStorageNode(object):
     """File storage.

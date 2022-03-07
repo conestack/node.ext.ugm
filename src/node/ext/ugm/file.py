@@ -1,11 +1,11 @@
-from node.behaviors import Adopt
 from node.behaviors import Attributes
 from node.behaviors import DefaultInit
-from node.behaviors import NodeChildValidate
+from node.behaviors import MappingAdopt
+from node.behaviors import MappingConstraints
+from node.behaviors import MappingNode
+from node.behaviors import MappingStorage
 from node.behaviors import Nodespaces
-from node.behaviors import Nodify
 from node.behaviors import OdictStorage
-from node.behaviors import Storage
 from node.compat import UNICODE_TYPE
 from node.ext.ugm import Group as BaseGroupBehavior
 from node.ext.ugm import Groups as BaseGroupsBehavior
@@ -31,12 +31,12 @@ ENCODING = 'utf-8'
 
 
 @implementer(IInvalidate)
-class FileStorage(Storage):
-    """Storage behavior handling key/value pairs in a file.
+class FileStorage(MappingStorage):
+    """MappingStorage behavior handling key/value pairs in a file.
 
     Cannot contain node children. Useful for node attributes stored in a file.
     """
-    allow_non_node_children = override(True)
+    child_constraints = override(None)
     delimiter = default(':')
 
     @override
@@ -120,9 +120,9 @@ class FileStorage(Storage):
 
 
 @plumbing(
-    NodeChildValidate,
-    Adopt,
-    Nodify,
+    MappingConstraints,
+    MappingAdopt,
+    MappingNode,
     FileStorage)
 class FileAttributes(object):
     pass
@@ -204,10 +204,10 @@ class UserBehavior(BaseUserBehavior):
 
 @plumbing(
     UserBehavior,
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
     Attributes,
-    Nodify)
+    MappingNode)
 class User(object):
     pass
 
@@ -312,10 +312,10 @@ class GroupBehavior(BaseGroupBehavior):
 
 @plumbing(
     GroupBehavior,
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
     Attributes,
-    Nodify)
+    MappingNode)
 class Group(object):
     pass
 
@@ -525,11 +525,11 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
 
 @plumbing(
     UsersBehavior,
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
-    Adopt,
+    MappingAdopt,
     Attributes,
-    Nodify,
+    MappingNode,
     FileStorage)
 class Users(object):
     pass
@@ -609,11 +609,11 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
 
 @plumbing(
     GroupsBehavior,
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
-    Adopt,
+    MappingAdopt,
     Attributes,
-    Nodify,
+    MappingNode,
     FileStorage)
 class Groups(object):
     pass
@@ -743,12 +743,12 @@ class UgmBehavior(BaseUgmBehavior):
 
 @plumbing(
     UgmBehavior,
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
-    Adopt,
+    MappingAdopt,
     Attributes,
     DefaultInit,
-    Nodify,
+    MappingNode,
     OdictStorage)
 class Ugm(object):
 

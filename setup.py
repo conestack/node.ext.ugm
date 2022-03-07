@@ -37,10 +37,10 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6'
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10'
     ],
     keywords='node user group role',
     author='Node Contributors',
@@ -54,8 +54,8 @@ setup(
     zip_safe=False,
     install_requires=[
         'setuptools',
-        'node>=0.9.28',
-        'plumber'
+        'node>=0.999',
+        'plumber>1.6'
     ],
     extras_require=dict(
         test=[

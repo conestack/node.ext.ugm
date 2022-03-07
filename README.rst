@@ -31,7 +31,7 @@ For more information on plumbing see
 Python Versions
 ===============
 
-- Python 2.7, 3.3+, pypy
+- Python 2.7, 3.7+, pypy
 
 - May work with other versions (untested)
 

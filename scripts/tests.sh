@@ -13,9 +13,3 @@ echo ""
 if [ -x "$(which python3)" ]; then
     ./py3/$TEST
 fi
-
-echo ""
-
-if [ -x "$(which pypy)" ]; then
-    ./pypy/$TEST
-fi

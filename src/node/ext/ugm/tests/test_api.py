@@ -1,10 +1,10 @@
-from node.behaviors import Adopt
 from node.behaviors import Attributes
 from node.behaviors import DefaultInit
 from node.behaviors import DictStorage
-from node.behaviors import NodeChildValidate
+from node.behaviors import MappingAdopt
+from node.behaviors import MappingConstraints
+from node.behaviors import MappingNode
 from node.behaviors import Nodespaces
-from node.behaviors import Nodify
 from node.behaviors import OdictStorage
 from node.ext.ugm import Group
 from node.ext.ugm import Groups
@@ -29,12 +29,12 @@ from plumber import plumbing
 ###############################################################################
 
 @plumbing(
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
-    Adopt,
+    MappingAdopt,
     Attributes,
     DefaultInit,
-    Nodify,
+    MappingNode,
     Principal,
     DictStorage)
 class PrincipalNode(object):
@@ -43,12 +43,12 @@ class PrincipalNode(object):
 
 
 @plumbing(
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
-    Adopt,
+    MappingAdopt,
     Attributes,
     DefaultInit,
-    Nodify,
+    MappingNode,
     User,
     DictStorage)
 class UserNode(object):
@@ -57,12 +57,12 @@ class UserNode(object):
 
 
 @plumbing(
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
-    Adopt,
+    MappingAdopt,
     Attributes,
     DefaultInit,
-    Nodify,
+    MappingNode,
     Group,
     DictStorage)
 class GroupNode(object):
@@ -71,12 +71,12 @@ class GroupNode(object):
 
 
 @plumbing(
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
-    Adopt,
+    MappingAdopt,
     Attributes,
     DefaultInit,
-    Nodify,
+    MappingNode,
     Principals,
     OdictStorage)
 class PrincipalsNode(object):
@@ -85,12 +85,12 @@ class PrincipalsNode(object):
 
 
 @plumbing(
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
-    Adopt,
+    MappingAdopt,
     Attributes,
     DefaultInit,
-    Nodify,
+    MappingNode,
     Users,
     OdictStorage)
 class UsersNode(object):
@@ -99,12 +99,12 @@ class UsersNode(object):
 
 
 @plumbing(
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
-    Adopt,
+    MappingAdopt,
     Attributes,
     DefaultInit,
-    Nodify,
+    MappingNode,
     Groups,
     OdictStorage)
 class GroupsNode(object):
@@ -113,11 +113,11 @@ class GroupsNode(object):
 
 
 @plumbing(
-    NodeChildValidate,
+    MappingConstraints,
     Nodespaces,
-    Adopt,
+    MappingAdopt,
     Attributes,
-    Nodify,
+    MappingNode,
     Ugm,
     OdictStorage)
 class UgmNode(object):
