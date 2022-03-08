@@ -4,7 +4,6 @@ from node.behaviors import MappingAdopt
 from node.behaviors import MappingConstraints
 from node.behaviors import MappingNode
 from node.behaviors import MappingStorage
-from node.behaviors import Nodespaces
 from node.behaviors import OdictStorage
 from node.compat import UNICODE_TYPE
 from node.ext.ugm import Group as BaseGroupBehavior
@@ -205,7 +204,6 @@ class UserBehavior(BaseUserBehavior):
 @plumbing(
     UserBehavior,
     MappingConstraints,
-    Nodespaces,
     Attributes,
     MappingNode)
 class User(object):
@@ -313,7 +311,6 @@ class GroupBehavior(BaseGroupBehavior):
 @plumbing(
     GroupBehavior,
     MappingConstraints,
-    Nodespaces,
     Attributes,
     MappingNode)
 class Group(object):
@@ -526,7 +523,6 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
 @plumbing(
     UsersBehavior,
     MappingConstraints,
-    Nodespaces,
     MappingAdopt,
     Attributes,
     MappingNode,
@@ -610,7 +606,6 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
 @plumbing(
     GroupsBehavior,
     MappingConstraints,
-    Nodespaces,
     MappingAdopt,
     Attributes,
     MappingNode,
@@ -744,7 +739,6 @@ class UgmBehavior(BaseUgmBehavior):
 @plumbing(
     UgmBehavior,
     MappingConstraints,
-    Nodespaces,
     MappingAdopt,
     Attributes,
     DefaultInit,

@@ -4,7 +4,6 @@ from node.behaviors import DefaultInit
 from node.behaviors import MappingAdopt
 from node.behaviors import MappingConstraints
 from node.behaviors import MappingNode
-from node.behaviors import Nodespaces
 from node.ext.ugm.file import FileStorage
 from node.ext.ugm.file import Ugm
 from node.tests import NodeTestCase
@@ -21,7 +20,6 @@ import tempfile
 
 @plumbing(
     MappingConstraints,
-    Nodespaces,
     MappingAdopt,
     Attributes,
     DefaultInit,

@@ -4,7 +4,6 @@ from node.behaviors import DictStorage
 from node.behaviors import MappingAdopt
 from node.behaviors import MappingConstraints
 from node.behaviors import MappingNode
-from node.behaviors import Nodespaces
 from node.behaviors import OdictStorage
 from node.ext.ugm import Group
 from node.ext.ugm import Groups
@@ -30,7 +29,6 @@ from plumber import plumbing
 
 @plumbing(
     MappingConstraints,
-    Nodespaces,
     MappingAdopt,
     Attributes,
     DefaultInit,
@@ -44,7 +42,6 @@ class PrincipalNode(object):
 
 @plumbing(
     MappingConstraints,
-    Nodespaces,
     MappingAdopt,
     Attributes,
     DefaultInit,
@@ -58,7 +55,6 @@ class UserNode(object):
 
 @plumbing(
     MappingConstraints,
-    Nodespaces,
     MappingAdopt,
     Attributes,
     DefaultInit,
@@ -72,7 +68,6 @@ class GroupNode(object):
 
 @plumbing(
     MappingConstraints,
-    Nodespaces,
     MappingAdopt,
     Attributes,
     DefaultInit,
@@ -86,7 +81,6 @@ class PrincipalsNode(object):
 
 @plumbing(
     MappingConstraints,
-    Nodespaces,
     MappingAdopt,
     Attributes,
     DefaultInit,
@@ -100,7 +94,6 @@ class UsersNode(object):
 
 @plumbing(
     MappingConstraints,
-    Nodespaces,
     MappingAdopt,
     Attributes,
     DefaultInit,
@@ -114,7 +107,6 @@ class GroupsNode(object):
 
 @plumbing(
     MappingConstraints,
-    Nodespaces,
     MappingAdopt,
     Attributes,
     MappingNode,
