@@ -54,8 +54,8 @@ setup(
     zip_safe=False,
     install_requires=[
         'setuptools',
-        'node>=0.999',
-        'plumber>1.6'
+        'node',
+        'plumber'
     ],
     extras_require=dict(
         test=[
