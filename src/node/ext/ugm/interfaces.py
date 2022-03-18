@@ -5,50 +5,42 @@ from zope.interface import Attribute
 
 
 class IPrincipal(INode):
-    """Interface describing a principal.
-    """
+    """Interface describing a principal."""
 
     id = Attribute(u"Principal ID")
 
     def add_role(role):
         """Add role for principal.
 
-        role
-            The role name
+        :param role: The role name
         """
 
     def remove_role(role):
         """Remove role for principal.
 
-        role
-            The role name
+        :param role: The role name
         """
 
     roles = Attribute(u"The roles for this principal.")
 
 
 class IUser(IPrincipal, ILeaf):
-    """Interface describing a user.
-    """
+    """Interface describing a user."""
 
     login = Attribute(u"The login name for this user.")
 
     def authenticate(pw):
         """Authenticate this user.
 
-        pw
-            User password
+        :param pw: User password
         """
 
     def passwd(oldpw, newpw):
         """Set password for this user.
 
-        oldpw
-            Old password. If old password is None, new password is always
-            set, otherwise an Exception is raised.
-
-        newpw
-            New password.
+        :param oldpw: Old password. If old password is None, new password is
+            always set, otherwise an Exception is raised.
+        :param newpw: New password.
         """
 
     groups = Attribute(u"List of user referring IGroup implementing objects.")
@@ -69,34 +61,29 @@ class IGroup(IPrincipal):
     def add(id):
         """Add user with id to group. Raise ``KeyError`` if user not exists.
 
-        id
-            User id.
+        :param id: User id.
         """
 
     def __getitem__(key):
         """Return group related ``User`` object. Raise ``KeyError`` if user not
         member of this group.
 
-        key
-            User id.
+        :param key: User id.
         """
 
     def __delitem__(key):
-        """Delete membership of user from this group. Raise ``KeyError`` if user not
-        member of this group.
+        """Delete membership of user from this group. Raise ``KeyError`` if
+        user not member of this group.
 
-        key
-            User id.
+        :param key: User id.
         """
 
     def __iter__():
-        """Iterate over ``member_ids``.
-        """
+        """Iterate over ``member_ids``."""
 
 
 class IPrincipals(INode, IInvalidate):
-    """Interface describing a principals container.
-    """
+    """Interface describing a principals container."""
 
     ids = Attribute(u"List of contained principal ids.")
 
@@ -104,34 +91,25 @@ class IPrincipals(INode, IInvalidate):
                exact_match=False, or_search=False):
         """Search for principals.
 
-        criteria
-            Dict like object defining the principal attributes to be matched.
-            If no criteria given, all users are returned.
-
-        attrlist
-            if no ``attrlist`` is given a list of ids is returned. By defining attrlist the
-            return format will be ``[(id, {attr1: value1, attr2: value2, ...}), ...]``. To
-            get this format without any attributs, i.e. empty dicts in the
-            tuples, specify an empty attrlist.
-
-        exact_match
-            raise ValueError if not one match, return format is a single key or
-            tuple, if attrlist is specified.
-
-        or_search
-            flag whether criteria should be ORer or ANDed. defaults to False.
-
+        :param criteria: Dict like object defining the principal attributes to
+            be matched. If no criteria given, all users are returned.
+        :param attrlist: If no ``attrlist`` is given a list of ids is returned.
+            By defining attrlist the return format will be
+            ``[(id, {attr1: value1, attr2: value2, ...}), ...]``. To get this
+            format without any attributs, i.e. empty dicts in the tuples,
+            specify an empty attrlist.
+        :param exact_match: Raise ValueError if not one match, return format is
+            a single key or tuple, if attrlist is specified.
+        :param or_search: Flag whether criteria should be ORer or ANDed.
+            Defaults to False.
         :return: list of ids - if no ``attrlist`` is given else see ``attrlist``
         """
 
     def create(_id, **kw):
         """Create a principal by id.
 
-        _id
-            Principal id.
-
-        kw
-            Principal attributes.
+        :param _id: Principal id.
+        :param kw: Principal attributes.
         """
 
 
@@ -144,32 +122,23 @@ class IUsers(IPrincipals):
     def id_for_login(login):
         """Lookup user id for login name.
 
-        login
-            The login name
+        :param login: The login name
         """
 
     def authenticate(id=None, pw=None):
         """Authenticate user with id.
 
-        id
-            User id
-
-        pw
-            User password
+        :param id: User id
+        :param pw: User password
         """
 
     def passwd(id, oldpw, newpw):
         """Set password for user with id.
 
-        id
-            User id
-
-        oldpw
-            Old password. If None, newpassword is always written. This
-            is needed for adding new users.
-
-        newpw
-            New password.
+        :param id: User id
+        :param oldpw: Old password. If None, newpassword is always written.
+            This is needed for adding new users.
+        :param newpw: New password.
         """
 
 
@@ -181,8 +150,7 @@ class IGroups(IPrincipals):
 
 
 class IUgm(INode, IInvalidate):
-    """Interface describing user and group management API.
-    """
+    """Interface describing user and group management API."""
 
     users = Attribute(u"IUsers implementation")
 
@@ -195,26 +163,19 @@ class IUgm(INode, IInvalidate):
     def add_role(role, principal):
         """Add role for principal.
 
-        role
-            The role name.
-
-        principal
-            IPrincipal implementing object.
+        :param role: The role name.
+        :param principal: IPrincipal implementing object.
         """
 
     def remove_role(role, principal):
         """Remove role for principal.
 
-        role
-            The role name.
-
-        principal
-            IPrincipal implementing object.
+        :param role: The role name.
+        :param principal: IPrincipal implementing object.
         """
 
     def roles(principal):
         """Return list of roles for principal.
 
-        principal
-            IPrincipal implementing object.
+        :param principal: IPrincipal implementing object.
         """
