@@ -35,7 +35,7 @@ jobs:
         run: |
           pip install wheel
           pip install coverage
-          pip install -e .
+          pip install -e .[test]
 
       - name: Run tests
         run: |
