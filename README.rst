@@ -45,3 +45,5 @@ Contributors
 
 - Robert Niederreiter
 - Florian Friesdorf
+- Jens W. Klein
+- Philipp Auersperg-Castell
