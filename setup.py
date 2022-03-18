@@ -9,7 +9,7 @@ def read_file(name):
         return f.read()
 
 
-version = '0.9.14.dev0'
+version = '1.0.dev0'
 shortdesc = "Node-based user and group management"
 longdesc = '\n\n'.join([read_file(name) for name in [
     'README.rst',
@@ -53,9 +53,8 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
+        'node>=1.0'
         'setuptools',
-        'node',
-        'plumber'
     ],
     extras_require=dict(
         test=[

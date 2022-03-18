@@ -1,3 +1,6 @@
+node.ext.ugm
+============
+
 .. image:: https://img.shields.io/pypi/v/node.ext.ugm.svg
     :target: https://pypi.python.org/pypi/node.ext.ugm
     :alt: Latest PyPI version
@@ -6,11 +9,13 @@
     :target: https://pypi.python.org/pypi/node.ext.ugm
     :alt: Number of PyPI downloads
 
-.. image:: https://travis-ci.org/bluedynamics/node.ext.ugm.svg?branch=master
-    :target: https://travis-ci.org/bluedynamics/node.ext.ugm
+.. image:: https://github.com/conestack/node.ext.ugm/actions/workflows/test.yaml/badge.svg
+    :target: https://github.com/conestack/node.ext.ugm/actions/workflows/test.yaml
+    :alt: Test node
 
-.. image:: https://coveralls.io/repos/github/bluedynamics/node.ext.ugm/badge.svg?branch=master
-    :target: https://coveralls.io/github/bluedynamics/node.ext.ugm?branch=master
+
+Overview
+--------
 
 ``node.ext.ugm`` provides an API for node based managing of users and groups.
 
@@ -31,8 +36,7 @@ For more information on plumbing see
 Python Versions
 ===============
 
-- Python 2.7, 3.7+, pypy
-
+- Python 2.7, 3.7+
 - May work with other versions (untested)
 
 
