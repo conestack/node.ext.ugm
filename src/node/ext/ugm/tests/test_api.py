@@ -58,9 +58,8 @@ class UserNode(object):
     MappingAdopt,
     Attributes,
     DefaultInit,
-    MappingNode,
     Group,
-    DictStorage)
+    MappingNode)
 class GroupNode(object):
     """Abstract group.
     """
@@ -149,31 +148,33 @@ class TestAPI(NodeTestCase):
 
         # ``add_role``, ``remove_role``, ``roles`` and ``__call__`` is not
         # implemented on abstract principal
-        err = self.expect_error(
-            NotImplementedError,
-            principal.add_role,
-            'role'
+        with self.assertRaises(NotImplementedError) as arc:
+            principal.add_role('role')
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Principal`` does not implement ``add_role``'
         )
-        expected = 'Abstract ``Principal`` does not implement ``add_role``'
-        self.assertEqual(str(err), expected)
 
-        err = self.expect_error(
-            NotImplementedError,
-            principal.remove_role,
-            'role'
+        with self.assertRaises(NotImplementedError) as arc:
+            principal.remove_role('role')
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Principal`` does not implement ``remove_role``'
         )
-        expected = 'Abstract ``Principal`` does not implement ``remove_role``'
-        self.assertEqual(str(err), expected)
 
-        err = self.expect_error(NotImplementedError, lambda: principal.roles)
-        expected = 'Abstract ``Principal`` does not implement ``roles``'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(NotImplementedError) as arc:
+            principal.roles
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Principal`` does not implement ``roles``'
+        )
 
-        def __call__fails():
+        with self.assertRaises(NotImplementedError) as arc:
             principal()
-        err = self.expect_error(NotImplementedError, __call__fails)
-        expected = 'Abstract ``Principal`` does not implement ``__call__``'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Principal`` does not implement ``__call__``'
+        )
 
     def test_abstract_user(self):
         user = UserNode(name='someuser')
@@ -185,45 +186,60 @@ class TestAPI(NodeTestCase):
         user.attrs['login'] = 'foo@bar.baz'
         self.assertEqual(user.login, 'foo@bar.baz')
 
-        def __getitem__fails():
+        with self.assertRaises(NotImplementedError) as arc:
             user['foo']
-        err = self.expect_error(NotImplementedError, __getitem__fails)
-        expected = 'User does not support ``__getitem__``'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'User does not support ``__getitem__``'
+        )
 
-        def __setitem__fails():
+        with self.assertRaises(NotImplementedError) as arc:
             user['foo'] = UserNode()
-        err = self.expect_error(NotImplementedError, __setitem__fails)
-        expected = 'User does not support ``__setitem__``'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'User does not support ``__setitem__``'
+        )
 
-        def __delitem__fails():
+        with self.assertRaises(NotImplementedError) as arc:
             del user['foo']
-        err = self.expect_error(NotImplementedError, __delitem__fails)
-        expected = 'User does not support ``__delitem__``'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'User does not support ``__delitem__``'
+        )
 
         self.assertEqual([x for x in user], [])
 
         # ``authenticate`` and ``passwd`` gets delegated to parent. Fails
         # since User is not contained in Users container
-        err = self.expect_error(AttributeError, user.authenticate, 'secret')
-        expected = '\'NoneType\' object has no attribute \'authenticate\''
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(AttributeError) as arc:
+            user.authenticate('secret')
+        self.assertEqual(
+            str(arc.exception),
+            '\'NoneType\' object has no attribute \'authenticate\''
+        )
 
-        err = self.expect_error(AttributeError, user.passwd, 'old', 'new')
-        expected = '\'NoneType\' object has no attribute \'passwd\''
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(AttributeError) as arc:
+            user.passwd('old', 'new')
+        self.assertEqual(
+            str(arc.exception),
+            '\'NoneType\' object has no attribute \'passwd\''
+        )
 
         # ``groups`` is not implemented in abstract base behavior
-        err = self.expect_error(NotImplementedError, lambda: user.groups)
-        expected = 'Abstract ``User`` does not implement ``groups``'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(NotImplementedError) as arc:
+            user.groups
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``User`` does not implement ``groups``'
+        )
 
         # ``group_ids`` is not implemented in abstract base behavior
-        err = self.expect_error(NotImplementedError, lambda: user.group_ids)
-        expected = 'Abstract ``User`` does not implement ``group_ids``'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(NotImplementedError) as arc:
+            user.group_ids
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``User`` does not implement ``group_ids``'
+        )
 
     def test_abstract_group(self):
         group = GroupNode(name='somegroup')
@@ -233,23 +249,54 @@ class TestAPI(NodeTestCase):
 
         # ``users`` and ``member_ids`` is not implemented in abstract base
         # behavior
-        err = self.expect_error(NotImplementedError, lambda: group.users)
-        expected = 'Abstract ``Group`` does not implement ``users``'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(NotImplementedError) as arc:
+            group.users
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Group`` does not implement ``users``'
+        )
 
-        err = self.expect_error(NotImplementedError, lambda: group.member_ids)
-        expected = 'Abstract ``Group`` does not implement ``member_ids``'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(NotImplementedError) as arc:
+            group.member_ids
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Group`` does not implement ``member_ids``'
+        )
 
-        err = self.expect_error(NotImplementedError, group.add, 'foo')
-        expected = 'Abstract ``Group`` does not implement ``add``'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(NotImplementedError) as arc:
+            group.add('foo')
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Group`` does not implement ``add``'
+        )
 
-        def __setitem__fails():
+        with self.assertRaises(NotImplementedError) as arc:
             group['foo'] = GroupNode()
-        err = self.expect_error(NotImplementedError, __setitem__fails)
-        expected = 'Group does not support ``__setitem__``'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Group does not support ``__setitem__``'
+        )
+
+        with self.assertRaises(NotImplementedError) as arc:
+            group['foo']
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Group`` does not implement ``__getitem__``'
+        )
+
+        with self.assertRaises(NotImplementedError) as arc:
+            del group['foo']
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Group`` does not implement ``__delitem__``'
+        )
+
+        with self.assertRaises(NotImplementedError) as arc:
+            [x for x in group]
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Group`` does not implement ``__iter__``'
+        )
 
     def test_abstract_principals(self):
         principals = PrincipalsNode(name='principals')
@@ -260,19 +307,33 @@ class TestAPI(NodeTestCase):
 
         # ``search`` ,``create`` and ``__call__`` are not implemented in
         # abstract base behavior
-        err = self.expect_error(NotImplementedError, principals.search)
-        expected = 'Abstract ``Principals`` does not implement ``search``'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(NotImplementedError) as arc:
+            principals.search()
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Principals`` does not implement ``search``'
+        )
 
-        err = self.expect_error(NotImplementedError, principals.create, 'foo')
-        expected = 'Abstract ``Principals`` does not implement ``create``'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(NotImplementedError) as arc:
+            principals.create('foo')
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Principals`` does not implement ``create``'
+        )
 
-        def __call__fails():
+        with self.assertRaises(NotImplementedError) as arc:
             principals()
-        err = self.expect_error(NotImplementedError, __call__fails)
-        expected = 'Abstract ``Principals`` does not implement ``__call__``'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Principals`` does not implement ``__call__``'
+        )
+
+        with self.assertRaises(NotImplementedError) as arc:
+            principals.invalidate()
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Principals`` does not implement ``invalidate``'
+        )
 
     def test_abstract_users(self):
         users = UsersNode(name='users')
@@ -280,9 +341,12 @@ class TestAPI(NodeTestCase):
         self.assertTrue(str(users).startswith(expected))
         self.assertTrue(IUsers.providedBy(users))
 
-        err = self.expect_error(NotImplementedError, users.id_for_login, 'foo')
-        expected = 'Abstract ``Users`` does not implement ``id_for_login``'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(NotImplementedError) as arc:
+            users.id_for_login('foo')
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Users`` does not implement ``id_for_login``'
+        )
 
         # Add user
         user = users['someuser'] = UserNode()
@@ -294,17 +358,19 @@ class TestAPI(NodeTestCase):
 
         # Abstract users behavior does not implement ``authenticate`` and
         # ``passwd``
-        err = self.expect_error(
-            NotImplementedError,
-            user.authenticate,
-            'secret'
+        with self.assertRaises(NotImplementedError) as arc:
+            user.authenticate('secret')
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Users`` does not implement ``authenticate``'
         )
-        expected = 'Abstract ``Users`` does not implement ``authenticate``'
-        self.assertEqual(str(err), expected)
 
-        err = self.expect_error(NotImplementedError, user.passwd, 'old', 'new')
-        expected = 'Abstract ``Users`` does not implement ``passwd``'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(NotImplementedError) as arc:
+            user.passwd('old', 'new')
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Users`` does not implement ``passwd``'
+        )
 
     def test_abstract_groups(self):
         groups = GroupsNode(name='groups')
@@ -326,37 +392,37 @@ class TestAPI(NodeTestCase):
         expected = '<GroupsNode object \'groups\' at '
         self.assertTrue(str(ugm.groups).startswith(expected))
 
-        self.check_output("""\
+        self.checkOutput("""\
         <function ...<lambda> at ...>
         """, str(ugm.roles_storage))
 
         # Abstract ugm behavior does not implement ``add_role``,
         # ``remove_role``, ``roles`` and ``__call__``
         user = users['someuser'] = UserNode()
-        err = self.expect_error(
-            NotImplementedError,
-            ugm.add_role,
-            'role',
-            user
+        with self.assertRaises(NotImplementedError) as arc:
+            ugm.add_role('role', user)
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Ugm`` does not implement ``add_role``'
         )
-        expected = 'Abstract ``Ugm`` does not implement ``add_role``'
-        self.assertEqual(str(err), expected)
 
-        err = self.expect_error(
-            NotImplementedError,
-            ugm.remove_role,
-            'role',
-            user
+        with self.assertRaises(NotImplementedError) as arc:
+            ugm.remove_role('role', user)
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Ugm`` does not implement ``remove_role``'
         )
-        expected = 'Abstract ``Ugm`` does not implement ``remove_role``'
-        self.assertEqual(str(err), expected)
 
-        err = self.expect_error(NotImplementedError, ugm.roles, user)
-        expected = 'Abstract ``Ugm`` does not implement ``roles``'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(NotImplementedError) as arc:
+            ugm.roles(user)
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Ugm`` does not implement ``roles``'
+        )
 
-        def __call__fails():
+        with self.assertRaises(NotImplementedError) as arc:
             ugm()
-        err = self.expect_error(NotImplementedError, __call__fails)
-        expected = 'Abstract ``Ugm`` does not implement ``__call__``'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Abstract ``Ugm`` does not implement ``__call__``'
+        )

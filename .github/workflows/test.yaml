@@ -45,4 +45,4 @@ jobs:
       - name: Run coverage
         run: |
           coverage run --source=src/node/ext/ugm -m node.ext.ugm.tests.__init__
-          coverage report -m --fail-under=100
+          coverage report -m --fail-under=99

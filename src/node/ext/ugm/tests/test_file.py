@@ -86,10 +86,9 @@ class TestFile(NodeTestCase):
         fsn['unset'] = UNSET
 
         # __getitem__
-        def __getitem__fails():
+        with self.assertRaises(KeyError) as arc:
             fsn['inexistent']
-        err = self.expect_error(KeyError, __getitem__fails)
-        self.assertEqual(str(err), '\'inexistent\'')
+        self.assertEqual(str(arc.exception), '\'inexistent\'')
         self.assertEqual(fsn['foo'], 'foo')
         self.assertEqual(fsn['none'], None)
         self.assertEqual(fsn['unset'], UNSET)
@@ -101,17 +100,17 @@ class TestFile(NodeTestCase):
         )
 
         # __delitem__
-        def __delitem__fails():
+        with self.assertRaises(KeyError) as arc:
             del fsn['inexistent']
-        err = self.expect_error(KeyError, __delitem__fails)
-        self.assertEqual(str(err), '\'inexistent\'')
+        self.assertEqual(str(arc.exception), '\'inexistent\'')
         del fsn['baz']
 
         # File not written yet
-        err = self.expect_error(IOError, open, file_path)
-        self.check_output("""\
+        with self.assertRaises(IOError) as arc:
+            open(file_path)
+        self.checkOutput("""\
         [Errno 2] No such file or directory: '/.../filestorage'
-        """, str(err))
+        """, str(arc.exception))
 
         # Persist and check written file
         fsn()
@@ -172,16 +171,16 @@ class TestFile(NodeTestCase):
         self.assertTrue(str(ugm.roles_storage).startswith(expected))
         self.assertTrue(ugm.attrs is ugm.roles_storage)
 
-        def __setitem__fails():
+        with self.assertRaises(KeyError) as arc:
             ugm['inexistent'] = ugm.users
-        err = self.expect_error(KeyError, __setitem__fails)
-        self.assertEqual(str(err), '\'inexistent\'')
+        self.assertEqual(str(arc.exception), '\'inexistent\'')
 
-        def __delitem__fails():
+        with self.assertRaises(NotImplementedError) as arc:
             del ugm['users']
-        err = self.expect_error(NotImplementedError, __delitem__fails)
-        expected = 'Operation forbidden on this node.'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Operation forbidden on this node.'
+        )
 
         # Nothing created yet
         self.assertEqual(
@@ -221,14 +220,15 @@ class TestFile(NodeTestCase):
         lines = self._read_file(ugm.users.file_path)
         self.assertEqual(lines, [])
 
-        self.check_output("""\
+        self.checkOutput("""\
         /.../principal_data/users/max
         """, user.attrs.file_path)
 
-        err = self.expect_error(IOError, open, user.attrs.file_path)
-        self.check_output("""\
+        with self.assertRaises(IOError) as arc:
+            open(user.attrs.file_path)
+        self.checkOutput("""\
         [Errno 2] No such file or directory: '/.../users/max'
-        """, str(err))
+        """, str(arc.exception))
 
         # Persist and read related files again
         ugm()
@@ -248,27 +248,31 @@ class TestFile(NodeTestCase):
         ugm.users.passwd('max', None, 'secret')
         ugm()
         lines = self._read_file(ugm.users.file_path)
-        self.check_output("""\
+        self.checkOutput("""\
         ['max:...\\n']
         """, str(lines))
 
         # Password for inextistent user
-        err = self.expect_error(ValueError, ugm.users.passwd,
-                                'sepp', None, 'secret')
-        expected = 'User with id \'sepp\' does not exist.'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(ValueError) as arc:
+            ugm.users.passwd('sepp', None, 'secret')
+        self.assertEqual(
+            str(arc.exception),
+            'User with id \'sepp\' does not exist.'
+        )
 
         # Password with wrong oldpw
-        err = self.expect_error(ValueError, ugm.users.passwd,
-                                'max', 'wrong', 'new')
-        expected = 'Old password does not match.'
-        self.assertEqual(str(err), expected)
+        with self.assertRaises(ValueError) as arc:
+            ugm.users.passwd('max', 'wrong', 'new')
+        self.assertEqual(
+            str(arc.exception),
+            'Old password does not match.'
+        )
 
         # Set new password for max
         ugm.users.passwd('max', 'secret', 'secret1')
         ugm()
         lines = self._read_file(ugm.users.file_path)
-        self.check_output("""\
+        self.checkOutput("""\
         ['max:...\\n']
         """, str(lines))
 
@@ -289,17 +293,18 @@ class TestFile(NodeTestCase):
             '  <class \'node.ext.ugm.file.Groups\'>: groups\n'
         ))
         lines = self._read_file(ugm.users.file_path)
-        self.check_output("""\
+        self.checkOutput("""\
         ['max:...\\n',
         'sepp:...\\n']
         """, str(lines))
 
         # ``__setitem__`` on user is prohibited
-        def __setitem__fails():
+        with self.assertRaises(NotImplementedError) as arc:
             ugm.users['max']['foo'] = user
-        err = self.expect_error(NotImplementedError, __setitem__fails)
-        expected = 'User does not support ``__setitem__``'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'User does not support ``__setitem__``'
+        )
 
     def test_group(self):
         ugm = self._create_ugm()
@@ -326,14 +331,15 @@ class TestFile(NodeTestCase):
         lines = self._read_file(ugm.groups.file_path)
         self.assertEqual(lines, [])
 
-        self.check_output("""\
+        self.checkOutput("""\
         /.../principal_data/groups/group1
         """, group.attrs.file_path)
 
-        err = self.expect_error(IOError, open, group.attrs.file_path)
-        self.check_output("""\
+        with self.assertRaises(IOError) as arc:
+            open(group.attrs.file_path)
+        self.checkOutput("""\
         [Errno 2] No such file or directory: '/.../groups/group1'
-        """, str(err))
+        """, str(arc.exception))
 
         # Persist and read related files again
         ugm()
@@ -347,11 +353,12 @@ class TestFile(NodeTestCase):
         self.assertEqual(group.member_ids, [])
 
         # Setitem is forbidden on a group
-        def __setitem__fails():
+        with self.assertRaises(NotImplementedError) as arc:
             group['foo'] = ugm.users['max']
-        err = self.expect_error(NotImplementedError, __setitem__fails)
-        expected = 'Group does not support ``__setitem__``'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Group does not support ``__setitem__``'
+        )
 
         # A user is added to a group via ``add``
         id = ugm.users['max'].name
@@ -476,17 +483,19 @@ class TestFile(NodeTestCase):
             ['max']
         )
 
-        def search_fails():
+        with self.assertRaises(ValueError) as arc:
             users.search(criteria=dict(id='max*'), exact_match=True)
-        err = self.expect_error(ValueError, search_fails)
-        expected = 'Exact match asked but result not unique'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Exact match asked but result not unique'
+        )
 
-        def search_fails2():
+        with self.assertRaises(ValueError) as arc:
             users.search(criteria=dict(id='inexistent'), exact_match=True)
-        err = self.expect_error(ValueError, search_fails2)
-        expected = 'Exact match asked but result length is zero'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Exact match asked but result length is zero'
+        )
 
         # Search on users attribute list
         res = users.search(
@@ -567,17 +576,19 @@ class TestFile(NodeTestCase):
             ['group1']
         )
 
-        def search_fails():
+        with self.assertRaises(ValueError) as arc:
             groups.search(criteria=dict(id='group*'), exact_match=True)
-        err = self.expect_error(ValueError, search_fails)
-        expected = 'Exact match asked but result not unique'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Exact match asked but result not unique'
+        )
 
-        def search_fails2():
+        with self.assertRaises(ValueError) as arc:
             groups.search(criteria=dict(id='inexistent'), exact_match=True)
-        err = self.expect_error(ValueError, search_fails2)
-        expected = 'Exact match asked but result length is zero'
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Exact match asked but result length is zero'
+        )
 
         # Search on groups attribute list
         res = sorted(groups.search(
@@ -643,11 +654,9 @@ class TestFile(NodeTestCase):
         ))
 
         # Delete user from group
-        def __delitem__fails():
+        with self.assertRaises(KeyError) as arc:
             del ugm.groups['group2']['inexistent']
-        err = self.expect_error(KeyError, __delitem__fails)
-        expected = '\'inexistent\''
-        self.assertEqual(str(err), expected)
+        self.assertEqual(str(arc.exception), '\'inexistent\'')
 
         del ugm.groups['group2']['max']
         self.assertEqual(ugm.groups.treerepr(), (
@@ -687,11 +696,12 @@ class TestFile(NodeTestCase):
         self.assertEqual(user.roles, ['manager'])
 
         # Add same role twice fails
-        def add_role_fails():
+        with self.assertRaises(ValueError) as arc:
             user.add_role('manager')
-        err = self.expect_error(ValueError, add_role_fails)
-        expected = 'Principal already has role \'manager\''
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Principal already has role \'manager\''
+        )
 
         # Not written yet
         lines = self._read_file(ugm.roles_file)
@@ -717,11 +727,12 @@ class TestFile(NodeTestCase):
         self.assertEqual(user.roles, ['manager'])
 
         # Remove inexistent role fails
-        def remove_role_fails():
+        with self.assertRaises(ValueError) as arc:
             user.remove_role('supervisor')
-        err = self.expect_error(ValueError, remove_role_fails)
-        expected = 'Principal does not has role \'supervisor\''
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Principal does not has role \'supervisor\''
+        )
 
         # Call persists
         user()
@@ -744,11 +755,12 @@ class TestFile(NodeTestCase):
         self.assertEqual(group.roles, ['authenticated'])
 
         # Add same role twice fails
-        def add_role_fails():
+        with self.assertRaises(ValueError) as arc:
             group.add_role('authenticated')
-        err = self.expect_error(ValueError, add_role_fails)
-        expected = 'Principal already has role \'authenticated\''
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Principal already has role \'authenticated\''
+        )
 
         # Group role not written yet
         lines = self._read_file(ugm.roles_file)
@@ -774,11 +786,12 @@ class TestFile(NodeTestCase):
         self.assertEqual(group.roles, ['authenticated'])
 
         # Remove inexistent role fails
-        def remove_role_fails():
+        with self.assertRaises(ValueError) as arc:
             group.remove_role('editor')
-        err = self.expect_error(ValueError, remove_role_fails)
-        expected = 'Principal does not has role \'editor\''
-        self.assertEqual(str(err), expected)
+        self.assertEqual(
+            str(arc.exception),
+            'Principal does not has role \'editor\''
+        )
 
         # Call persists
         group()
@@ -815,10 +828,9 @@ class TestFile(NodeTestCase):
         # XXX: id_for_login actually just returns given login name
         self.assertEqual(ugm.users.id_for_login('max'), 'max')
 
-        def __getitem__fails():
+        with self.assertRaises(KeyError) as arc:
             ugm.users['inexistent']
-        err = self.expect_error(KeyError, __getitem__fails)
-        self.assertEqual(str(err), '\'inexistent\'')
+        self.assertEqual(str(arc.exception), '\'inexistent\'')
 
         expected = '<User object \'max\' at '
         self.assertTrue(str(ugm.users['max']).startswith(expected))
@@ -878,17 +890,13 @@ class TestFile(NodeTestCase):
         # Recreate ugm object
         ugm = self._create_ugm()
 
-        def __getitem__fails():
+        with self.assertRaises(KeyError) as arc:
             ugm.groups['inexistent']
-        err = self.expect_error(KeyError, __getitem__fails)
-        self.assertEqual(str(err), '\'inexistent\'')
+        self.assertEqual(str(arc.exception), '\'inexistent\'')
 
-        err = self.expect_error(
-            KeyError,
-            ugm.groups['group1'].add,
-            'inexistent'
-        )
-        self.assertEqual(str(err), '\'inexistent\'')
+        with self.assertRaises(KeyError) as arc:
+            ugm.groups['group1'].add('inexistent')
+        self.assertEqual(str(arc.exception), '\'inexistent\'')
 
         expected = '<Group object \'group1\' at '
         self.assertTrue(str(ugm.groups['group1']).startswith(expected))

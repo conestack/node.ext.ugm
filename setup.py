@@ -53,8 +53,8 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'node>=1.0'
-        'setuptools',
+        'node>=1.0',
+        'setuptools'
     ],
     extras_require=dict(
         test=[
