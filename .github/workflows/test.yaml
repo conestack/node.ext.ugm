@@ -13,7 +13,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - windows-latest
           - macos-latest
 
         python:
@@ -45,4 +44,4 @@ jobs:
       - name: Run coverage
         run: |
           coverage run --source=src/node/ext/ugm -m node.ext.ugm.tests.__init__
-          coverage report -m --fail-under=99
+          coverage report --fail-under=99
