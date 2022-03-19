@@ -11,7 +11,7 @@ node.ext.ugm
 
 .. image:: https://github.com/conestack/node.ext.ugm/actions/workflows/test.yaml/badge.svg
     :target: https://github.com/conestack/node.ext.ugm/actions/workflows/test.yaml
-    :alt: Test node
+    :alt: Test node.ext.ugm
 
 
 Overview
