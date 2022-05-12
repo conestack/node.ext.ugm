@@ -632,6 +632,7 @@ class UgmBehavior(BaseUgmBehavior):
                  groups_file=None,
                  roles_file=None,
                  data_directory=None):
+        # XXX: remove name and parent once using ``NodeInit`` behavior
         self.__name__ = name
         self.__parent__ = parent
         self.users_file = users_file

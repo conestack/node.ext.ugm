@@ -22,7 +22,6 @@ import tempfile
     MappingConstraints,
     MappingAdopt,
     Attributes,
-    DefaultInit,
     MappingNode,
     FileStorage)
 class FileStorageNode(object):
