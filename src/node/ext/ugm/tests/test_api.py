@@ -21,6 +21,7 @@ from node.ext.ugm.interfaces import IUser
 from node.ext.ugm.interfaces import IUsers
 from node.tests import NodeTestCase
 from plumber import plumbing
+import time
 
 
 ###############################################################################
@@ -185,6 +186,9 @@ class TestAPI(NodeTestCase):
 
         user.attrs['login'] = 'foo@bar.baz'
         self.assertEqual(user.login, 'foo@bar.baz')
+
+        self.assertFalse(user.expired)
+        self.assertEqual(user.expires, None)
 
         with self.assertRaises(NotImplementedError) as arc:
             user['foo']

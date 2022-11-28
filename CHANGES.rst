@@ -4,7 +4,14 @@ Changes
 1.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Extend ``node.ext.ugm.interfaces.IUser`` by ``expires`` and ``expired``
+  attributes and provide default values on ``node.ext.ugm._api.User``.
+  [rnix]
+
+- Implement ``expires`` and ``expired`` on ``node.ext.ugm.file.UserBehavior``.
+  Extend ``node.ext.ugm.file.UgmBehavior`` by ``user_expires_attr`` which
+  enables used expiration support.
+  [rnix]
 
 
 1.0 (2022-03-18)

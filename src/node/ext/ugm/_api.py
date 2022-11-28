@@ -50,6 +50,8 @@ class Principal(Behavior):
 @implementer(IUser)
 class User(Principal):
     """Turn a node into a user."""
+    expired = override(False)
+    expires = override(None)
 
     @finalize
     def __getitem__(self, key):

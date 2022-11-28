@@ -1,3 +1,4 @@
+from datetime import datetime
 from node.behaviors import Attributes
 from node.behaviors import DefaultInit
 from node.behaviors import MappingAdopt
@@ -12,8 +13,8 @@ from node.ext.ugm import Ugm as BaseUgmBehavior
 from node.ext.ugm import User as BaseUserBehavior
 from node.ext.ugm import Users as BaseUsersBehavior
 from node.interfaces import IInvalidate
-from node.locking import locktree
 from node.locking import TreeLock
+from node.locking import locktree
 from node.utils import UNSET
 from odict import odict
 from plumber import Behavior
@@ -24,6 +25,7 @@ from zope.interface import implementer
 import base64
 import hashlib
 import os
+import time
 
 
 ENCODING = 'utf-8'
@@ -166,6 +168,34 @@ class UserBehavior(BaseUserBehavior):
         if not from_parent:
             self.parent()
             self.parent.parent.attrs()
+
+    @override
+    @property
+    def expired(self):
+        expires = self.expires
+        if not expires:
+            return False
+        return datetime.now() >= expires
+
+    @property
+    def expires(self):
+        ugm = self.parent.parent
+        if not ugm.user_expires_attr:
+            return None
+        expires = self.attrs.get(ugm.user_expires_attr)
+        if not expires:
+            return None
+        return datetime.fromtimestamp(float(expires))
+
+    @override
+    @expires.setter
+    def expires(self, value):
+        ugm = self.parent.parent
+        if not ugm.user_expires_attr:
+            return
+        if not isinstance(value, datetime):
+            raise ValueError('Expires value must be a datetime instance')
+        self.attrs[ugm.user_expires_attr] = str(time.mktime(value.timetuple()))
 
     @default
     def add_role(self, role):
@@ -493,6 +523,8 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
         # cannot authenticate user with unset password
         if not self.storage[id]:
             return False
+        if self[id].expired:
+            return False
         return self._chk_pw(pw, self.storage[id])
 
     @default
@@ -631,7 +663,8 @@ class UgmBehavior(BaseUgmBehavior):
                  users_file=None,
                  groups_file=None,
                  roles_file=None,
-                 data_directory=None):
+                 data_directory=None,
+                 user_expires_attr=None):
         # XXX: remove name and parent once using ``NodeInit`` behavior
         self.__name__ = name
         self.__parent__ = parent
@@ -639,6 +672,7 @@ class UgmBehavior(BaseUgmBehavior):
         self.groups_file = groups_file
         self.roles_file = roles_file
         self.data_directory = data_directory
+        self.user_expires_attr = user_expires_attr
 
     @override
     def __getitem__(self, key):

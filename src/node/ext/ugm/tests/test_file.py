@@ -1,4 +1,6 @@
 from __future__ import print_function
+from datetime import datetime
+from datetime import timedelta
 from node.behaviors import Attributes
 from node.behaviors import DefaultInit
 from node.behaviors import MappingAdopt
@@ -123,8 +125,14 @@ class TestFile(NodeTestCase):
 
         # Recreate
         fsn = FileStorageNode(file_path)
-        self.assertEqual(list(fsn.keys()), [u'foo', u'bar', u'none', u'unset'])
-        self.assertEqual(list(fsn.values()), [u'foo', u'bar', u'', u''])
+        self.assertEqual(
+            list(fsn.keys()),
+            [u'foo', u'bar', u'none', u'unset']
+        )
+        self.assertEqual(
+            list(fsn.values()),
+            [u'foo', u'bar', u'', u'']
+        )
 
         # Test unicode
         fsn[u'\xe4\xf6\xfc'] = u'\xe4\xf6\xfc'
@@ -304,6 +312,31 @@ class TestFile(NodeTestCase):
             str(arc.exception),
             'User does not support ``__setitem__``'
         )
+
+        # Test expires
+        user = ugm.users['max']
+        self.assertFalse(user.expired)
+        self.assertEqual(user.expires, None)
+        user.expires = datetime.now()
+        self.assertEqual(user.expires, None)
+
+        ugm.user_expires_attr = 'expires'
+        self.assertFalse(user.expired)
+        with self.assertRaises(ValueError):
+            user.expires = 'expires'
+
+        user.attrs['expires'] = ''
+        self.assertFalse(user.expired)
+
+        user.expires = datetime.now() + timedelta(1)
+        self.assertFalse(user.expired)
+        self.assertTrue(user.authenticate('secret1'))
+        self.assertTrue(ugm.users.authenticate('max', 'secret1'))
+
+        user.expires = datetime.now()
+        self.assertTrue(user.expired)
+        self.assertFalse(user.authenticate('secret1'))
+        self.assertFalse(ugm.users.authenticate('max', 'secret1'))
 
     def test_group(self):
         ugm = self._create_ugm()

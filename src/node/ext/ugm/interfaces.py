@@ -29,6 +29,10 @@ class IUser(IPrincipal, ILeaf):
 
     login = Attribute(u"The login name for this user.")
 
+    expired = Attribute(u"Flag whether the user has expired.")
+
+    expires = Attribute(u"Datetime object defining user expiration date.")
+
     def authenticate(pw):
         """Authenticate this user.
 

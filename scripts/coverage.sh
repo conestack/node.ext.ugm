@@ -8,6 +8,7 @@ function run_coverage {
             --source=src/node/ext/ugm \
             -m node.ext.ugm.tests.__init__
         ./$target/bin/coverage report
+        ./$target/bin/coverage html
     else
         echo "Target $target not found."
     fi
