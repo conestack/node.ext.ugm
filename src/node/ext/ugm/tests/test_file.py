@@ -325,10 +325,12 @@ class TestFile(NodeTestCase):
         with self.assertRaises(ValueError):
             user.expires = 'expires'
 
-        user.attrs['expires'] = ''
+        user.expires = None
+        self.assertEqual(user.attrs['expires'], '')
         self.assertFalse(user.expired)
 
         user.expires = datetime.now() + timedelta(1)
+        self.assertTrue(len(user.attrs['expires']) > -1)
         self.assertFalse(user.expired)
         self.assertTrue(user.authenticate('secret1'))
         self.assertTrue(ugm.users.authenticate('max', 'secret1'))
