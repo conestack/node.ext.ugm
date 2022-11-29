@@ -31,7 +31,10 @@ class IUser(IPrincipal, ILeaf):
 
     expired = Attribute(u"Flag whether the user has expired.")
 
-    expires = Attribute(u"Datetime object defining user expiration date.")
+    expires = Attribute(
+        u"Datetime object defining user expiration "
+        u"date or None if user not expires."
+    )
 
     def authenticate(pw):
         """Authenticate this user.
