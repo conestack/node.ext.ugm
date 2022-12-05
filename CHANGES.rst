@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.1 (unreleased)
+1.1 (2022-12-05)
 ----------------
 
 - Extend ``node.ext.ugm.interfaces.IUser`` by ``expires`` and ``expired``
