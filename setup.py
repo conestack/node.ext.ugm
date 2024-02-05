@@ -59,10 +59,12 @@ setup(
     ],
     extras_require=dict(
         test=[
+            'coverage',
             'zope.testrunner'
         ]
     ),
     tests_require=[
+        'coverage',
         'zope.testrunner'
     ],
     cmdclass=dict(test=Test)
