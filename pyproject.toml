@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "node.ext.ugm"
+version = "1.2.dev0"
+description = "Node-based user and group management"
+readme = "README.rst"
+license = {text = "Simplified BSD"}
+authors = [{name = "Node Contributors", email = "dev@conestack.org"}]
+keywords = ["node", "user", "group", "role"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: BSD License",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+dependencies = [
+    "node>=1.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "coverage",
+    "zope.testrunner",
+]
+
+[project.urls]
+Homepage = "https://github.com/conestack/node.ext.ugm"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.zest-releaser]
+create-wheel = true
