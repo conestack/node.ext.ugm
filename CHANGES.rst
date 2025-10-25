@@ -4,7 +4,8 @@ Changes
 1.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Pin upper versions of dependencies.
+  [rnix]
 
 
 1.1 (2022-12-05)

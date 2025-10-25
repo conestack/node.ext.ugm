@@ -54,7 +54,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'node>=1.0',
+        'node>=1.0,<2.0.0',
         'setuptools'
     ],
     extras_require=dict(
