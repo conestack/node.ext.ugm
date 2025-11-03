@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "node.ext.ugm"
-version = "1.2.dev0"
+version = "2.0.0.dev0"
 description = "Node-based user and group management"
 readme = "README.rst"
 license = {text = "Simplified BSD"}
