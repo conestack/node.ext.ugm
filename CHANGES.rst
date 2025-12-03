@@ -7,6 +7,13 @@ Changes
 - Nothing changed yet.
 
 
+1.2 (2025-10-25)
+----------------
+
+- Pin upper versions of dependencies.
+  [rnix]
+
+
 1.1 (2022-12-05)
 ----------------
 
