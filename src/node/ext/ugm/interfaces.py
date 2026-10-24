@@ -7,7 +7,7 @@ from zope.interface import Attribute
 class IPrincipal(INode):
     """Interface describing a principal."""
 
-    id = Attribute(u"Principal ID")
+    id = Attribute('Principal ID')
 
     def add_role(role):
         """Add role for principal.
@@ -21,19 +21,18 @@ class IPrincipal(INode):
         :param role: The role name
         """
 
-    roles = Attribute(u"The roles for this principal.")
+    roles = Attribute('The roles for this principal.')
 
 
 class IUser(IPrincipal, ILeaf):
     """Interface describing a user."""
 
-    login = Attribute(u"The login name for this user.")
+    login = Attribute('The login name for this user.')
 
-    expired = Attribute(u"Flag whether the user has expired.")
+    expired = Attribute('Flag whether the user has expired.')
 
     expires = Attribute(
-        u"Datetime object defining user expiration "
-        u"date or None if user not expires."
+        'Datetime object defining user expiration date or None if user not expires.'
     )
 
     def authenticate(pw):
@@ -50,9 +49,9 @@ class IUser(IPrincipal, ILeaf):
         :param newpw: New password.
         """
 
-    groups = Attribute(u"List of user referring IGroup implementing objects.")
+    groups = Attribute('List of user referring IGroup implementing objects.')
 
-    group_ids = Attribute(u"List of group id's this user is member of")
+    group_ids = Attribute("List of group id's this user is member of")
 
 
 class IGroup(IPrincipal):
@@ -61,9 +60,9 @@ class IGroup(IPrincipal):
     Children of a group are referring IUser implementing objects.
     """
 
-    users = Attribute(u"List of group referring IUser implementing objects.")
+    users = Attribute('List of group referring IUser implementing objects.')
 
-    member_ids = Attribute(u"List of member id's contained in this group.")
+    member_ids = Attribute("List of member id's contained in this group.")
 
     def add(id):
         """Add user with id to group. Raise ``KeyError`` if user not exists.
@@ -92,10 +91,9 @@ class IGroup(IPrincipal):
 class IPrincipals(INode, IInvalidate):
     """Interface describing a principals container."""
 
-    ids = Attribute(u"List of contained principal ids.")
+    ids = Attribute('List of contained principal ids.')
 
-    def search(criteria=None, attrlist=None,
-               exact_match=False, or_search=False):
+    def search(criteria=None, attrlist=None, exact_match=False, or_search=False):
         """Search for principals.
 
         :param criteria: Dict like object defining the principal attributes to
@@ -159,13 +157,13 @@ class IGroups(IPrincipals):
 class IUgm(INode, IInvalidate):
     """Interface describing user and group management API."""
 
-    users = Attribute(u"IUsers implementation")
+    users = Attribute('IUsers implementation')
 
-    groups = Attribute(u"IGroups implementation")
+    groups = Attribute('IGroups implementation')
 
     # XXX: roles storage is implementation specific and should be removed from
     #      here
-    roles_storage = Attribute(u"Callable for persisting roles.")
+    roles_storage = Attribute('Callable for persisting roles.')
 
     def add_role(role, principal):
         """Add role for principal.

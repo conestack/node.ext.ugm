@@ -36,9 +36,7 @@ class Principal(Behavior):
     @default
     @property
     def roles(self):
-        raise NotImplementedError(
-            'Abstract ``Principal`` does not implement ``roles``'
-        )
+        raise NotImplementedError('Abstract ``Principal`` does not implement ``roles``')
 
     @default
     def __call__(self):
@@ -50,6 +48,7 @@ class Principal(Behavior):
 @implementer(IUser)
 class User(Principal):
     """Turn a node into a user."""
+
     expired = override(False)
     expires = override(None)
 
@@ -92,16 +91,12 @@ class User(Principal):
     @default
     @property
     def groups(self):
-        raise NotImplementedError(
-            'Abstract ``User`` does not implement ``groups``'
-        )
+        raise NotImplementedError('Abstract ``User`` does not implement ``groups``')
 
     @default
     @property
     def group_ids(self):
-        raise NotImplementedError(
-            'Abstract ``User`` does not implement ``group_ids``'
-        )
+        raise NotImplementedError('Abstract ``User`` does not implement ``group_ids``')
 
 
 @implementer(IGroup)
@@ -115,41 +110,29 @@ class Group(Principal):
 
     @default
     def __getitem__(self, key):
-        raise NotImplementedError(
-            'Abstract ``Group`` does not implement ``__getitem__``'
-        )
+        raise NotImplementedError('Abstract ``Group`` does not implement ``__getitem__``')
 
     @default
     def __delitem__(self, key):
-        raise NotImplementedError(
-            'Abstract ``Group`` does not implement ``__delitem__``'
-        )
+        raise NotImplementedError('Abstract ``Group`` does not implement ``__delitem__``')
 
     @default
     def __iter__(self):
-        raise NotImplementedError(
-            'Abstract ``Group`` does not implement ``__iter__``'
-        )
+        raise NotImplementedError('Abstract ``Group`` does not implement ``__iter__``')
 
     @default
     @property
     def users(self):
-        raise NotImplementedError(
-            'Abstract ``Group`` does not implement ``users``'
-        )
+        raise NotImplementedError('Abstract ``Group`` does not implement ``users``')
 
     @default
     @property
     def member_ids(self):
-        raise NotImplementedError(
-            'Abstract ``Group`` does not implement ``member_ids``'
-        )
+        raise NotImplementedError('Abstract ``Group`` does not implement ``member_ids``')
 
     @default
     def add(self, id):
-        raise NotImplementedError(
-            'Abstract ``Group`` does not implement ``add``'
-        )
+        raise NotImplementedError('Abstract ``Group`` does not implement ``add``')
 
 
 @implementer(IPrincipals)
@@ -165,15 +148,11 @@ class Principals(Behavior):
 
     @default
     def search(self, **kw):
-        raise NotImplementedError(
-            'Abstract ``Principals`` does not implement ``search``'
-        )
+        raise NotImplementedError('Abstract ``Principals`` does not implement ``search``')
 
     @default
     def create(self, _id, **kw):
-        raise NotImplementedError(
-            'Abstract ``Principals`` does not implement ``create``'
-        )
+        raise NotImplementedError('Abstract ``Principals`` does not implement ``create``')
 
     @default
     def __call__(self):
@@ -206,9 +185,7 @@ class Users(Principals):
 
     @default
     def passwd(self, id, oldpw, newpw):
-        raise NotImplementedError(
-            'Abstract ``Users`` does not implement ``passwd``'
-        )
+        raise NotImplementedError('Abstract ``Users`` does not implement ``passwd``')
 
 
 @implementer(IGroups)
@@ -226,24 +203,16 @@ class Ugm(Behavior):
 
     @default
     def __call__(self):
-        raise NotImplementedError(
-            'Abstract ``Ugm`` does not implement ``__call__``'
-        )
+        raise NotImplementedError('Abstract ``Ugm`` does not implement ``__call__``')
 
     @default
     def add_role(self, role, principal):
-        raise NotImplementedError(
-            'Abstract ``Ugm`` does not implement ``add_role``'
-        )
+        raise NotImplementedError('Abstract ``Ugm`` does not implement ``add_role``')
 
     @default
     def remove_role(self, role, principal):
-        raise NotImplementedError(
-            'Abstract ``Ugm`` does not implement ``remove_role``'
-        )
+        raise NotImplementedError('Abstract ``Ugm`` does not implement ``remove_role``')
 
     @default
     def roles(self, principal):
-        raise NotImplementedError(
-            'Abstract ``Ugm`` does not implement ``roles``'
-        )
+        raise NotImplementedError('Abstract ``Ugm`` does not implement ``roles``')

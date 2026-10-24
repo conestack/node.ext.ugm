@@ -21,12 +21,12 @@ from node.ext.ugm.interfaces import IUser
 from node.ext.ugm.interfaces import IUsers
 from node.tests import NodeTestCase
 from plumber import plumbing
-import time
 
 
 ###############################################################################
 # Mock objects
 ###############################################################################
+
 
 @plumbing(
     MappingConstraints,
@@ -35,10 +35,10 @@ import time
     DefaultInit,
     MappingNode,
     Principal,
-    DictStorage)
-class PrincipalNode(object):
-    """Abstract principal.
-    """
+    DictStorage,
+)
+class PrincipalNode:
+    """Abstract principal."""
 
 
 @plumbing(
@@ -48,22 +48,15 @@ class PrincipalNode(object):
     DefaultInit,
     MappingNode,
     User,
-    DictStorage)
-class UserNode(object):
-    """Abstract user.
-    """
+    DictStorage,
+)
+class UserNode:
+    """Abstract user."""
 
 
-@plumbing(
-    MappingConstraints,
-    MappingAdopt,
-    Attributes,
-    DefaultInit,
-    Group,
-    MappingNode)
-class GroupNode(object):
-    """Abstract group.
-    """
+@plumbing(MappingConstraints, MappingAdopt, Attributes, DefaultInit, Group, MappingNode)
+class GroupNode:
+    """Abstract group."""
 
 
 @plumbing(
@@ -73,10 +66,10 @@ class GroupNode(object):
     DefaultInit,
     MappingNode,
     Principals,
-    OdictStorage)
-class PrincipalsNode(object):
-    """Abstract principals.
-    """
+    OdictStorage,
+)
+class PrincipalsNode:
+    """Abstract principals."""
 
 
 @plumbing(
@@ -86,10 +79,10 @@ class PrincipalsNode(object):
     DefaultInit,
     MappingNode,
     Users,
-    OdictStorage)
-class UsersNode(object):
-    """Abstract users.
-    """
+    OdictStorage,
+)
+class UsersNode:
+    """Abstract users."""
 
 
 @plumbing(
@@ -99,22 +92,15 @@ class UsersNode(object):
     DefaultInit,
     MappingNode,
     Groups,
-    OdictStorage)
-class GroupsNode(object):
-    """Abstract groups.
-    """
+    OdictStorage,
+)
+class GroupsNode:
+    """Abstract groups."""
 
 
-@plumbing(
-    MappingConstraints,
-    MappingAdopt,
-    Attributes,
-    MappingNode,
-    Ugm,
-    OdictStorage)
-class UgmNode(object):
-    """Abstract ugm.
-    """
+@plumbing(MappingConstraints, MappingAdopt, Attributes, MappingNode, Ugm, OdictStorage)
+class UgmNode:
+    """Abstract ugm."""
 
     def __init__(self, name, users, groups):
         self.__name__ = name
@@ -138,11 +124,11 @@ class UgmNode(object):
 # Tests
 ###############################################################################
 
-class TestAPI(NodeTestCase):
 
+class TestAPI(NodeTestCase):
     def test_abstract_principal(self):
         principal = PrincipalNode(name='someprincipal')
-        expected = '<PrincipalNode object \'someprincipal\' at '
+        expected = "<PrincipalNode object 'someprincipal' at "
         self.assertTrue(str(principal).startswith(expected))
         self.assertTrue(IPrincipal.providedBy(principal))
         self.assertEqual([key for key in principal], [])
@@ -152,34 +138,31 @@ class TestAPI(NodeTestCase):
         with self.assertRaises(NotImplementedError) as arc:
             principal.add_role('role')
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Principal`` does not implement ``add_role``'
+            str(arc.exception), 'Abstract ``Principal`` does not implement ``add_role``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             principal.remove_role('role')
         self.assertEqual(
             str(arc.exception),
-            'Abstract ``Principal`` does not implement ``remove_role``'
+            'Abstract ``Principal`` does not implement ``remove_role``',
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             principal.roles
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Principal`` does not implement ``roles``'
+            str(arc.exception), 'Abstract ``Principal`` does not implement ``roles``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             principal()
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Principal`` does not implement ``__call__``'
+            str(arc.exception), 'Abstract ``Principal`` does not implement ``__call__``'
         )
 
     def test_abstract_user(self):
         user = UserNode(name='someuser')
-        expected = '<UserNode object \'someuser\' at '
+        expected = "<UserNode object 'someuser' at "
         self.assertTrue(str(user).startswith(expected))
         self.assertTrue(IUser.providedBy(user))
         self.assertEqual(user.login, 'someuser')
@@ -192,24 +175,15 @@ class TestAPI(NodeTestCase):
 
         with self.assertRaises(NotImplementedError) as arc:
             user['foo']
-        self.assertEqual(
-            str(arc.exception),
-            'User does not support ``__getitem__``'
-        )
+        self.assertEqual(str(arc.exception), 'User does not support ``__getitem__``')
 
         with self.assertRaises(NotImplementedError) as arc:
             user['foo'] = UserNode()
-        self.assertEqual(
-            str(arc.exception),
-            'User does not support ``__setitem__``'
-        )
+        self.assertEqual(str(arc.exception), 'User does not support ``__setitem__``')
 
         with self.assertRaises(NotImplementedError) as arc:
             del user['foo']
-        self.assertEqual(
-            str(arc.exception),
-            'User does not support ``__delitem__``'
-        )
+        self.assertEqual(str(arc.exception), 'User does not support ``__delitem__``')
 
         self.assertEqual([x for x in user], [])
 
@@ -218,36 +192,32 @@ class TestAPI(NodeTestCase):
         with self.assertRaises(AttributeError) as arc:
             user.authenticate('secret')
         self.assertEqual(
-            str(arc.exception),
-            '\'NoneType\' object has no attribute \'authenticate\''
+            str(arc.exception), "'NoneType' object has no attribute 'authenticate'"
         )
 
         with self.assertRaises(AttributeError) as arc:
             user.passwd('old', 'new')
         self.assertEqual(
-            str(arc.exception),
-            '\'NoneType\' object has no attribute \'passwd\''
+            str(arc.exception), "'NoneType' object has no attribute 'passwd'"
         )
 
         # ``groups`` is not implemented in abstract base behavior
         with self.assertRaises(NotImplementedError) as arc:
             user.groups
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``User`` does not implement ``groups``'
+            str(arc.exception), 'Abstract ``User`` does not implement ``groups``'
         )
 
         # ``group_ids`` is not implemented in abstract base behavior
         with self.assertRaises(NotImplementedError) as arc:
             user.group_ids
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``User`` does not implement ``group_ids``'
+            str(arc.exception), 'Abstract ``User`` does not implement ``group_ids``'
         )
 
     def test_abstract_group(self):
         group = GroupNode(name='somegroup')
-        expected = '<GroupNode object \'somegroup\' at '
+        expected = "<GroupNode object 'somegroup' at "
         self.assertTrue(str(group).startswith(expected))
         self.assertTrue(IGroup.providedBy(group))
 
@@ -256,55 +226,46 @@ class TestAPI(NodeTestCase):
         with self.assertRaises(NotImplementedError) as arc:
             group.users
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Group`` does not implement ``users``'
+            str(arc.exception), 'Abstract ``Group`` does not implement ``users``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             group.member_ids
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Group`` does not implement ``member_ids``'
+            str(arc.exception), 'Abstract ``Group`` does not implement ``member_ids``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             group.add('foo')
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Group`` does not implement ``add``'
+            str(arc.exception), 'Abstract ``Group`` does not implement ``add``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             group['foo'] = GroupNode()
-        self.assertEqual(
-            str(arc.exception),
-            'Group does not support ``__setitem__``'
-        )
+        self.assertEqual(str(arc.exception), 'Group does not support ``__setitem__``')
 
         with self.assertRaises(NotImplementedError) as arc:
             group['foo']
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Group`` does not implement ``__getitem__``'
+            str(arc.exception), 'Abstract ``Group`` does not implement ``__getitem__``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             del group['foo']
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Group`` does not implement ``__delitem__``'
+            str(arc.exception), 'Abstract ``Group`` does not implement ``__delitem__``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             [x for x in group]
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Group`` does not implement ``__iter__``'
+            str(arc.exception), 'Abstract ``Group`` does not implement ``__iter__``'
         )
 
     def test_abstract_principals(self):
         principals = PrincipalsNode(name='principals')
-        expected = '<PrincipalsNode object \'principals\' at '
+        expected = "<PrincipalsNode object 'principals' at "
         self.assertTrue(str(principals).startswith(expected))
         self.assertTrue(IPrincipals.providedBy(principals))
         self.assertEqual(principals.ids, [])
@@ -314,50 +275,49 @@ class TestAPI(NodeTestCase):
         with self.assertRaises(NotImplementedError) as arc:
             principals.search()
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Principals`` does not implement ``search``'
+            str(arc.exception), 'Abstract ``Principals`` does not implement ``search``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             principals.create('foo')
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Principals`` does not implement ``create``'
+            str(arc.exception), 'Abstract ``Principals`` does not implement ``create``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             principals()
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Principals`` does not implement ``__call__``'
+            str(arc.exception), 'Abstract ``Principals`` does not implement ``__call__``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             principals.invalidate()
         self.assertEqual(
             str(arc.exception),
-            'Abstract ``Principals`` does not implement ``invalidate``'
+            'Abstract ``Principals`` does not implement ``invalidate``',
         )
 
     def test_abstract_users(self):
         users = UsersNode(name='users')
-        expected = '<UsersNode object \'users\' at '
+        expected = "<UsersNode object 'users' at "
         self.assertTrue(str(users).startswith(expected))
         self.assertTrue(IUsers.providedBy(users))
 
         with self.assertRaises(NotImplementedError) as arc:
             users.id_for_login('foo')
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Users`` does not implement ``id_for_login``'
+            str(arc.exception), 'Abstract ``Users`` does not implement ``id_for_login``'
         )
 
         # Add user
         user = users['someuser'] = UserNode()
-        self.assertEqual(users.treerepr(), (
-            '<class \'node.ext.ugm.tests.test_api.UsersNode\'>: users\n'
-            '  <class \'node.ext.ugm.tests.test_api.UserNode\'>: someuser\n'
-        ))
+        self.assertEqual(
+            users.treerepr(),
+            (
+                "<class 'node.ext.ugm.tests.test_api.UsersNode'>: users\n"
+                "  <class 'node.ext.ugm.tests.test_api.UserNode'>: someuser\n"
+            ),
+        )
         self.assertEqual(users.ids, ['someuser'])
 
         # Abstract users behavior does not implement ``authenticate`` and
@@ -365,20 +325,18 @@ class TestAPI(NodeTestCase):
         with self.assertRaises(NotImplementedError) as arc:
             user.authenticate('secret')
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Users`` does not implement ``authenticate``'
+            str(arc.exception), 'Abstract ``Users`` does not implement ``authenticate``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             user.passwd('old', 'new')
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Users`` does not implement ``passwd``'
+            str(arc.exception), 'Abstract ``Users`` does not implement ``passwd``'
         )
 
     def test_abstract_groups(self):
         groups = GroupsNode(name='groups')
-        expected = '<GroupsNode object \'groups\' at '
+        expected = "<GroupsNode object 'groups' at "
         self.assertTrue(str(groups).startswith(expected))
         self.assertTrue(IGroups.providedBy(groups))
 
@@ -386,19 +344,22 @@ class TestAPI(NodeTestCase):
         users = UsersNode(name='users')
         groups = GroupsNode(name='groups')
         ugm = UgmNode('ugm', users, groups)
-        expected = '<UgmNode object \'ugm\' at '
+        expected = "<UgmNode object 'ugm' at "
         self.assertTrue(str(ugm).startswith(expected))
         self.assertTrue(IUgm.providedBy(ugm))
 
-        expected = '<UsersNode object \'users\' at '
+        expected = "<UsersNode object 'users' at "
         self.assertTrue(str(ugm.users).startswith(expected))
 
-        expected = '<GroupsNode object \'groups\' at '
+        expected = "<GroupsNode object 'groups' at "
         self.assertTrue(str(ugm.groups).startswith(expected))
 
-        self.checkOutput("""\
+        self.checkOutput(
+            """\
         <function ...<lambda> at ...>
-        """, str(ugm.roles_storage))
+        """,
+            str(ugm.roles_storage),
+        )
 
         # Abstract ugm behavior does not implement ``add_role``,
         # ``remove_role``, ``roles`` and ``__call__``
@@ -406,27 +367,23 @@ class TestAPI(NodeTestCase):
         with self.assertRaises(NotImplementedError) as arc:
             ugm.add_role('role', user)
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Ugm`` does not implement ``add_role``'
+            str(arc.exception), 'Abstract ``Ugm`` does not implement ``add_role``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             ugm.remove_role('role', user)
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Ugm`` does not implement ``remove_role``'
+            str(arc.exception), 'Abstract ``Ugm`` does not implement ``remove_role``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             ugm.roles(user)
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Ugm`` does not implement ``roles``'
+            str(arc.exception), 'Abstract ``Ugm`` does not implement ``roles``'
         )
 
         with self.assertRaises(NotImplementedError) as arc:
             ugm()
         self.assertEqual(
-            str(arc.exception),
-            'Abstract ``Ugm`` does not implement ``__call__``'
+            str(arc.exception), 'Abstract ``Ugm`` does not implement ``__call__``'
         )

@@ -12,8 +12,8 @@ from node.ext.ugm import Ugm as BaseUgmBehavior
 from node.ext.ugm import User as BaseUserBehavior
 from node.ext.ugm import Users as BaseUsersBehavior
 from node.interfaces import IInvalidate
-from node.locking import TreeLock
 from node.locking import locktree
+from node.locking import TreeLock
 from node.utils import UNSET
 from odict import odict
 from plumber import Behavior
@@ -36,6 +36,7 @@ class FileStorage(MappingStorage):
 
     Cannot contain node children. Useful for node attributes stored in a file.
     """
+
     child_constraints = override(None)
     delimiter = default(':')
 
@@ -58,9 +59,11 @@ class FileStorage(MappingStorage):
     @default
     def read_file(self):
         data = self._storage_data
-        delimiter = self.delimiter.encode(ENCODING) \
-            if isinstance(self.delimiter, str) \
+        delimiter = (
+            self.delimiter.encode(ENCODING)
+            if isinstance(self.delimiter, str)
             else self.delimiter
+        )
         with open(self.file_path, 'rb') as f:
             for line in f:
                 idx = line.find(delimiter)
@@ -68,7 +71,7 @@ class FileStorage(MappingStorage):
                     # malformed line, ignore
                     continue
                 k = line[:idx]
-                v = line[idx + len(delimiter):].strip(b'\n')
+                v = line[idx + len(delimiter) :].strip(b'\n')
                 if v.startswith(b'b64:'):
                     v = base64.b64decode(v[4:])
                 else:
@@ -84,9 +87,11 @@ class FileStorage(MappingStorage):
                     file.write(b'')
             return
         data = self._storage_data
-        delimiter = self.delimiter.encode(ENCODING) \
-            if isinstance(self.delimiter, str) \
+        delimiter = (
+            self.delimiter.encode(ENCODING)
+            if isinstance(self.delimiter, str)
             else self.delimiter
+        )
         for k, v in data.items():
             if isinstance(k, str):
                 k = k.encode(ENCODING)
@@ -119,17 +124,12 @@ class FileStorage(MappingStorage):
         self.write_file()
 
 
-@plumbing(
-    MappingConstraints,
-    MappingAdopt,
-    MappingNode,
-    FileStorage)
-class FileAttributes(object):
+@plumbing(MappingConstraints, MappingAdopt, MappingNode, FileStorage)
+class FileAttributes:
     pass
 
 
 class UserAttributes(FileAttributes):
-
     def __getitem__(self, key):
         # provide id attribute expected by cone.ugm
         # XXX: think about principal_id property on interface
@@ -143,7 +143,6 @@ class UserAttributes(FileAttributes):
 
 
 class UserBehavior(BaseUserBehavior):
-
     @default
     def user_data_attributes_factory(self, name=None, parent=None):
         user_data_dir = os.path.join(parent.data_directory, 'users')
@@ -233,17 +232,12 @@ class UserBehavior(BaseUserBehavior):
         return ret
 
 
-@plumbing(
-    UserBehavior,
-    MappingConstraints,
-    Attributes,
-    MappingNode)
-class User(object):
+@plumbing(UserBehavior, MappingConstraints, Attributes, MappingNode)
+class User:
     pass
 
 
 class GroupAttributes(FileAttributes):
-
     def __getitem__(self, key):
         # provide id attribute expected by cone.ugm
         # XXX: think about principal_id property on interface
@@ -253,7 +247,6 @@ class GroupAttributes(FileAttributes):
 
 
 class GroupBehavior(BaseGroupBehavior):
-
     @default
     def group_data_attributes_factory(self, name=None, parent=None):
         group_data_dir = os.path.join(parent.data_directory, 'groups')
@@ -285,8 +278,7 @@ class GroupBehavior(BaseGroupBehavior):
 
     @default
     def __iter__(self):
-        for id in self.member_ids:
-            yield id
+        yield from self.member_ids
 
     @default
     @locktree
@@ -323,34 +315,29 @@ class GroupBehavior(BaseGroupBehavior):
     @default
     @property
     def member_ids(self):
-        return [id for id in self.parent.storage[self.name].split(u',') if id]
+        return [id for id in self.parent.storage[self.name].split(',') if id]
 
     @default
     def _add_member(self, id):
         member_ids = self.member_ids
         member_ids.append(id)
         member_ids = sorted(member_ids)
-        self.parent.storage[self.name] = u','.join(member_ids)
+        self.parent.storage[self.name] = ','.join(member_ids)
 
     @default
     def _remove_member(self, id):
         member_ids = self.member_ids
         member_ids.remove(id)
         member_ids = sorted(member_ids)
-        self.parent.storage[self.name] = u','.join(member_ids)
+        self.parent.storage[self.name] = ','.join(member_ids)
 
 
-@plumbing(
-    GroupBehavior,
-    MappingConstraints,
-    Attributes,
-    MappingNode)
-class Group(object):
+@plumbing(GroupBehavior, MappingConstraints, Attributes, MappingNode)
+class Group:
     pass
 
 
 class SearchBehavior(Behavior):
-
     @default
     def _compare_value(self, term, value):
         # XXX: should this be done by regular expressions?
@@ -375,8 +362,7 @@ class SearchBehavior(Behavior):
         return False
 
     @default
-    def search(self, criteria=None, attrlist=None,
-               exact_match=False, or_search=False):
+    def search(self, criteria=None, attrlist=None, exact_match=False, or_search=False):
         """This is very slow and primary supposed to be used for testing or
         setups with just a few users and groups.
         """
@@ -397,7 +383,7 @@ class SearchBehavior(Behavior):
                             found.add(principal)
                         # continue never executed due to cpython peephole
                         # optimization, thus not counted in coverage
-                        continue                             # pragma: no cover
+                        continue  # pragma: no cover
                     value = principal.attrs.get(key)
                     if value:
                         if self._compare_value(term, value):
@@ -413,7 +399,7 @@ class SearchBehavior(Behavior):
                             break
                         # continue never executed due to cpython peephole
                         # optimization, thus not counted in coverage
-                        continue                             # pragma: no cover
+                        continue  # pragma: no cover
                     value = principal.attrs.get(key)
                     if not value or not self._compare_value(term, value):
                         matches = False
@@ -445,8 +431,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     hash_func = default(hashlib.sha256)
 
     @override
-    def __init__(self, name=None, parent=None,
-                 file_path=None, data_directory=None):
+    def __init__(self, name=None, parent=None, file_path=None, data_directory=None):
         self.__name__ = name
         self.__parent__ = parent
         self.file_path = file_path
@@ -464,9 +449,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
         except KeyError:
             with TreeLock(self):
                 user = self._mem_storage[key] = User(
-                    name=key,
-                    parent=self,
-                    data_directory=self.data_directory
+                    name=key, parent=self, data_directory=self.data_directory
                 )
                 return user
 
@@ -475,7 +458,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     def __setitem__(self, key, value):
         # set empty password on new added user.
         if key not in self.storage:
-            self.storage[key] = u''
+            self.storage[key] = ''
         self._mem_storage[key] = value
 
     @override
@@ -532,14 +515,12 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     @default
     def passwd(self, id, oldpw, newpw):
         if id not in self.storage:
-            raise ValueError(u"User with id '{}' does not exist.".format(id))
+            raise ValueError(f"User with id '{id}' does not exist.")
         if oldpw is not None:
             if not self._chk_pw(oldpw, self.storage[id]):
                 raise ValueError('Old password does not match.')
         salt = os.urandom(self.salt_len)
-        newpw = newpw.encode(ENCODING) \
-            if isinstance(newpw, str) \
-            else newpw
+        newpw = newpw.encode(ENCODING) if isinstance(newpw, str) else newpw
         hashed = base64.b64encode(self.hash_func(newpw + salt).digest() + salt)
         self.storage[id] = hashed.decode()
         self()
@@ -547,29 +528,21 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
     @default
     def _chk_pw(self, plain, hashed):
         hashed = base64.b64decode(hashed)
-        salt = hashed[-self.salt_len:]
-        plain = plain.encode(ENCODING) \
-            if isinstance(plain, str) \
-            else plain
+        salt = hashed[-self.salt_len :]
+        plain = plain.encode(ENCODING) if isinstance(plain, str) else plain
         return hashed == self.hash_func(plain + salt).digest() + salt
 
 
 @plumbing(
-    UsersBehavior,
-    MappingConstraints,
-    MappingAdopt,
-    Attributes,
-    MappingNode,
-    FileStorage)
-class Users(object):
+    UsersBehavior, MappingConstraints, MappingAdopt, Attributes, MappingNode, FileStorage
+)
+class Users:
     pass
 
 
 class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
-
     @override
-    def __init__(self, name=None, parent=None,
-                 file_path=None, data_directory=None):
+    def __init__(self, name=None, parent=None, file_path=None, data_directory=None):
         self.__name__ = name
         self.__parent__ = parent
         self.file_path = file_path
@@ -587,9 +560,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
         except KeyError:
             with TreeLock(self):
                 group = self._mem_storage[key] = Group(
-                    name=key,
-                    parent=self,
-                    data_directory=self.data_directory
+                    name=key, parent=self, data_directory=self.data_directory
                 )
                 return group
 
@@ -598,7 +569,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
     def __setitem__(self, key, value):
         # set empty group members on new added group.
         if key not in self.storage:
-            self.storage[key] = u''
+            self.storage[key] = ''
         self._mem_storage[key] = value
 
     @override
@@ -607,7 +578,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
         del self.storage[key]
         if key in self._mem_storage:
             del self._mem_storage[key]
-        id = 'group:{}'.format(key)
+        id = f'group:{key}'
         if id in self.parent.attrs:
             del self.parent.attrs[id]
         self._group_data_to_remove.append(key)
@@ -622,8 +593,7 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
             self.parent.attrs()
             self.parent.users(from_parent=True)
         for groupid in self._group_data_to_remove:
-            group_data_path = os.path.join(
-                self.data_directory, 'groups', groupid)
+            group_data_path = os.path.join(self.data_directory, 'groups', groupid)
             if os.path.exists(group_data_path):
                 os.remove(group_data_path)
         self._group_data_to_remove = list()
@@ -638,18 +608,13 @@ class GroupsBehavior(SearchBehavior, BaseGroupsBehavior):
 
 
 @plumbing(
-    GroupsBehavior,
-    MappingConstraints,
-    MappingAdopt,
-    Attributes,
-    MappingNode,
-    FileStorage)
-class Groups(object):
+    GroupsBehavior, MappingConstraints, MappingAdopt, Attributes, MappingNode, FileStorage
+)
+class Groups:
     pass
 
 
 class UgmBehavior(BaseUgmBehavior):
-
     @default
     def role_attributes_factory(self, name=None, parent=None):
         attrs = FileAttributes(name, parent, parent.roles_file)
@@ -659,14 +624,16 @@ class UgmBehavior(BaseUgmBehavior):
     attributes_factory = default(role_attributes_factory)
 
     @override
-    def __init__(self,
-                 name=None,
-                 parent=None,
-                 users_file=None,
-                 groups_file=None,
-                 roles_file=None,
-                 data_directory=None,
-                 user_expires_attr=None):
+    def __init__(
+        self,
+        name=None,
+        parent=None,
+        users_file=None,
+        groups_file=None,
+        roles_file=None,
+        data_directory=None,
+        user_expires_attr=None,
+    ):
         # XXX: remove name and parent once using ``NodeInit`` behavior
         self.__name__ = name
         self.__parent__ = parent
@@ -681,13 +648,11 @@ class UgmBehavior(BaseUgmBehavior):
         if key not in self.storage:
             if key == 'users':
                 self['users'] = Users(
-                    file_path=self.users_file,
-                    data_directory=self.data_directory
+                    file_path=self.users_file, data_directory=self.data_directory
                 )
             else:
                 self['groups'] = Groups(
-                    file_path=self.groups_file,
-                    data_directory=self.data_directory
+                    file_path=self.groups_file, data_directory=self.data_directory
                 )
         return self.storage[key]
 
@@ -703,8 +668,7 @@ class UgmBehavior(BaseUgmBehavior):
 
     @override
     def __iter__(self):
-        for key in ['users', 'groups']:
-            yield key
+        yield from ['users', 'groups']
 
     @override
     @locktree
@@ -738,26 +702,26 @@ class UgmBehavior(BaseUgmBehavior):
     def add_role(self, role, principal):
         roles = self.roles(principal)
         if role in roles:
-            raise ValueError(u"Principal already has role '{}'".format(role))
+            raise ValueError(f"Principal already has role '{role}'")
         roles.append(role)
         roles = sorted(roles)
-        self.attrs[self._principal_id(principal)] = u','.join(roles)
+        self.attrs[self._principal_id(principal)] = ','.join(roles)
 
     @default
     @locktree
     def remove_role(self, role, principal):
         roles = self.roles(principal)
         if role not in roles:
-            raise ValueError(u"Principal does not has role '{}'".format(role))
+            raise ValueError(f"Principal does not has role '{role}'")
         roles.remove(role)
         roles = sorted(roles)
-        self.attrs[self._principal_id(principal)] = u','.join(roles)
+        self.attrs[self._principal_id(principal)] = ','.join(roles)
 
     @default
     def _principal_id(self, principal):
         id = principal.name
         if isinstance(principal, Group):
-            id = 'group:{}'.format(id)
+            id = f'group:{id}'
         return id
 
     @default
@@ -780,9 +744,9 @@ class UgmBehavior(BaseUgmBehavior):
     Attributes,
     DefaultInit,
     MappingNode,
-    OdictStorage)
-class Ugm(object):
-
+    OdictStorage,
+)
+class Ugm:
     def invalidate(self, key=None):
         if key is None:
             self.storage.clear()
