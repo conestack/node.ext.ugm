@@ -4,7 +4,9 @@ Changes
 2.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Drop the Python 2 remnants: ``node.compat`` usage and
+  ``from __future__`` imports.
+  [rnix]
 
 
 2.0.0 (2026-02-03)

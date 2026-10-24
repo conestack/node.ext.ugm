@@ -6,7 +6,6 @@ from node.behaviors import MappingConstraints
 from node.behaviors import MappingNode
 from node.behaviors import MappingStorage
 from node.behaviors import OdictStorage
-from node.compat import UNICODE_TYPE
 from node.ext.ugm import Group as BaseGroupBehavior
 from node.ext.ugm import Groups as BaseGroupsBehavior
 from node.ext.ugm import Ugm as BaseUgmBehavior
@@ -60,7 +59,7 @@ class FileStorage(MappingStorage):
     def read_file(self):
         data = self._storage_data
         delimiter = self.delimiter.encode(ENCODING) \
-            if isinstance(self.delimiter, UNICODE_TYPE) \
+            if isinstance(self.delimiter, str) \
             else self.delimiter
         with open(self.file_path, 'rb') as f:
             for line in f:
@@ -86,12 +85,12 @@ class FileStorage(MappingStorage):
             return
         data = self._storage_data
         delimiter = self.delimiter.encode(ENCODING) \
-            if isinstance(self.delimiter, UNICODE_TYPE) \
+            if isinstance(self.delimiter, str) \
             else self.delimiter
         for k, v in data.items():
-            if isinstance(k, UNICODE_TYPE):
+            if isinstance(k, str):
                 k = k.encode(ENCODING)
-            if isinstance(v, UNICODE_TYPE):
+            if isinstance(v, str):
                 v = v.encode(ENCODING)
             elif v is None:
                 v = b''
@@ -539,7 +538,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
                 raise ValueError('Old password does not match.')
         salt = os.urandom(self.salt_len)
         newpw = newpw.encode(ENCODING) \
-            if isinstance(newpw, UNICODE_TYPE) \
+            if isinstance(newpw, str) \
             else newpw
         hashed = base64.b64encode(self.hash_func(newpw + salt).digest() + salt)
         self.storage[id] = hashed.decode()
@@ -550,7 +549,7 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
         hashed = base64.b64decode(hashed)
         salt = hashed[-self.salt_len:]
         plain = plain.encode(ENCODING) \
-            if isinstance(plain, UNICODE_TYPE) \
+            if isinstance(plain, str) \
             else plain
         return hashed == self.hash_func(plain + salt).digest() + salt
 
