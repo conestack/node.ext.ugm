@@ -160,6 +160,41 @@ class TestFile(NodeTestCase):
         lines = self._read_file(file_path)
         self.assertTrue('binary:b64:SGVsbG8=\n' in lines)
 
+    def test_file_storage_ignores_malformed_lines(self):
+        file_path = os.path.join(self.tempdir, 'filestorage')
+        with open(file_path, 'w') as f:
+            f.write('foo:foo\nmalformed\nbar:bar\n')
+        fsn = FileStorageNode(file_path)
+        self.assertEqual(list(fsn.items()), [('foo', 'foo'), ('bar', 'bar')])
+
+    def test_file_storage_invalidate(self):
+        file_path = os.path.join(self.tempdir, 'filestorage')
+        fsn = FileStorageNode(file_path)
+        fsn['foo'] = 'foo'
+        fsn()
+        fsn['bar'] = 'bar'
+        fsn.invalidate()
+        self.assertEqual(list(fsn.keys()), ['foo'])
+
+    def test_principal_attributes_id_and_password(self):
+        ugm = self._create_ugm()
+        ugm()
+        user = ugm.users.create('max', fullname='Max')
+        ugm.users.passwd('max', None, 'secret')
+        group = ugm.groups.create('group1')
+        self.assertEqual(user.attrs['id'], 'max')
+        self.assertEqual(user.attrs['password'], ugm.users.storage['max'])
+        self.assertEqual(group.attrs['id'], 'group1')
+
+    def test_group_getitem_non_member(self):
+        ugm = self._create_ugm()
+        ugm()
+        ugm.users.create('max')
+        group = ugm.groups.create('group1')
+        with self.assertRaises(KeyError) as arc:
+            group['max']
+        self.assertEqual(str(arc.exception), "'max'")
+
     def test_ugm(self):
         ugm = self._create_ugm()
 
