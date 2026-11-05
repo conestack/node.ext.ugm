@@ -19,7 +19,9 @@ Changes
   the time of a password check.
   [rnix]
 
-- ``FileStorage`` replaces its file at once instead of writing it in place.
+- ``FileStorage`` replaces its file at once instead of writing it in place. An
+  existing file keeps its mode and a symlink stays, a new file is only readable by
+  its owner.
   [rnix]
 
 

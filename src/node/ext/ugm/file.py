@@ -29,6 +29,7 @@ import base64
 import logging
 import os
 import shutil
+import tempfile
 import time
 
 
@@ -116,17 +117,20 @@ class FileStorage(MappingStorage):
     @default
     def _replace_file(self, lines):
         # Writing in place empties the file first, an interruption would lose
-        # all of its entries.
-        temp_path = f'{self.file_path}.tmp'
+        # all of its entries. The temporary file gets a unique name and is only
+        # readable by its owner until it takes over the mode of the file. A
+        # symlink stays, the file it points to gets replaced.
+        file_path = os.path.realpath(self.file_path)
+        directory, name = os.path.split(file_path)
+        fd, temp_path = tempfile.mkstemp(prefix=f'{name}.', suffix='.tmp', dir=directory)
         try:
-            with open(temp_path, 'wb') as f:
+            with os.fdopen(fd, 'wb') as f:
                 f.writelines(lines)
-            if os.path.exists(self.file_path):
-                shutil.copymode(self.file_path, temp_path)
-            os.replace(temp_path, self.file_path)
+            if os.path.exists(file_path):
+                shutil.copymode(file_path, temp_path)
+            os.replace(temp_path, file_path)
         except OSError:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
+            os.remove(temp_path)
             raise
 
     @override

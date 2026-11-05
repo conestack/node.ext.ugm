@@ -1045,6 +1045,57 @@ class TestFile(NodeTestCase):
         self.assertEqual(stat.S_IMODE(os.stat(users_file).st_mode), 0o600)
         self.assertEqual(os.listdir(self.tempdir), ['users'])
 
+    def test_write_file_leaves_other_files_alone(self):
+        ugm = self._ugm_with_stored_password('before')
+        other_file = os.path.join(self.tempdir, 'users.tmp')
+        with open(other_file, 'w') as f:
+            f.write('other')
+        ugm.users.storage['max'] = 'after'
+        ugm.users.write_file()
+        self.assertEqual(self._stored_password(), 'after')
+        with open(other_file) as f:
+            self.assertEqual(f.read(), 'other')
+
+    def test_write_file_keeps_unfinished_file_private(self):
+        ugm = self._ugm_with_stored_password('before')
+        users_file = os.path.join(self.tempdir, 'users')
+        os.chmod(users_file, 0o644)
+        ugm.users.storage['max'] = 'after'
+        copymode = file_module.shutil.copymode
+        modes = []
+
+        def record_mode(source, target):
+            modes.append(stat.S_IMODE(os.stat(target).st_mode))
+            copymode(source, target)
+
+        with mock.patch.object(file_module.shutil, 'copymode', record_mode):
+            ugm.users.write_file()
+        self.assertEqual(modes, [0o600])
+        self.assertEqual(stat.S_IMODE(os.stat(users_file).st_mode), 0o644)
+
+    def test_write_file_creates_private_file(self):
+        ugm = self._ugm_with_stored_password('before')
+        users_file = os.path.join(self.tempdir, 'users')
+        os.remove(users_file)
+        ugm.users.storage['max'] = 'after'
+        ugm.users.write_file()
+        self.assertEqual(self._stored_password(), 'after')
+        self.assertEqual(stat.S_IMODE(os.stat(users_file).st_mode), 0o600)
+
+    def test_write_file_keeps_symlink(self):
+        ugm = self._ugm_with_stored_password('before')
+        users_file = os.path.join(self.tempdir, 'users')
+        target_dir = os.path.join(self.tempdir, 'elsewhere')
+        os.mkdir(target_dir)
+        target = os.path.join(target_dir, 'users')
+        os.rename(users_file, target)
+        os.symlink(target, users_file)
+        ugm.users.storage['max'] = 'after'
+        ugm.users.write_file()
+        self.assertTrue(os.path.islink(users_file))
+        self.assertEqual(self._stored_password(), 'after')
+        self.assertEqual(os.listdir(target_dir), ['users'])
+
     def test_wrap_passwords(self):
         users_file = os.path.join(self.tempdir, 'users')
         current = hash_password('other')
