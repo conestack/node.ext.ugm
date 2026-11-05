@@ -4,13 +4,22 @@ from node.behaviors import Attributes
 from node.behaviors import MappingAdopt
 from node.behaviors import MappingConstraints
 from node.behaviors import MappingNode
+from node.ext.ugm import file as file_module
 from node.ext.ugm.file import FileStorage
 from node.ext.ugm.file import Ugm
+from node.ext.ugm.password import check_password
+from node.ext.ugm.password import hash_password
+from node.ext.ugm.password import wrap_legacy_hash
+from node.ext.ugm.wrap_passwords import main as wrap_passwords
 from node.tests import NodeTestCase
 from node.utils import UNSET
 from plumber import plumbing
+from unittest import mock
+import base64
+import hashlib
 import os
 import shutil
+import stat
 import tempfile
 
 
@@ -33,6 +42,11 @@ class FileStorageNode:
 ###############################################################################
 # Tests
 ###############################################################################
+
+
+def legacy_hash(value, salt=b'12345678'):
+    digest = hashlib.sha256(value.encode('utf-8') + salt).digest()
+    return base64.b64encode(digest + salt).decode()
 
 
 class TestFile(NodeTestCase):
@@ -921,3 +935,151 @@ class TestFile(NodeTestCase):
 
         # Group data is deleted as well
         self.assertEqual(os.listdir(os.path.join(ugm.data_directory, 'groups')), [])
+
+    # password storage
+
+    def _ugm_with_stored_password(self, stored, name='max'):
+        users_file = os.path.join(self.tempdir, 'users')
+        with open(users_file, 'w') as f:
+            f.write(f'{name}:{stored}\n')
+        return Ugm(
+            name='ugm',
+            users_file=users_file,
+            groups_file=os.path.join(self.tempdir, 'groups'),
+            roles_file=os.path.join(self.tempdir, 'roles'),
+            data_directory=os.path.join(self.tempdir, 'data'),
+        )
+
+    def _stored_password(self, name='max'):
+        users_file = os.path.join(self.tempdir, 'users')
+        for line in self._read_file(users_file):
+            key, value = line.rstrip('\n').split(':', 1)
+            if key == name:
+                return value
+
+    def test_passwd_stores_current_format(self):
+        ugm = self._ugm_with_stored_password('')
+        ugm.users.passwd('max', None, 'secret')
+        self.assertTrue(self._stored_password().startswith('$scrypt$'))
+        self.assertTrue(ugm.users.authenticate('max', 'secret'))
+
+    def test_passwd_checks_old_password_of_former_format(self):
+        ugm = self._ugm_with_stored_password(legacy_hash('secret'))
+        with self.assertRaises(ValueError):
+            ugm.users.passwd('max', 'wrong', 'new')
+        ugm.users.passwd('max', 'secret', 'new')
+        self.assertTrue(ugm.users.authenticate('max', 'new'))
+
+    def test_login_replaces_hash_of_former_format(self):
+        for stored in (legacy_hash('secret'), wrap_legacy_hash(legacy_hash('secret'))):
+            with self.subTest(stored=stored[:16]):
+                ugm = self._ugm_with_stored_password(stored)
+                self.assertTrue(ugm.users.authenticate('max', 'secret'))
+                self.assertTrue(self._stored_password().startswith('$scrypt$'))
+                self.assertTrue(check_password('secret', self._stored_password()))
+                self.assertTrue(ugm.users.authenticate('max', 'secret'))
+
+    def test_failed_login_keeps_hash_of_former_format(self):
+        stored = legacy_hash('secret')
+        ugm = self._ugm_with_stored_password(stored)
+        self.assertFalse(ugm.users.authenticate('max', 'wrong'))
+        self.assertEqual(self._stored_password(), stored)
+
+    def test_login_with_current_format_writes_nothing(self):
+        ugm = self._ugm_with_stored_password(hash_password('secret'))
+        with mock.patch.object(type(ugm.users), 'write_file') as write_file:
+            self.assertTrue(ugm.users.authenticate('max', 'secret'))
+        write_file.assert_not_called()
+
+    def test_login_survives_failing_rehash(self):
+        ugm = self._ugm_with_stored_password(legacy_hash('secret'))
+        with mock.patch.object(
+            type(ugm.users), 'write_file', side_effect=OSError('full')
+        ):
+            with self.assertLogs('node.ext.ugm', level='ERROR'):
+                self.assertTrue(ugm.users.authenticate('max', 'secret'))
+
+    def test_rejected_login_spends_the_time_of_a_check(self):
+        ugm = self._ugm_with_stored_password('')
+        with mock.patch.object(
+            file_module, 'reject_password', return_value=False
+        ) as reject:
+            self.assertFalse(ugm.users.authenticate('inexistent', 'secret'))
+            self.assertFalse(ugm.users.authenticate('max', 'secret'))
+        self.assertEqual(reject.call_count, 2)
+
+    def test_expired_user_spends_the_time_of_a_check(self):
+        ugm = self._ugm_with_stored_password(hash_password('secret'))
+        ugm.user_expires_attr = 'expires'
+        ugm.users['max'].expires = datetime.now() - timedelta(days=1)
+        with mock.patch.object(
+            file_module, 'reject_password', return_value=False
+        ) as reject:
+            self.assertFalse(ugm.users.authenticate('max', 'secret'))
+        reject.assert_called_once_with('secret')
+
+    def test_authenticate_without_credentials(self):
+        ugm = self._ugm_with_stored_password(hash_password('secret'))
+        with mock.patch.object(file_module, 'reject_password') as reject:
+            self.assertFalse(ugm.users.authenticate('max', None))
+            self.assertFalse(ugm.users.authenticate('max', ''))
+            self.assertFalse(ugm.users.authenticate(None, 'secret'))
+        reject.assert_not_called()
+
+    def test_write_file_replaces_file_at_once(self):
+        ugm = self._ugm_with_stored_password('before')
+        ugm.users.storage['max'] = 'after'
+        with mock.patch.object(file_module.os, 'replace', side_effect=OSError('full')):
+            with self.assertRaises(OSError):
+                ugm.users.write_file()
+        self.assertEqual(self._stored_password(), 'before')
+        self.assertEqual(os.listdir(self.tempdir), ['users'])
+
+    def test_write_file_keeps_file_mode(self):
+        ugm = self._ugm_with_stored_password('before')
+        users_file = os.path.join(self.tempdir, 'users')
+        os.chmod(users_file, 0o600)
+        ugm.users.storage['max'] = 'after'
+        ugm.users.write_file()
+        self.assertEqual(self._stored_password(), 'after')
+        self.assertEqual(stat.S_IMODE(os.stat(users_file).st_mode), 0o600)
+        self.assertEqual(os.listdir(self.tempdir), ['users'])
+
+    def test_wrap_passwords(self):
+        users_file = os.path.join(self.tempdir, 'users')
+        current = hash_password('other')
+        with open(users_file, 'w') as f:
+            f.write(f'max:{legacy_hash("secret")}\n')
+            f.write(f'sepp:{current}\n')
+            f.write('empty:\n')
+        with mock.patch('builtins.print') as print_:
+            self.assertEqual(wrap_passwords([users_file]), 0)
+        print_.assert_called_once_with('1 of 3 passwords wrapped.')
+        self.assertTrue(self._stored_password('max').startswith('$scrypt-sha256$'))
+        self.assertTrue(check_password('secret', self._stored_password('max')))
+        self.assertEqual(self._stored_password('sepp'), current)
+        self.assertEqual(self._stored_password('empty'), '')
+
+        # a second run finds nothing to do
+        wrapped = self._stored_password('max')
+        with mock.patch('builtins.print') as print_:
+            self.assertEqual(wrap_passwords([users_file]), 0)
+        print_.assert_called_once_with('0 of 3 passwords wrapped.')
+        self.assertEqual(self._stored_password('max'), wrapped)
+
+    def test_wrap_passwords_reports_malformed_values(self):
+        users_file = os.path.join(self.tempdir, 'users')
+        with open(users_file, 'w') as f:
+            f.write('broken:not base64!\n')
+            f.write(f'max:{legacy_hash("secret")}\n')
+        with mock.patch('builtins.print') as print_:
+            self.assertEqual(wrap_passwords([users_file]), 1)
+        print_.assert_any_call('1 of 2 passwords wrapped.')
+        print_.assert_any_call('Malformed, left as they are: broken')
+        self.assertEqual(self._stored_password('broken'), 'not base64!')
+
+    def test_wrap_passwords_usage(self):
+        with mock.patch('builtins.print') as print_:
+            self.assertEqual(wrap_passwords([]), 2)
+            self.assertEqual(wrap_passwords([os.path.join(self.tempdir, 'missing')]), 2)
+        self.assertEqual(print_.call_count, 2)

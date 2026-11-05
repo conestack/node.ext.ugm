@@ -11,6 +11,10 @@ from node.ext.ugm import Groups as BaseGroupsBehavior
 from node.ext.ugm import Ugm as BaseUgmBehavior
 from node.ext.ugm import User as BaseUserBehavior
 from node.ext.ugm import Users as BaseUsersBehavior
+from node.ext.ugm.password import check_password
+from node.ext.ugm.password import hash_password
+from node.ext.ugm.password import needs_rehash
+from node.ext.ugm.password import reject_password
 from node.interfaces import IInvalidate
 from node.locking import locktree
 from node.locking import TreeLock
@@ -22,12 +26,14 @@ from plumber import override
 from plumber import plumbing
 from zope.interface import implementer
 import base64
-import hashlib
+import logging
 import os
+import shutil
 import time
 
 
 ENCODING = 'utf-8'
+logger = logging.getLogger('node.ext.ugm')
 
 
 @implementer(IInvalidate)
@@ -105,8 +111,23 @@ class FileStorage(MappingStorage):
                 v = b'b64:' + base64.b64encode(v)
             line = delimiter.join([k, v]) + b'\n'
             lines.append(line)
-        with open(self.file_path, 'wb') as f:
-            f.writelines(lines)
+        self._replace_file(lines)
+
+    @default
+    def _replace_file(self, lines):
+        # Writing in place empties the file first, an interruption would lose
+        # all of its entries.
+        temp_path = f'{self.file_path}.tmp'
+        try:
+            with open(temp_path, 'wb') as f:
+                f.writelines(lines)
+            if os.path.exists(self.file_path):
+                shutil.copymode(self.file_path, temp_path)
+            os.replace(temp_path, self.file_path)
+        except OSError:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+            raise
 
     @override
     def keys(self):
@@ -427,9 +448,6 @@ class SearchBehavior(Behavior):
 
 
 class UsersBehavior(SearchBehavior, BaseUsersBehavior):
-    salt_len = default(8)
-    hash_func = default(hashlib.sha256)
-
     @override
     def __init__(self, name=None, parent=None, file_path=None, data_directory=None):
         self.__name__ = name
@@ -503,34 +521,37 @@ class UsersBehavior(SearchBehavior, BaseUsersBehavior):
 
     @default
     def authenticate(self, id=None, pw=None):
-        if id not in self.storage:
+        if not id or not pw:
             return False
         # cannot authenticate user with unset password
-        if not self.storage[id]:
+        stored = self.storage[id] if id in self.storage else None
+        if not stored or self[id].expired:
+            return reject_password(pw)
+        if not check_password(pw, stored):
             return False
-        if self[id].expired:
-            return False
-        return self._chk_pw(pw, self.storage[id])
+        if needs_rehash(stored):
+            self._rehash_password(id, pw)
+        return True
+
+    @default
+    def _rehash_password(self, id, pw):
+        # Only the users file changes, and the login must not depend on this.
+        self.storage[id] = hash_password(pw)
+        try:
+            with TreeLock(self):
+                self.write_file()
+        except OSError:
+            logger.exception('Failed to write users file after replacing a hash')
 
     @default
     def passwd(self, id, oldpw, newpw):
         if id not in self.storage:
             raise ValueError(f"User with id '{id}' does not exist.")
         if oldpw is not None:
-            if not self._chk_pw(oldpw, self.storage[id]):
+            if not check_password(oldpw, self.storage[id]):
                 raise ValueError('Old password does not match.')
-        salt = os.urandom(self.salt_len)
-        newpw = newpw.encode(ENCODING) if isinstance(newpw, str) else newpw
-        hashed = base64.b64encode(self.hash_func(newpw + salt).digest() + salt)
-        self.storage[id] = hashed.decode()
+        self.storage[id] = hash_password(newpw)
         self()
-
-    @default
-    def _chk_pw(self, plain, hashed):
-        hashed = base64.b64decode(hashed)
-        salt = hashed[-self.salt_len :]
-        plain = plain.encode(ENCODING) if isinstance(plain, str) else plain
-        return hashed == self.hash_func(plain + salt).digest() + salt
 
 
 @plumbing(
