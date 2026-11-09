@@ -1,7 +1,7 @@
 Changes
 =======
 
-2.1.0 (unreleased)
+2.1.0 (2026-11-09)
 ------------------
 
 - Hash passwords with scrypt, see the new module ``node.ext.ugm.password``. Hashes
